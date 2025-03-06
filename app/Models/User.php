@@ -14,6 +14,22 @@ class User extends Authenticatable implements JWTSubject
     use HasFactory, Notifiable;
 
     /**
+     * Role constants
+     */
+    const ROLE_STUDENT = 'student';
+    const ROLE_MANAGER = 'manager';
+    const ROLE_ADMIN = 'admin';
+
+    /**
+     * Available roles
+     */
+    const ROLES = [
+        self::ROLE_STUDENT,
+        self::ROLE_MANAGER,
+        self::ROLE_ADMIN,
+    ];
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
@@ -22,6 +38,7 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -47,6 +64,47 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
+    /**
+     * Check if user has a specific role
+     *
+     * @param string $role
+     * @return bool
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->role === $role;
+    }
+
+    /**
+     * Check if user is a student
+     *
+     * @return bool
+     */
+    public function isStudent(): bool
+    {
+        return $this->hasRole(self::ROLE_STUDENT);
+    }
+
+    /**
+     * Check if user is a manager
+     *
+     * @return bool
+     */
+    public function isManager(): bool
+    {
+        return $this->hasRole(self::ROLE_MANAGER);
+    }
+
+    /**
+     * Check if user is an admin
+     *
+     * @return bool
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasRole(self::ROLE_ADMIN);
+    }
+
     public function getJWTIdentifier()
     {
         return $this->getKey();
@@ -54,6 +112,8 @@ class User extends Authenticatable implements JWTSubject
 
     public function getJWTCustomClaims()
     {
-        return [];
+        return [
+            'role' => $this->role
+        ];
     }
 }
