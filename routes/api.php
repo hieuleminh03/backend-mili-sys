@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Controllers\DevController;
+use App\Http\Controllers\AuthController;
+use App\Http\Middleware\JwtMiddleware;
 
-Route::get('/health', [DevController::class, 'checkHealth']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
 
-Route::get('/getAll', [DevController::class, 'getAllItems']);
-Route::get('/{id}', [DevController::class, 'getItem']);
-Route::post('/create', [DevController::class,'createItem']);
-Route::put('/update/{id}', [DevController::class,'updateItem']);
-Route::delete('/delete/{id}', [DevController::class,'deleteItem']);
+Route::middleware([JwtMiddleware::class])->group(function () {
+    Route::get('/user', [AuthController::class, 'getUser']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
