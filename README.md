@@ -4,12 +4,12 @@
 
 ## Các bước cài đặt
 
-    ### 1.Clone dự án
-    
-    ```bash
-    git clone https://github.com/hieuleminh03/backend-mili-sys
-    cd backend-mili-sys
-    ```
+### 1.Clone dự án
+
+```bash
+git clone https://github.com/hieuleminh03/backend-mili-sys
+cd backend-mili-sys
+```
 
 ### 2. Cài đặt các dependency PHP
 
@@ -25,14 +25,6 @@ php artisan key:generate
 ### 4. Cấu hình database
 **Note: hiện tại đang sử dụng sqlite, không cần config db ngoài**
 - Mở file `.env` và cập nhật các thông tin database:
-```bash
-    DB_CONNECTION=
-    DB_HOST=
-    DB_PORT=
-    DB_DATABASE=
-    DB_USERNAME=
-    DB_PASSWORD=
-```
 
 ### 5. Chạy migration và seeder cho DB
 ```bash
