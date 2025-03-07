@@ -8,14 +8,20 @@
         },
         "version": "1.0.0"
     },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "API Server"
+        }
+    ],
     "paths": {
         "/api/register": {
             "post": {
                 "tags": [
                     "Authentication"
                 ],
-                "summary": "Register a new user",
-                "description": "Register a new user",
+                "summary": "Register a new user (Admin only)",
+                "description": "Create a new user account. Only accessible to administrators.",
                 "operationId": "8a56853624e025573120a09a4c75d468",
                 "requestBody": {
                     "required": true,
@@ -36,6 +42,16 @@
                                         "type": "string",
                                         "format": "password",
                                         "example": "password123"
+                                    },
+                                    "role": {
+                                        "description": "User role (optional, defaults to student)",
+                                        "type": "string",
+                                        "enum": [
+                                            "student",
+                                            "manager",
+                                            "admin"
+                                        ],
+                                        "example": "student"
                                     }
                                 },
                                 "type": "object"
@@ -88,7 +104,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/login": {
@@ -314,6 +335,71 @@
                     }
                 ]
             }
+        },
+        "/api/student/dashboard": {
+            "get": {
+                "tags": [
+                    "Student"
+                ],
+                "summary": "Get student dashboard data",
+                "description": "Display student dashboard",
+                "operationId": "4b528f3c38322e51d517538a9d201c4c",
+                "responses": {
+                    "200": {
+                        "description": "Dashboard data retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Student dashboard"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Access denied"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "tags": [
@@ -324,6 +410,10 @@
         {
             "name": "User",
             "description": "User"
+        },
+        {
+            "name": "Student",
+            "description": "Student"
         }
     ]
 }
