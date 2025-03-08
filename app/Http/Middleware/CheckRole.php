@@ -27,4 +27,17 @@ class CheckRole
 
         return $next($request);
     }
+    
+    /**
+     * Perform any needed cleanup after the response has been sent to the browser.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Response  $response
+     * @return void
+     */
+    public function terminate($request, $response)
+    {
+        // No specific cleanup needed for role checking
+        // This method prevents Laravel from trying to resolve the middleware during termination
+    }
 } 

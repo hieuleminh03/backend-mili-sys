@@ -88,18 +88,36 @@ class AuthController extends Controller
      */
     public function register(AuthRegisterRequest $request)
     {
+        // Log authentication info
+        \Log::info('Register attempt. Auth check: ' . (auth()->check() ? 'authenticated' : 'not authenticated'));
+        
+        // Explicit check for authentication
+        if (!auth()->check()) {
+            \Log::warning('Register failed: User not authenticated');
+            return response()->json([
+                'message' => 'Unauthenticated.',
+                'errors' => ['auth' => ['You must be logged in to register new users']]
+            ], 401);
+        }
+        
+        // Log the authenticated user
+        $user = auth()->user();
+        \Log::info('Authenticated user for register: ID=' . $user->id . ', Email=' . $user->email . ', Role=' . $user->role);
+
         try {
             $result = $this->authService->register(
                 $request->validated(),
-                auth()->user()
+                $user
             );
             return response()->json($result, 201);
         } catch (ValidationException $e) {
+            \Log::warning('Register validation failed', ['errors' => $e->validator->errors()->toArray()]);
             return response()->json([
                 'message' => 'Validation failed',
                 'errors' => $e->validator->errors()
             ], 400);
         } catch (\Exception $e) {
+            \Log::error('Register error: ' . $e->getMessage());
             return response()->json([
                 'message' => $e->getMessage(),
                 'errors' => ['authorization' => [$e->getMessage()]]

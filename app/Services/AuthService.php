@@ -38,21 +38,35 @@ class AuthService
             throw new \Illuminate\Validation\ValidationException($validator);
         }
 
+        // Safely handle the role assignment - ensure it's a valid value
+        $role = User::ROLE_STUDENT; // Default to student role
+        if (isset($userData['role']) && in_array($userData['role'], User::ROLES)) {
+            $role = $userData['role'];
+        }
+
         // Don't allow non-admin users to create admin accounts
-        if ($userData['role'] === User::ROLE_ADMIN && $currentUser && !$currentUser->isAdmin()) {
+        if ($role === User::ROLE_ADMIN && $currentUser && !$currentUser->isAdmin()) {
             throw new Exception('You are not authorized to create admin accounts', 403);
         }
 
-        $user = User::create([
-            'name' => $userData['name'],
-            'email' => $userData['email'],
-            'password' => Hash::make($userData['password']),
-            'role' => $userData['role'] ?? User::ROLE_STUDENT,
-        ]);
+        try {
+            $user = User::create([
+                'name' => $userData['name'],
+                'email' => $userData['email'],
+                'password' => Hash::make($userData['password']),
+                'role' => $role,
+            ]);
 
-        return [
-            'id' => $user->id
-        ];
+            return [
+                'id' => $user->id
+            ];
+        } catch (Exception $e) {
+            // Log the error for debugging
+            \Log::error('User creation failed: ' . $e->getMessage());
+            
+            // Rethrow with a friendly message
+            throw new Exception('Failed to create user: ' . $e->getMessage(), 500);
+        }
     }
 
     /**
