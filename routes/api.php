@@ -39,6 +39,29 @@ Route::middleware(['auth'])->group(function () {
     // Admin only routes
     Route::middleware(['role:' . User::ROLE_ADMIN])->group(function () {
         Route::post('register', [AuthController::class, 'register']);
+        
+        // Term management routes (Admin only)
+        Route::prefix('terms')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\TermController::class, 'index']);
+            Route::post('/', [App\Http\Controllers\Admin\TermController::class, 'store']);
+            Route::get('/{id}', [App\Http\Controllers\Admin\TermController::class, 'show']);
+            Route::put('/{id}', [App\Http\Controllers\Admin\TermController::class, 'update']);
+            Route::delete('/{id}', [App\Http\Controllers\Admin\TermController::class, 'destroy']);
+        });
+        
+        // Course routes (Admin only)
+        Route::prefix('courses')->group(function () {
+            Route::get('/', [App\Http\Controllers\CourseController::class, 'index']);
+            Route::post('/', [App\Http\Controllers\CourseController::class, 'store']);
+            Route::get('/{id}', [App\Http\Controllers\CourseController::class, 'show']);
+            Route::put('/{id}', [App\Http\Controllers\CourseController::class, 'update']);
+            Route::delete('/{id}', [App\Http\Controllers\CourseController::class, 'destroy']);
+            
+            // Student management within courses
+            Route::get('/{id}/students', [App\Http\Controllers\CourseController::class, 'getStudents']);
+            Route::post('/{id}/students', [App\Http\Controllers\CourseController::class, 'enrollStudent']);
+            Route::put('/{courseId}/students/{userId}/grade', [App\Http\Controllers\CourseController::class, 'updateStudentGrade']);
+        });
     });
     
     // Student routes

@@ -116,4 +116,36 @@ class User extends Authenticatable implements JWTSubject
             'role' => $this->role
         ];
     }
+
+    /**
+     * Get the courses that the user is enrolled in.
+     */
+    public function courses()
+    {
+        return $this->belongsToMany(Course::class, 'student_courses')
+            ->withPivot(['grade', 'status', 'notes'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the course enrollments for the user.
+     */
+    public function studentCourses()
+    {
+        return $this->hasMany(StudentCourse::class);
+    }
+
+    /**
+     * Get the courses managed by this user.
+     */
+    public function managedCourses()
+    {
+        return $this->hasMany(Course::class, 'manager_id');
+    }
+
+    /**
+     * Check if the user is a student.
+     *
+     * @return bool
+     */
 }

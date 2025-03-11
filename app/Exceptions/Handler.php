@@ -48,63 +48,70 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
-        $this->renderable(function (TokenInvalidException $e, $request) {
-            return response()->json([
-                'message' => 'Token validation failed',
-                'errors' => ['token' => ['Invalid token']]
-            ], 401);
+        $this->reportable(function (Throwable $e) {
+            //
         });
+        
+        // Convert exceptions to JSON responses for API requests
+        $this->renderable(function (\Exception $e, $request) {
+            if ($request->wantsJson() || $request->is('api/*')) {
+                $status = 400;
+                $response = [
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ];
 
-        $this->renderable(function (TokenExpiredException $e, $request) {
-            return response()->json([
-                'message' => 'Token expired',
-                'errors' => ['token' => ['Token has expired']]
-            ], 401);
-        });
+                if ($e instanceof \Illuminate\Auth\AuthenticationException) {
+                    $status = 401;
+                    $response['message'] = 'Unauthenticated';
+                }
+                
+                if ($e instanceof \Illuminate\Auth\Access\AuthorizationException) {
+                    $status = 403;
+                    $response['message'] = 'This action is unauthorized';
+                }
 
-        $this->renderable(function (JWTException $e, $request) {
-            return response()->json([
-                'message' => 'Token not provided',
-                'errors' => ['token' => ['Token not provided or could not be parsed']]
-            ], 401);
-        });
+                if ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
+                    $status = 404;
+                    $response['message'] = 'Resource not found';
+                }
+                
+                if ($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
+                    $status = 404;
+                    $response['message'] = 'Not found';
+                }
 
-        $this->renderable(function (AuthenticationException $e, $request) {
-            return response()->json([
-                'message' => 'Unauthenticated',
-                'errors' => ['auth' => ['Authentication failed']]
-            ], 401);
-        });
+                if ($e instanceof \Illuminate\Validation\ValidationException) {
+                    $status = 422;
+                    $response['message'] = 'Validation error';
+                    $response['errors'] = $e->errors();
+                }
 
-        $this->renderable(function (ValidationException $e, $request) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $e->validator->errors()
-            ], 422);
-        });
+                if ($e instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException) {
+                    $status = 405;
+                    $response['message'] = 'Method not allowed';
+                }
+                
+                // JWT specific exceptions
+                if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException) {
+                    $status = 401;
+                    $response['message'] = 'Token validation failed';
+                }
+                
+                if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException) {
+                    $status = 401;
+                    $response['message'] = 'Token has expired';
+                }
+                
+                if ($e instanceof \Tymon\JWTAuth\Exceptions\JWTException) {
+                    $status = 401;
+                    $response['message'] = 'Token not provided or could not be parsed';
+                }
 
-        $this->renderable(function (ModelNotFoundException $e, $request) {
-            $modelName = strtolower(class_basename($e->getModel()));
-            return response()->json([
-                'message' => 'Resource not found',
-                'errors' => [$modelName => ['No ' . $modelName . ' found with the specified ID']]
-            ], 404);
-        });
-
-        $this->renderable(function (NotFoundHttpException $e, $request) {
-            return response()->json([
-                'message' => 'Resource not found',
-                'errors' => ['route' => ['The requested resource does not exist']]
-            ], 404);
-        });
-
-        $this->renderable(function (Throwable $e, $request) {
-            if ($request->is('api/*') || $request->wantsJson()) {
-                return response()->json([
-                    'message' => 'Server error',
-                    'errors' => ['server' => ['An unexpected error occurred']]
-                ], 500);
+                return response()->json($response, $status);
             }
+            
+            return null; // Let Laravel handle non-API exceptions
         });
     }
 } 
