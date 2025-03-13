@@ -1,102 +1,121 @@
 <?php
 
-use App\Http\Controllers\DevController;
 use App\Http\Controllers\AuthController;
-use App\Http\Middleware\JwtMiddleware;
+use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\TermController;
+use App\Http\Middleware\CheckRole;
+use App\Http\Middleware\CheckAnyRole;
+use App\Http\Middleware\CustomAuthenticate;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
-// Public routes
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| full routes for api
+|
+*/
+
+// public routes - không yêu cầu xác thực
 Route::post('login', [AuthController::class, 'login']);
 
-// Test route to check JWT authentication
-Route::get('auth-test', function() {
-    $user = auth()->user();
-    if ($user) {
-        Log::info('Auth test successful. User ID: ' . $user->id);
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Authentication working',
-            'user_id' => $user->id,
-            'email' => $user->email,
-            'role' => $user->role
-        ]);
-    } else {
-        Log::warning('Auth test failed. No authenticated user.');
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Authentication not working'
-        ], 401);
-    }
-})->middleware('auth');
-
-// Protected routes
-Route::middleware(['auth'])->group(function () {
+// protected routes - yêu cầu xác thực
+Route::middleware(CustomAuthenticate::class)->group(function () {
+    // route cho người dùng
     Route::get('user', [AuthController::class, 'getUser']);
     Route::post('logout', [AuthController::class, 'logout']);
     
-    // Admin only routes
-    Route::middleware(['role:' . User::ROLE_ADMIN])->group(function () {
+    // route cho admin
+    Route::middleware([CheckRole::class . ':' . User::ROLE_ADMIN])->group(function () {
+        // đăng ký người dùng mới
         Route::post('register', [AuthController::class, 'register']);
         
-        // Term management routes (Admin only)
+        // quản lý kỳ học
         Route::prefix('terms')->group(function () {
-            Route::get('/', [App\Http\Controllers\Admin\TermController::class, 'index']);
-            Route::post('/', [App\Http\Controllers\Admin\TermController::class, 'store']);
-            Route::get('/{id}', [App\Http\Controllers\Admin\TermController::class, 'show']);
-            Route::put('/{id}', [App\Http\Controllers\Admin\TermController::class, 'update']);
-            Route::delete('/{id}', [App\Http\Controllers\Admin\TermController::class, 'destroy']);
+            Route::get('/', [TermController::class, 'getAll']);
+            Route::post('/', [TermController::class, 'create']);
+            Route::get('/{id}', [TermController::class, 'get']);
+            Route::put('/{id}', [TermController::class, 'update']);
+            Route::delete('/{id}', [TermController::class, 'delete']);
         });
         
-        // Course routes (Admin only)
+        // quản lý lớp học
         Route::prefix('courses')->group(function () {
-            Route::get('/', [App\Http\Controllers\CourseController::class, 'index']);
-            Route::post('/', [App\Http\Controllers\CourseController::class, 'store']);
-            Route::get('/{id}', [App\Http\Controllers\CourseController::class, 'show']);
-            Route::put('/{id}', [App\Http\Controllers\CourseController::class, 'update']);
-            Route::delete('/{id}', [App\Http\Controllers\CourseController::class, 'destroy']);
+            Route::get('/', [CourseController::class, 'getAll']);
+            Route::post('/', [CourseController::class, 'create']);
+            Route::get('/{id}', [CourseController::class, 'get']);
+            Route::put('/{id}', [CourseController::class, 'update']);
+            Route::delete('/{id}', [CourseController::class, 'delete']);
             
-            // Student management within courses
-            Route::get('/{id}/students', [App\Http\Controllers\CourseController::class, 'getStudents']);
-            Route::post('/{id}/students', [App\Http\Controllers\CourseController::class, 'enrollStudent']);
-            Route::put('/{courseId}/students/{userId}/grade', [App\Http\Controllers\CourseController::class, 'updateStudentGrade']);
+            // quản lý sinh viên
+            Route::get('/{id}/students', [CourseController::class, 'getStudents']);
+            Route::post('/{id}/students', [CourseController::class, 'enrollStudent']);
+            Route::put('/{courseId}/students/{userId}/grade', [CourseController::class, 'updateStudentGrade']);
         });
     });
     
-    // Student routes
-    Route::middleware(['role:' . User::ROLE_STUDENT])->prefix('student')->group(function () {
+    // route cho sinh viên
+    Route::middleware([CheckRole::class . ':' . User::ROLE_STUDENT])->prefix('student')->group(function () {
         Route::get('/dashboard', function () {
-            return response()->json(['message' => 'Student dashboard']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Bảng điều khiển sinh viên'
+            ]);
         });
     });
     
-    // Manager routes
-    Route::middleware(['role:' . User::ROLE_MANAGER])->prefix('manager')->group(function () {
+    // route cho quản lý
+    Route::middleware([CheckRole::class . ':' . User::ROLE_MANAGER])->prefix('manager')->group(function () {
         Route::get('/dashboard', function () {
-            return response()->json(['message' => 'Manager dashboard']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Bảng điều khiển quản lý'
+            ]);
         });
         
         Route::get('/students', function () {
-            return response()->json(['message' => 'Students list']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Danh sách sinh viên'
+            ]);
         });
     });
     
-    // Admin routes
-    Route::middleware(['role:' . User::ROLE_ADMIN])->prefix('admin')->group(function () {
+    // route cho admin
+    Route::middleware([CheckRole::class . ':' . User::ROLE_ADMIN])->prefix('admin')->group(function () {
         Route::get('/dashboard', function () {
-            return response()->json(['message' => 'Admin dashboard']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Bảng điều khiển admin'
+            ]);
         });
         
         Route::get('/users', function () {
-            return response()->json(['message' => 'All users']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Tất cả người dùng'
+            ]);
         });
     });
     
-    // Accessible by both Manager and Admin
-    Route::middleware(['role.any:' . User::ROLE_MANAGER . ',' . User::ROLE_ADMIN])->group(function () {
+    // route cho cả quản lý và admin
+    Route::middleware([CheckAnyRole::class . ':' . User::ROLE_MANAGER . ',' . User::ROLE_ADMIN])->group(function () {
         Route::get('/reports', function () {
-            return response()->json(['message' => 'Reports data']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Dữ liệu báo cáo'
+            ]);
         });
     });
 });
+
+// route test authentication 
+Route::get('auth-test', function() {
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Xác thực thành công',
+        'user' => auth()->check() ? auth()->user() : null
+    ]);
+})->middleware(CustomAuthenticate::class);

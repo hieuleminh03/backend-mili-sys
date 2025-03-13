@@ -2,138 +2,88 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\BaseController;
 use App\Http\Requests\TermRequest;
 use App\Services\TermService;
-use Exception;
 use Illuminate\Http\JsonResponse;
 
-class TermController extends Controller
+class TermController extends BaseController
 {
-    /**
-     * The term service instance.
-     *
-     * @var TermService
-     */
     protected $termService;
 
-    /**
-     * Create a new controller instance.
-     *
-     * @param TermService $termService
-     */
     public function __construct(TermService $termService)
     {
         $this->termService = $termService;
     }
 
     /**
-     * Display a listing of the terms.
+     * danh sách các học kỳ
      *
-     * @return JsonResponse
+     * @return JsonResponse danh sách các học kỳ
      */
-    public function index(): JsonResponse
+    public function getAll(): JsonResponse
     {
-        $terms = $this->termService->getAllTerms();
-        
-        return response()->json([
-            'status' => 'success',
-            'data' => $terms
-        ]);
+        return $this->executeService(
+            fn() => $this->termService->getAllTerms(), 
+            'Lấy danh sách học kỳ thành công', 
+            200
+        );
     }
 
     /**
-     * Store a newly created term.
+     * tạo mới một học kỳ
      *
-     * @param TermRequest $request
-     * @return JsonResponse
+     * @param TermRequest $request dữ liệu học kỳ
+     * @return JsonResponse kết quả 
      */
-    public function store(TermRequest $request): JsonResponse
+    public function create(TermRequest $request): JsonResponse
     {
-        try {
-            $term = $this->termService->createTerm($request->validated());
-            
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Term created successfully',
-                'data' => $term
-            ], 201);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 422);
-        }
+        return $this->executeService(
+            fn() => $this->termService->createTerm($request->validated()),
+            'Thêm mới học kỳ thành công',
+            201
+        );
     }
 
     /**
-     * Display the specified term.
+     * lấy thông tin một học kỳ
      *
-     * @param int $id
-     * @return JsonResponse
+     * @param int $id mã học kỳ
+     * @return JsonResponse kết quả 
      */
-    public function show(int $id): JsonResponse
+    public function get(int $id): JsonResponse
     {
-        try {
-            $term = $this->termService->getTerm($id);
-            
-            return response()->json([
-                'status' => 'success',
-                'data' => $term
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Term not found'
-            ], 404);
-        }
+        return $this->executeService(
+            fn() => $this->termService->getTerm($id)
+        );
     }
 
     /**
-     * Update the specified term.
+     * cập nhật thông tin một học kỳ
      *
-     * @param TermRequest $request
-     * @param int $id
-     * @return JsonResponse
+     * @param TermRequest $request dữ liệu học kỳ
+     * @param int $id mã học kỳ
+     * @return JsonResponse kết quả 
      */
     public function update(TermRequest $request, int $id): JsonResponse
     {
-        try {
-            $term = $this->termService->updateTerm($id, $request->validated());
-            
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Term updated successfully',
-                'data' => $term
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], $e->getMessage() === 'Term not found' ? 404 : 422);
-        }
+        return $this->executeService(
+            fn() => $this->termService->updateTerm($id, $request->validated()),
+            'Cập nhật học kỳ thành công'
+        );
     }
 
     /**
-     * Remove the specified term.
+     * xóa một học kỳ
      *
-     * @param int $id
-     * @return JsonResponse
+     * @param int $id mã học kỳ
+     * @return JsonResponse kết quả 
      */
-    public function destroy(int $id): JsonResponse
+    public function delete(int $id): JsonResponse
     {
-        try {
-            $this->termService->deleteTerm($id);
-            
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Term deleted successfully'
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], $e->getMessage() === 'Term not found' ? 404 : 422);
-        }
+        return $this->executeService(
+            fn() => $this->termService->deleteTerm($id),
+            'Xóa học kỳ thành công'
+        );
     }
 } 

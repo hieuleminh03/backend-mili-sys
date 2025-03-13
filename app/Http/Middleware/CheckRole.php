@@ -9,19 +9,19 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckRole
 {
     /**
-     * Handle an incoming request.
+     * xử lý request
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  string  $role
-     * @return mixed
+     * @param  \Illuminate\Http\Request  $request yêu cầu HTTP
+     * @param  \Closure  $next callback tiếp theo
+     * @param  string  $role vai trò cần kiểm tra
+     * @return mixed kết quả xử lý
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
         if (!$request->user() || !$request->user()->hasRole($role)) {
             return response()->json([
-                'message' => 'Access denied',
-                'errors' => ['role' => ['You do not have permission to access this resource']]
+                'message' => 'Bạn không có quyền truy cập vào tài nguyên này',
+                'errors' => ['role' => ['Bạn không có quyền truy cập vào tài nguyên này']]
             ], 403);
         }
 
@@ -29,15 +29,14 @@ class CheckRole
     }
     
     /**
-     * Perform any needed cleanup after the response has been sent to the browser.
+     * thực hiện các tác vụ cần thiết sau khi response đã được gửi đến trình duyệt
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Http\Response  $response
+     * @param  \Illuminate\Http\Request  $request yêu cầu HTTP
+     * @param  \Illuminate\Http\Response  $response phản hồi HTTP
      * @return void
      */
     public function terminate($request, $response)
     {
-        // No specific cleanup needed for role checking
-        // This method prevents Laravel from trying to resolve the middleware during termination
+        // không cần thiết
     }
 } 

@@ -4,29 +4,37 @@ namespace App\Services;
 
 use App\Models\User;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 
 class AuthService
 {
     /**
-     * Register a new user
+     * đăng ký người dùng mới
+     * chỉ admin mới có thể đăng ký tài khoản mới
      *
-     * @param array $userData
-     * @param User|null $currentUser
-     * @return array
-     * @throws \Illuminate\Validation\ValidationException
-     * @throws \Exception
+     * @param array $userData dữ liệu người dùng
+     * @param User|null $currentUser người dùng hiện tại thực hiện đăng ký
+     * @return array kết quả đăng ký
+     * @throws ValidationException nếu dữ liệu không hợp lệ
+     * @throws AuthorizationException nếu không có quyền
+     * @throws HttpException nếu có lỗi khác
      */
-    public function register(array $userData, ?User $currentUser = null)
+    public function register(array $userData, ?User $currentUser = null): array
     {
-        // Check if current user is admin, unless this is the first admin creation
-        if (!$this->isFirstAdminCreation() && (!$currentUser || !$currentUser->isAdmin())) {
-            throw new Exception('Only administrators can create new accounts', 403);
+        // check quyền admin
+        if (!$currentUser || !$currentUser->isAdmin()) {
+            throw new AuthorizationException('Chỉ người dùng có quyền admin mới được phép đăng ký tài khoản mới');
         }
-
         $validator = Validator::make($userData, [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -35,19 +43,11 @@ class AuthService
         ]);
 
         if ($validator->fails()) {
-            throw new \Illuminate\Validation\ValidationException($validator);
+            throw new ValidationException($validator);
         }
 
-        // Safely handle the role assignment - ensure it's a valid value
-        $role = User::ROLE_STUDENT; // Default to student role
-        if (isset($userData['role']) && in_array($userData['role'], User::ROLES)) {
-            $role = $userData['role'];
-        }
-
-        // Don't allow non-admin users to create admin accounts
-        if ($role === User::ROLE_ADMIN && $currentUser && !$currentUser->isAdmin()) {
-            throw new Exception('You are not authorized to create admin accounts', 403);
-        }
+        // sử dụng giá trị mặc định nếu không truyền role
+        $role = $userData['role'] ?? User::ROLE_STUDENT;
 
         try {
             $user = User::create([
@@ -57,81 +57,111 @@ class AuthService
                 'role' => $role,
             ]);
 
+            Log::info('tạo mới user: ' . $user->id . ' với role: ' . $role);
+
             return [
-                'id' => $user->id
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role
             ];
         } catch (Exception $e) {
-            // Log the error for debugging
-            \Log::error('User creation failed: ' . $e->getMessage());
-            
-            // Rethrow with a friendly message
-            throw new Exception('Failed to create user: ' . $e->getMessage(), 500);
+            Log::error('lỗi khi tạo mới user: ' . $e->getMessage());
+            throw new HttpException(500, 'Không thể tạo người dùng: ' . $e->getMessage());
         }
     }
 
     /**
-     * Attempt to authenticate a user
+     * đăng nhập người dùng
+     * trả về token JWT và thông tin người dùng
      *
-     * @param array $credentials
-     * @return string JWT token
-     * @throws JWTException
-     * @throws Exception
+     * @param array $credentials thông tin đăng nhập
+     * @return array token JWT và thông tin người dùng
+     * @throws ValidationException nếu thông tin đăng nhập không hợp lệ
+     * @throws HttpException nếu thông tin đăng nhập không chính xác
+     * @throws JWTException nếu có lỗi liên quan đến JWT
      */
-    public function login(array $credentials)
+    public function login(array $credentials): array
     {
+        $validator = Validator::make($credentials, [
+            'email' => 'required|string|email',
+            'password' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
         if (!$token = JWTAuth::attempt($credentials)) {
-            throw new Exception('Invalid credentials', 401);
+            throw new HttpException(401, 'Thông tin đăng nhập không hợp lệ');
         }
 
         $user = auth()->user();
-        return JWTAuth::claims(['role' => $user->role])->fromUser($user);
+        $token = JWTAuth::claims(['role' => $user->role])->fromUser($user);
+        
+        return [
+            'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role
+            ]
+        ];
     }
 
     /**
-     * Get the authenticated user
+     * lấy thông tin người dùng đã xác thực
      *
-     * @return User
-     * @throws JWTException
+     * @return User thông tin người dùng
+     * @throws TokenInvalidException nếu token không hợp lệ
+     * @throws ModelNotFoundException nếu không tìm thấy người dùng
      */
-    public function getAuthenticatedUser()
+    public function getAuthenticatedUser(): User
     {
         $user = JWTAuth::parseToken()->authenticate();
         
         if (!$user) {
-            throw new Exception('User not found', 404);
+            throw new ModelNotFoundException('Không tìm thấy người dùng');
         }
         
         return $user;
     }
 
     /**
-     * Invalidate the current token
+     * đăng xuất người dùng
+     * hủy bỏ token hiện tại
      *
-     * @return void
+     * @return bool kết quả đăng xuất
+     * @throws JWTException nếu có lỗi liên quan đến JWT
      */
-    public function logout()
+    public function logout(): bool
     {
-        JWTAuth::invalidate(JWTAuth::getToken());
-    }
-
-    /**
-     * Check if first admin creation is allowed
-     * 
-     * @return bool
-     */
-    public function isFirstAdminCreation()
-    {
-        // Check if admin exists
-        $adminExists = User::where('role', User::ROLE_ADMIN)->exists();
-        if ($adminExists) {
-            return false;
+        try {
+            // check xem có token không
+            $token = JWTAuth::getToken();
+            if (!$token) {
+                // nếu không có token, vẫn trả về true vì người dùng đã không đăng nhập
+                Log::warning('Logout: Không tìm thấy token');
+                return true;
+            }
+            
+            // hủy token
+            JWTAuth::invalidate($token);
+            Log::info('Logout: Token đã được hủy thành công');
+            return true;
+        } catch (TokenExpiredException $e) {
+            // nếu token đã hết hạn, vẫn coi như đăng xuất thành công
+            Log::info('Logout: Token đã hết hạn trước khi đăng xuất');
+            return true;
+        } catch (TokenInvalidException $e) {
+            // nếu token không hợp lệ, vẫn coi như đăng xuất thành công
+            Log::info('Logout: Token không hợp lệ trước khi đăng xuất');
+            return true;
+        } catch (JWTException $e) {
+            // ghi log lỗi JWT
+            Log::error('Logout: Lỗi JWT - ' . $e->getMessage());
+            throw $e;
         }
-
-        // Check if env vars are set
-        $adminEmail = env('ADMIN_EMAIL');
-        $adminPassword = env('ADMIN_PASSWORD');
-        $adminName = env('ADMIN_NAME', 'Admin User');
-
-        return !empty($adminEmail) && !empty($adminPassword);
     }
 } 

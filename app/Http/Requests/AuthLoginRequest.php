@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 class AuthLoginRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * check xem người dùng có được phép thực hiện yêu cầu này không
      */
     public function authorize(): bool
     {
@@ -15,7 +15,7 @@ class AuthLoginRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * lấy các validation rules
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */

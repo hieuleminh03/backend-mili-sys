@@ -2,17 +2,12 @@
 
 namespace App\Http;
 
-use App\Http\Middleware\CheckAnyRole;
-use App\Http\Middleware\CheckRole;
-use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
 {
     /**
-     * The application's global HTTP middleware stack.
-     *
-     * These middleware are run during every request to your application.
+     * global middleware
      *
      * @var array<int, class-string|string>
      */
@@ -24,7 +19,7 @@ class Kernel extends HttpKernel
     ];
 
     /**
-     * The application's route middleware groups.
+     * route middleware
      *
      * @var array<string, array<int, class-string|string>>
      */
@@ -36,15 +31,9 @@ class Kernel extends HttpKernel
     ];
 
     /**
-     * The application's middleware aliases.
-     *
-     * Aliases may be used instead of class names to conveniently assign middleware to routes and groups.
+     * remove ko dùng vì php tự ăn default ko ăn alias
      *
      * @var array<string, class-string|string>
      */
-    protected $middlewareAliases = [
-        'auth' => JwtMiddleware::class,
-        'role' => CheckRole::class,
-        'role.any' => CheckAnyRole::class,
-    ];
+    protected $middlewareAliases = [];
 } 

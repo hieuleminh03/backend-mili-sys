@@ -2,20 +2,13 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Auth\AuthenticationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
-use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\Exceptions\TokenExpiredException;
-use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 class Handler extends ExceptionHandler
 {
     /**
-     * A list of exception types with their corresponding custom log levels.
+     * danh sách các exception và level log tương ứng
      *
      * @var array<class-string<\Throwable>, \Psr\Log\LogLevel::*>
      */
@@ -24,7 +17,7 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * A list of the exception types that are not reported.
+     * danh sách các exception không apply log
      *
      * @var array<int, class-string<\Throwable>>
      */
@@ -33,7 +26,8 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * A list of the inputs that are never flashed to the session on validation exceptions.
+     * danh sách các input không flash vào session trong trường hợp validation exception
+     * phần này đảm bảo privacy cho các input này
      *
      * @var array<int, string>
      */
@@ -44,7 +38,7 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * Register the exception handling callbacks for the application.
+     * cài các callback để process cho các exception
      */
     public function register(): void
     {
@@ -52,7 +46,7 @@ class Handler extends ExceptionHandler
             //
         });
         
-        // Convert exceptions to JSON responses for API requests
+        // convert exception thành response json cho request api
         $this->renderable(function (\Exception $e, $request) {
             if ($request->wantsJson() || $request->is('api/*')) {
                 $status = 400;
@@ -61,32 +55,38 @@ class Handler extends ExceptionHandler
                     'message' => $e->getMessage()
                 ];
 
+                // Authentication exceptions
                 if ($e instanceof \Illuminate\Auth\AuthenticationException) {
                     $status = 401;
                     $response['message'] = 'Unauthenticated';
                 }
                 
+                // Authorization exceptions
                 if ($e instanceof \Illuminate\Auth\Access\AuthorizationException) {
                     $status = 403;
-                    $response['message'] = 'This action is unauthorized';
+                    $response['message'] = 'This action is not allowed';
                 }
 
+                // Resource not found
                 if ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
                     $status = 404;
                     $response['message'] = 'Resource not found';
                 }
                 
+                // Route not found
                 if ($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
                     $status = 404;
                     $response['message'] = 'Not found';
                 }
 
+                // Validation errors
                 if ($e instanceof \Illuminate\Validation\ValidationException) {
                     $status = 422;
                     $response['message'] = 'Validation error';
                     $response['errors'] = $e->errors();
                 }
 
+                // Method not allowed
                 if ($e instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException) {
                     $status = 405;
                     $response['message'] = 'Method not allowed';
@@ -95,7 +95,7 @@ class Handler extends ExceptionHandler
                 // JWT specific exceptions
                 if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException) {
                     $status = 401;
-                    $response['message'] = 'Token validation failed';
+                    $response['message'] = 'Token is invalid';
                 }
                 
                 if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException) {
@@ -105,13 +105,13 @@ class Handler extends ExceptionHandler
                 
                 if ($e instanceof \Tymon\JWTAuth\Exceptions\JWTException) {
                     $status = 401;
-                    $response['message'] = 'Token not provided or could not be parsed';
+                    $response['message'] = 'Token is not provided or could not be parsed';
                 }
 
                 return response()->json($response, $status);
             }
             
-            return null; // Let Laravel handle non-API exceptions
+            return null; // chuyển cho laravel xử lý exception không phải API
         });
     }
 } 
