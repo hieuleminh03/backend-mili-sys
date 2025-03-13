@@ -70,13 +70,31 @@ class Handler extends ExceptionHandler
                 // Resource not found
                 if ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
                     $status = 404;
-                    $response['message'] = 'Resource not found';
+                    // Nếu là thông báo chi tiết từ service thì giữ nguyên
+                    if (strpos($e->getMessage(), 'Không tìm thấy') !== false) {
+                        $response['message'] = $e->getMessage();
+                    } else {
+                        // Có thể dựa vào model để đưa ra thông báo cụ thể
+                        $modelClass = $e->getModel();
+                        $modelName = class_basename($modelClass);
+                        
+                        // Map model name to Vietnamese
+                        $modelMap = [
+                            'Term' => 'học kỳ',
+                            'Course' => 'khóa học',
+                            'User' => 'người dùng',
+                            // Thêm các model khác nếu cần
+                        ];
+                        
+                        $friendlyName = $modelMap[$modelName] ?? strtolower($modelName);
+                        $response['message'] = "Không tìm thấy {$friendlyName} với ID đã cung cấp";
+                    }
                 }
                 
                 // Route not found
                 if ($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
                     $status = 404;
-                    $response['message'] = 'Not found';
+                    $response['message'] = 'Không tìm thấy API endpoint này';
                 }
 
                 // Validation errors
@@ -90,6 +108,19 @@ class Handler extends ExceptionHandler
                 if ($e instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException) {
                     $status = 405;
                     $response['message'] = 'Method not allowed';
+                }
+                
+                // Database Query exceptions
+                if ($e instanceof \Illuminate\Database\QueryException) {
+                    $status = 500;
+                    $response['message'] = 'Database error';
+                    
+                    // Kiểm tra nếu là lỗi unique constraint
+                    if ($e->getCode() == 23000 && strpos($e->getMessage(), 'Duplicate entry') !== false) {
+                        $status = 422;
+                        $response['message'] = 'Dữ liệu đã tồn tại';
+                        $response['errors'] = ['name' => ['Tên học kỳ đã tồn tại trong hệ thống']];
+                    }
                 }
                 
                 // JWT specific exceptions

@@ -3,6 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\ValidationException;
 
 class TermRequest extends FormRequest
 {
@@ -53,11 +56,43 @@ class TermRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.regex' => 'Term name must follow the format YYYY[A-Z] (e.g., 2024A)',
-            'end_date.after' => 'End date must be after start date',
-            'roster_deadline.after_or_equal' => 'Roster deadline must be on or after start date',
-            'roster_deadline.before' => 'Roster deadline must be before end date',
-            'grade_entry_date.after' => 'Grade entry date must be after end date',
+            'name.required' => 'Tên học kỳ không được để trống',
+            'name.regex' => 'Tên học kỳ phải theo định dạng YYYY[A-Z] (ví dụ: 2024A)',
+            'name.unique' => 'Tên học kỳ đã tồn tại trong hệ thống',
+            'start_date.required' => 'Ngày bắt đầu không được để trống',
+            'start_date.date' => 'Ngày bắt đầu phải là một ngày hợp lệ',
+            'end_date.required' => 'Ngày kết thúc không được để trống',
+            'end_date.date' => 'Ngày kết thúc phải là một ngày hợp lệ',
+            'end_date.after' => 'Ngày kết thúc phải sau ngày bắt đầu',
+            'roster_deadline.required' => 'Hạn chót đăng ký không được để trống',
+            'roster_deadline.date' => 'Hạn chót đăng ký phải là một ngày hợp lệ',
+            'roster_deadline.after_or_equal' => 'Hạn chót đăng ký phải từ ngày bắt đầu trở đi',
+            'roster_deadline.before' => 'Hạn chót đăng ký phải trước ngày kết thúc',
+            'grade_entry_date.required' => 'Ngày nhập điểm không được để trống',
+            'grade_entry_date.date' => 'Ngày nhập điểm phải là một ngày hợp lệ',
+            'grade_entry_date.after' => 'Ngày nhập điểm phải sau ngày kết thúc',
         ];
+    }
+    
+    /**
+     * xử lý lỗi validation để đảm bảo trả về phản hồi JSON đúng cách
+     *
+     * @param Validator $validator
+     * @return void
+     * @throws HttpResponseException
+     */
+    protected function failedValidation(Validator $validator)
+    {
+        $errors = $validator->errors();
+        
+        // Ghi log lỗi validation để debug
+        \Log::warning('Lỗi validation form TermRequest', ['errors' => $errors->toArray()]);
+        
+        // Ném ngoại lệ HttpResponseException thay vì ValidationException
+        throw new HttpResponseException(response()->json([
+            'status' => 'error',
+            'message' => 'Dữ liệu không hợp lệ',
+            'errors' => $errors->toArray()
+        ], 422));
     }
 } 

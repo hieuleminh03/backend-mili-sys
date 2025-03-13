@@ -5,12 +5,14 @@ namespace App\Services;
 use App\Models\Term;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class TermService
 {
     /**
-     * Get all terms ordered by start date descending.
+     * lấy tất cả các học kỳ, sắp xếp theo ngày bắt đầu giảm dần
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
@@ -20,52 +22,88 @@ class TermService
     }
 
     /**
-     * Get a specific term with its courses.
+     * lấy một học kỳ cụ thể cùng với các lớp học
      *
      * @param int $id
      * @return Term
+     * @throws ModelNotFoundException
      */
     public function getTerm(int $id): Term
     {
-        return Term::with('courses')->findOrFail($id);
+        try {
+            return Term::with('courses')->findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            throw new ModelNotFoundException("Không tìm thấy học kỳ với ID: $id");
+        }
     }
 
     /**
-     * Create a new term with validation.
+     * thêm mới một học kỳ, có validate dữ liệu và kiểm tra trùng tên
      *
-     * @param array $data
+     * @param array $data dữ liệu học kỳ
      * @return Term
      * @throws \Exception
      */
     public function createTerm(array $data): Term
     {
-        // Start a database transaction
-        return DB::transaction(function () use ($data) {
-            $term = new Term($data);
+        try {
+            // transaction start ở đây
+            return DB::transaction(function () use ($data) {
+                // kiểm tra nếu tên học kỳ đã tồn tại (kể cả các bản ghi đã bị xóa mềm)
+                $existingTerm = Term::withTrashed()->where('name', $data['name'])->first();
+                if ($existingTerm) {
+                    // Nếu bản ghi đã bị xóa mềm, khôi phục nó
+                    if ($existingTerm->trashed()) {
+                        $existingTerm->restore();
+                        // Cập nhật dữ liệu mới
+                        $existingTerm->fill($data);
+                        
+                        // Kiểm tra các ràng buộc nghiệp vụ
+                        $this->validateTermBusinessRules($existingTerm);
+                        
+                        $existingTerm->save();
+                        return $existingTerm;
+                    } else {
+                        throw new ValidationException(
+                            validator(['name' => $data['name']], ['name' => 'unique:terms,name'])
+                        );
+                    }
+                }
+                
+                $term = new Term($data);
+                
+                // Kiểm tra các ràng buộc nghiệp vụ
+                $this->validateTermBusinessRules($term);
+                
+                $term->save();
+                return $term;
+            });
+        } catch (ValidationException $e) {
+            // đảm bảo ValidationException được ném lại để BaseController xử lý
+            throw $e;
+        } catch (\Illuminate\Database\QueryException $e) {
+            // ghi log lỗi database
+            \Log::error('Lỗi database khi tạo học kỳ: ' . $e->getMessage());
             
-            // Validate term name format
-            if (!Term::isValidNameFormat($term->name)) {
-                throw new \Exception('Term name must follow the format YYYY[A-Z] (e.g., 2024A)');
+            // kiểm tra nếu là lỗi unique constraint
+            if ($e->getCode() == 23000 && strpos($e->getMessage(), 'Duplicate entry') !== false) {
+                throw new ValidationException(
+                    validator(['name' => $data['name']], ['name' => 'unique:terms,name'])
+                );
             }
             
-            // Additional date validations
-            $dateValidation = $this->validateDates($term);
-            if ($dateValidation !== true) {
-                throw new \Exception('Date validation failed: ' . implode(', ', $dateValidation));
-            }
-            
-            // Check for overlapping terms
-            if ($this->hasTermOverlap($term)) {
-                throw new \Exception('Term dates overlap with an existing term');
-            }
-            
-            $term->save();
-            return $term;
-        });
+            throw $e;
+        } catch (ModelNotFoundException $e) {
+            throw new ModelNotFoundException('Không tìm thấy học kỳ');
+        } catch (\Exception $e) {
+            // ghi log lỗi khác
+            \Log::error('Lỗi không xác định khi tạo học kỳ: ' . $e->getMessage());
+            throw $e;
+        }
     }
 
     /**
-     * Update an existing term with validation.
+     * cập nhật một học kỳ có validate
      *
      * @param int $id
      * @param array $data
@@ -74,33 +112,26 @@ class TermService
      */
     public function updateTerm(int $id, array $data): Term
     {
-        return DB::transaction(function () use ($id, $data) {
-            $term = Term::findOrFail($id);
-            $term->fill($data);
-            
-            // Validate term name format if it changed
-            if ($term->isDirty('name') && !Term::isValidNameFormat($term->name)) {
-                throw new \Exception('Term name must follow the format YYYY[A-Z] (e.g., 2024A)');
-            }
-            
-            // Additional date validations
-            $dateValidation = $this->validateDates($term);
-            if ($dateValidation !== true) {
-                throw new \Exception('Date validation failed: ' . implode(', ', $dateValidation));
-            }
-            
-            // Check for overlapping terms
-            if ($this->hasTermOverlap($term)) {
-                throw new \Exception('Term dates overlap with an existing term');
-            }
-            
-            $term->save();
-            return $term;
-        });
+        try {
+            return DB::transaction(function () use ($id, $data) {
+                $term = Term::findOrFail($id);
+                $term->fill($data);
+                
+                // Kiểm tra các ràng buộc nghiệp vụ
+                $this->validateTermBusinessRules($term);
+                
+                $term->save();
+                return $term;
+            });
+        } catch (ModelNotFoundException $e) {
+            throw new ModelNotFoundException("Không tìm thấy học kỳ với ID: $id");
+        }
     }
 
     /**
-     * Delete a term if it has no associated courses.
+     * xóa một học kỳ
+     * chỉ có thể xóa học kỳ không có lớp học
+     * sử dụng forceDelete để xóa hoàn toàn khỏi database
      *
      * @param int $id
      * @return bool
@@ -108,20 +139,51 @@ class TermService
      */
     public function deleteTerm(int $id): bool
     {
-        return DB::transaction(function () use ($id) {
-            $term = Term::findOrFail($id);
-            
-            // Check if there are any courses associated with this term
-            if ($term->courses()->count() > 0) {
-                throw new \Exception('Cannot delete term because it has associated courses');
-            }
-            
-            return $term->delete();
-        });
+        try {
+            return DB::transaction(function () use ($id) {
+                $term = Term::findOrFail($id);
+                
+                // check nếu có lớp học liên kết với học kỳ
+                if ($term->courses()->count() > 0) {
+                    throw new \Exception('Không thể xóa học kỳ có lớp học');
+                }
+                
+                // Sử dụng forceDelete để xóa hoàn toàn, không phải soft delete
+                return $term->forceDelete();
+            });
+        } catch (ModelNotFoundException $e) {
+            throw new ModelNotFoundException("Không tìm thấy học kỳ với ID: $id");
+        }
     }
 
     /**
-     * Validate whether the term dates are valid according to business rules.
+     * Kiểm tra các ràng buộc nghiệp vụ cho học kỳ
+     * 
+     * @param Term $term
+     * @throws \Exception
+     */
+    protected function validateTermBusinessRules(Term $term)
+    {
+        // check định dạng tên học kỳ
+        if (!Term::isValidNameFormat($term->name)) {
+            throw new \Exception('Tên học kỳ phải theo định dạng YYYY[A-Z] (ví dụ: 2024A)');
+        }
+        
+        // check ngày tháng
+        $dateValidation = $this->validateDates($term);
+        if ($dateValidation !== true) {
+            throw new \Exception('Lỗi kiểm tra ngày tháng: ' . implode(', ', $dateValidation));
+        }
+        
+        // check trùng thời gian
+        if ($this->hasTermOverlap($term)) {
+            throw new \Exception('Thời gian của học kỳ chồng chéo với một học kỳ khác');
+        }
+    }
+
+    /**
+     * kiểm tra xem ngày tháng của học kỳ có hợp lệ hay không
+     * 
      *
      * @param Term $term
      * @return array|true Array of errors or true if valid
@@ -130,33 +192,33 @@ class TermService
     {
         $errors = [];
         
-        // End date must be after start date
+        // ngày kết thúc phải sau ngày bắt đầu
         if ($term->end_date <= $term->start_date) {
-            $errors[] = 'End date must be after start date';
+            $errors[] = 'ngày kết thúc phải sau ngày bắt đầu';
         }
         
-        // Roster deadline must be at least 2 weeks after start date
+        // hạn chốt lớp phải sau ngày bắt đầu ít nhất 2 tuần
         $minRosterDeadline = Carbon::parse($term->start_date)->addWeeks(2);
         if ($term->roster_deadline < $minRosterDeadline) {
-            $errors[] = 'Roster deadline must be at least 2 weeks after start date';
+            $errors[] = 'hạn chốt lớp phải sau ngày bắt đầu ít nhất 2 tuần';
         }
         
-        // Roster deadline must be before end date
+        // hạn chốt lớp phải trước ngày kết thúc
         if ($term->roster_deadline >= $term->end_date) {
-            $errors[] = 'Roster deadline must be before end date';
+            $errors[] = 'hạn chốt lớp phải trước ngày kết thúc';
         }
         
-        // Grade entry date must be at least 2 weeks after end date
+        // ngày nhập điểm phải sau ngày kết thúc ít nhất 2 tuần
         $minGradeEntryDate = Carbon::parse($term->end_date)->addWeeks(2);
         if ($term->grade_entry_date < $minGradeEntryDate) {
-            $errors[] = 'Grade entry date must be at least 2 weeks after end date';
+            $errors[] = 'ngày nhập điểm phải sau ngày kết thúc ít nhất 2 tuần';
         }
         
         return empty($errors) ? true : $errors;
     }
 
     /**
-     * Check if a term overlaps with any other term.
+     * kiểm tra xem một học kỳ có trùng thời gian với học kỳ khác
      *
      * @param Term $term
      * @return bool

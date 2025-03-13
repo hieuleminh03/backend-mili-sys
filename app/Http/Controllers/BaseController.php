@@ -60,21 +60,50 @@ abstract class BaseController extends LaravelBaseController
     }
     
     /**
+     * thực thi service và bọc các exception
      * wrapper cho các service method, để handle cụ thể các message nếu có
      *
-     * @param callable $callback hàm callback (service method)
+     * @param callable $serviceCallback hàm callback gọi service
      * @param string $successMessage thông báo thành công
-     * @param int $successCode mã trạng thái thành công
+     * @param int $successStatusCode mã trạng thái thành công
      * @return JsonResponse
      */
-    protected function executeService(callable $callback, string $successMessage = '', int $successCode = 200): JsonResponse
+    protected function executeService(callable $serviceCallback, string $successMessage = 'Lấy dữ liệu thành công', int $successStatusCode = 200): JsonResponse
     {
         try {
-            $result = call_user_func($callback);
-            return $this->successResponse($result, $successMessage, $successCode);
-        } catch (Exception $e) {
-            $code = $this->determineStatusCode($e);
-            return $this->errorResponse($e->getMessage(), null, $code);
+            $data = $serviceCallback();
+            return $this->successResponse($data, $successMessage, $successStatusCode);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::warning('Lỗi validation: ' . $e->getMessage(), ['errors' => $e->errors()]);
+            return $this->errorResponse(
+                'Dữ liệu không hợp lệ', 
+                $e->errors(), 
+                422
+            );
+        } catch (\Illuminate\Database\QueryException $e) {
+            \Log::error('Lỗi database: ' . $e->getMessage());
+            
+            // Kiểm tra lỗi unique constraint
+            if ($e->getCode() == 23000 && strpos($e->getMessage(), 'Duplicate entry') !== false) {
+                return $this->errorResponse(
+                    'Dữ liệu đã tồn tại', 
+                    ['name' => ['Tên học kỳ đã tồn tại trong hệ thống']], 
+                    422
+                );
+            }
+            
+            return $this->errorResponse(
+                'Lỗi database', 
+                ['database' => [$e->getMessage()]], 
+                500
+            );
+        } catch (\Exception $e) {
+            \Log::error('Lỗi không xác định: ' . $e->getMessage());
+            return $this->errorResponse(
+                $e->getMessage(),
+                ['error' => [$e->getMessage()]], 
+                $this->determineStatusCode($e)
+            );
         }
     }
     
