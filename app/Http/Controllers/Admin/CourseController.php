@@ -67,10 +67,14 @@ class CourseController extends BaseController
      * @param int $id mã lớp học
      * @return JsonResponse kết quả 
      */
-    public function update(CourseRequest $request, int $id): JsonResponse
+    public function update(CourseRequest $request, $id = null): JsonResponse
     {
+        if ($id === null) {
+            return $this->errorResponse('Mã lớp học không được cung cấp', ['id' => ['Vui lòng cung cấp mã lớp học']], 400);
+        }
+        
         return $this->executeService(
-            fn() => $this->courseService->updateCourse($id, $request->validated()),
+            fn() => $this->courseService->updateCourse((int)$id, $request->validated()),
             'Cập nhật lớp học thành công'
         );
     }
@@ -114,8 +118,31 @@ class CourseController extends BaseController
     {
         return $this->executeService(
             fn() => $this->courseService->enrollStudent($id, $request->user_id),
-            'Đăng ký thành công',
+            'Đăng ký sinh viên thành công',
             201
+        );
+    }
+    
+    /**
+     * hủy đăng ký sinh viên khỏi lớp học
+     *
+     * @param string $courseId mã lớp học
+     * @param string $userId mã sinh viên
+     * @return JsonResponse kết quả 
+     */
+    public function unenrollStudent(string $courseId, string $userId): JsonResponse
+    {
+        if (!is_numeric($courseId)) {
+            return $this->errorResponse('Mã lớp học không hợp lệ', ['courseId' => ['Mã lớp học phải là số nguyên']], 400);
+        }
+        
+        if (!is_numeric($userId)) {
+            return $this->errorResponse('Mã sinh viên không hợp lệ', ['userId' => ['Mã sinh viên phải là số nguyên']], 400);
+        }
+        
+        return $this->executeService(
+            fn() => $this->courseService->unenrollStudent((int)$courseId, (int)$userId),
+            'Hủy đăng ký sinh viên thành công'
         );
     }
 
@@ -123,14 +150,22 @@ class CourseController extends BaseController
      * cập nhật điểm sinh viên trong một lớp học
      *
      * @param GradeRequest $request dữ liệu điểm
-     * @param int $courseId mã lớp học
-     * @param int $userId mã sinh viên
+     * @param string $courseId mã lớp học
+     * @param string $userId mã sinh viên
      * @return JsonResponse kết quả 
      */
-    public function updateStudentGrade(GradeRequest $request, int $courseId, int $userId): JsonResponse
+    public function updateStudentGrade(GradeRequest $request, string $courseId, string $userId): JsonResponse
     {
+        if (!is_numeric($courseId)) {
+            return $this->errorResponse('Mã lớp học không hợp lệ', ['courseId' => ['Mã lớp học phải là số nguyên']], 400);
+        }
+        
+        if (!is_numeric($userId)) {
+            return $this->errorResponse('Mã sinh viên không hợp lệ', ['userId' => ['Mã sinh viên phải là số nguyên']], 400);
+        }
+        
         return $this->executeService(
-            fn() => $this->courseService->updateStudentGrade($courseId, $userId, $request->validated()),
+            fn() => $this->courseService->updateStudentGrade((int)$courseId, (int)$userId, $request->validated()),
             'Cập nhật điểm thành công'
         );
     }

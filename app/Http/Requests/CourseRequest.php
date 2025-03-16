@@ -3,6 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\JsonResponse;
 
 class CourseRequest extends FormRequest
 {
@@ -25,19 +28,25 @@ class CourseRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'code' => 'required|string|unique:courses,code',
             'subject_name' => 'required|string',
-            'term_id' => 'required|exists:terms,id',
-            'manager_id' => 'required|exists:users,id'
+            'term_id' => 'required|integer',
+            'enroll_limit' => 'required|integer|min:1',
+            'midterm_weight' => 'required|numeric|min:0|max:1',
         ];
 
-        // If this is an update request, exclude the current course from unique validation
+        // For create requests, the code is auto-generated
+        if ($this->isMethod('POST')) {
+            $rules['code'] = 'sometimes';
+        }
+
+        // If this is an update request, make fields optional
         if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {
             $courseId = $this->route('id');
-            $rules['code'] = "sometimes|required|string|unique:courses,code,{$courseId}";
             $rules['subject_name'] = 'sometimes|required|string';
-            $rules['term_id'] = 'sometimes|required|exists:terms,id';
-            $rules['manager_id'] = 'sometimes|required|exists:users,id';
+            // Ban việc thay đổi term_id khi cập nhật
+            $rules['term_id'] = 'prohibited';
+            $rules['enroll_limit'] = 'sometimes|required|integer|min:1';
+            $rules['midterm_weight'] = 'sometimes|required|numeric|min:0|max:1';
         }
 
         return $rules;
@@ -51,9 +60,36 @@ class CourseRequest extends FormRequest
     public function messages()
     {
         return [
-            'code.unique' => 'This course code is already in use',
-            'term_id.exists' => 'The selected term does not exist',
-            'manager_id.exists' => 'The selected manager does not exist',
+            'subject_name.required' => 'Tên môn học là bắt buộc',
+            'term_id.exists' => 'Kỳ học đã chọn không tồn tại',
+            'term_id.required' => 'Kỳ học là bắt buộc',
+            'term_id.integer' => 'Mã kỳ học phải là số nguyên',
+            'term_id.prohibited' => 'Không thể thay đổi kỳ học sau khi đã tạo lớp',
+            'enroll_limit.required' => 'Giới hạn đăng ký là bắt buộc',
+            'enroll_limit.integer' => 'Giới hạn đăng ký phải là số nguyên',
+            'enroll_limit.min' => 'Giới hạn đăng ký phải ít nhất là 1',
+            'midterm_weight.required' => 'Hệ số điểm giữa kỳ là bắt buộc',
+            'midterm_weight.numeric' => 'Hệ số điểm giữa kỳ phải là số',
+            'midterm_weight.min' => 'Hệ số điểm giữa kỳ không thể nhỏ hơn 0',
+            'midterm_weight.max' => 'Hệ số điểm giữa kỳ không thể lớn hơn 1',
         ];
+    }
+
+    /**
+     * xử lý validation thất bại và trả về response json
+     *
+     * @param Validator $validator validator instance
+     * @return void
+     * @throws HttpResponseException
+     */
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'message' => 'Lỗi dữ liệu đầu vào',
+                'errors' => $validator->errors()
+            ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
+        );
     }
 } 

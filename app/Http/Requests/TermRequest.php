@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Http\JsonResponse;
 
 class TermRequest extends FormRequest
 {
@@ -75,24 +75,20 @@ class TermRequest extends FormRequest
     }
     
     /**
-     * xử lý lỗi validation để đảm bảo trả về phản hồi JSON đúng cách
+     * xử lý validation thất bại và trả về response json
      *
-     * @param Validator $validator
+     * @param Validator $validator validator instance
      * @return void
      * @throws HttpResponseException
      */
     protected function failedValidation(Validator $validator)
     {
-        $errors = $validator->errors();
-        
-        // Ghi log lỗi validation để debug
-        \Log::warning('Lỗi validation form TermRequest', ['errors' => $errors->toArray()]);
-        
-        // Ném ngoại lệ HttpResponseException thay vì ValidationException
-        throw new HttpResponseException(response()->json([
-            'status' => 'error',
-            'message' => 'Dữ liệu không hợp lệ',
-            'errors' => $errors->toArray()
-        ], 422));
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'message' => 'Lỗi dữ liệu đầu vào',
+                'errors' => $validator->errors()
+            ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
+        );
     }
 } 

@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique(); // Course code (e.g., "Nhảy cao 23")
-            $table->string('subject_name'); // Subject name (e.g., "Nhảy cao")
-            $table->foreignId('term_id')->constrained('terms')->onDelete('cascade'); // Foreign key to terms table
-            $table->foreignId('manager_id')->constrained('users')->onDelete('cascade'); // Manager of the class (User ID)
+            $table->string('code', 6)->unique(); // Mã lớp học 6 chữ số
+            $table->string('subject_name'); // Tên môn học
+            $table->foreignId('term_id')->constrained('terms')->onDelete('cascade'); // Foreign key đến bảng terms
+            $table->integer('enroll_limit')->default(30); // Số lượng sinh viên tối đa được phép đăng ký
+            $table->decimal('midterm_weight', 3, 2)->default(0.3); // Hệ số điểm giữa kỳ (giá trị giữa 0 và 1)
             $table->timestamps();
-            $table->softDeletes(); // Add soft deletes to preserve history
+            $table->softDeletes(); // Thêm soft deletes để bảo toàn lịch sử
         });
     }
 

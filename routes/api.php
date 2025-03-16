@@ -52,6 +52,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
             // quản lý sinh viên
             Route::get('/{id}/students', [CourseController::class, 'getStudents']);
             Route::post('/{id}/students', [CourseController::class, 'enrollStudent']);
+            Route::delete('/{courseId}/students/{userId}', [CourseController::class, 'unenrollStudent']); 
             Route::put('/{courseId}/students/{userId}/grade', [CourseController::class, 'updateStudentGrade']);
         });
     });

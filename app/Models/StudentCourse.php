@@ -17,7 +17,9 @@ class StudentCourse extends Model
     protected $fillable = [
         'user_id',
         'course_id',
-        'grade',
+        'midterm_grade',
+        'final_grade',
+        'total_grade',
         'status',
         'notes',
     ];
@@ -28,7 +30,9 @@ class StudentCourse extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'grade' => 'decimal:2',
+        'midterm_grade' => 'decimal:2',
+        'final_grade' => 'decimal:2',
+        'total_grade' => 'decimal:2',
     ];
 
     /**
@@ -74,5 +78,18 @@ class StudentCourse extends Model
     public static function getStatuses()
     {
         return ['enrolled', 'completed', 'dropped', 'failed'];
+    }
+
+    /**
+     * Update total grade based on midterm and final grades.
+     *
+     * @return void
+     */
+    public function updateTotalGrade()
+    {
+        if (isset($this->midterm_grade) && isset($this->final_grade) && isset($this->course)) {
+            $this->total_grade = $this->course->calculateTotalGrade($this->midterm_grade, $this->final_grade);
+            $this->save();
+        }
     }
 }

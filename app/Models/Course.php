@@ -19,7 +19,18 @@ class Course extends Model
         'code',
         'subject_name',
         'term_id',
-        'manager_id',
+        'enroll_limit',
+        'midterm_weight',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'midterm_weight' => 'decimal:2',
+        'enroll_limit' => 'integer',
     ];
 
     /**
@@ -31,20 +42,12 @@ class Course extends Model
     }
 
     /**
-     * Get the manager of this course.
-     */
-    public function manager()
-    {
-        return $this->belongsTo(User::class, 'manager_id');
-    }
-
-    /**
      * Get the students enrolled in this course.
      */
     public function students()
     {
         return $this->belongsToMany(User::class, 'student_courses')
-            ->withPivot(['grade', 'status', 'notes'])
+            ->withPivot(['midterm_grade', 'final_grade', 'total_grade', 'status', 'notes'])
             ->withTimestamps();
     }
 
@@ -72,10 +75,57 @@ class Course extends Model
                     'id' => $student->id,
                     'name' => $student->name,
                     'email' => $student->email,
-                    'grade' => $enrollment->grade,
+                    'midterm_grade' => $enrollment->midterm_grade,
+                    'final_grade' => $enrollment->final_grade,
+                    'total_grade' => $enrollment->total_grade,
                     'status' => $enrollment->status,
                     'notes' => $enrollment->notes,
                 ];
             });
+    }
+
+    /**
+     * tự động generate mã lớp học 6 chữ số
+     */
+    public static function generateCode(): string
+    {
+        do {
+            $code = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
+        } while (self::where('code', $code)->exists());
+        
+        return $code;
+    }
+
+    /**
+     * tính điểm tổng kết dựa vào hệ số và điểm giữa kỳ, cuối kỳ
+     * 
+     * @param float $midtermGrade điểm giữa kỳ
+     * @param float $finalGrade điểm cuối kỳ
+     * @return float điểm tổng kết
+     */
+    public function calculateTotalGrade(float $midtermGrade, float $finalGrade): float
+    {
+        return round($this->midterm_weight * $midtermGrade + (1 - $this->midterm_weight) * $finalGrade, 2);
+    }
+    
+    /**
+     * kiểm tra xem lớp học còn chỗ không
+     * 
+     * @return bool true nếu còn chỗ để đăng ký
+     */
+    public function hasAvailableSlots(): bool
+    {
+        $currentStudentCount = $this->studentCourses()->count();
+        return $currentStudentCount < $this->enroll_limit;
+    }
+    
+    /**
+     * lấy số lượng sinh viên hiện tại trong lớp
+     * 
+     * @return int số lượng sinh viên hiện tại
+     */
+    public function getCurrentStudentCount(): int
+    {
+        return $this->studentCourses()->count();
     }
 }
