@@ -45,6 +45,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
         Route::prefix('courses')->group(function () {
             Route::get('/', [CourseController::class, 'getAll']);
             Route::post('/', [CourseController::class, 'create']);
+            Route::get('/getAllByTerm', [CourseController::class, 'getAllByTerm']);
             Route::get('/{id}', [CourseController::class, 'get']);
             Route::put('/{id}', [CourseController::class, 'update']);
             Route::delete('/{id}', [CourseController::class, 'delete']);

@@ -6,6 +6,7 @@ use App\Http\Controllers\BaseController;
 use App\Http\Requests\CourseRequest;
 use App\Http\Requests\EnrollmentRequest;
 use App\Http\Requests\GradeRequest;
+use App\Http\Requests\TermIdRequest;
 use App\Services\CourseService;
 use Illuminate\Http\JsonResponse;
 
@@ -167,6 +168,20 @@ class CourseController extends BaseController
         return $this->executeService(
             fn() => $this->courseService->updateStudentGrade((int)$courseId, (int)$userId, $request->validated()),
             'Cập nhật điểm thành công'
+        );
+    }
+
+    /**
+     * lấy danh sách lớp học theo kỳ học
+     *
+     * @param TermIdRequest $request dữ liệu chứa mã kỳ học
+     * @return JsonResponse danh sách lớp học
+     */
+    public function getAllByTerm(TermIdRequest $request): JsonResponse
+    {
+        return $this->executeService(
+            fn() => $this->courseService->getCoursesByTerm($request->termId),
+            'Lấy danh sách lớp học theo kỳ học thành công'
         );
     }
 } 

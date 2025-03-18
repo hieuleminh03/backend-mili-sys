@@ -349,4 +349,30 @@ class CourseService
             throw $e;
         }
     }
+
+    /**
+     * lấy danh sách các lớp học theo kỳ học
+     *
+     * @param int $termId mã kỳ học
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @throws \Exception
+     */
+    public function getCoursesByTerm(int $termId): AnonymousResourceCollection
+    {
+        try {
+            // Kiểm tra term tồn tại
+            $term = Term::find($termId);
+            if (!$term) {
+                throw new \Exception('Không tìm thấy kỳ học', 422);
+            }
+            
+            $courses = Course::with(['term'])
+                ->where('term_id', $termId)
+                ->get();
+                
+            return CourseResource::collection($courses);
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
 } 
