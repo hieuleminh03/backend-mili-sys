@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\TermController;
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\CheckAnyRole;
@@ -31,6 +32,9 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
     Route::middleware([CheckRole::class . ':' . User::ROLE_ADMIN])->group(function () {
         // đăng ký người dùng mới
         Route::post('register', [AuthController::class, 'register']);
+        
+        // tìm kiếm
+        Route::post('/search/student', [SearchController::class, 'searchStudents']);
         
         // quản lý kỳ học
         Route::prefix('terms')->group(function () {
