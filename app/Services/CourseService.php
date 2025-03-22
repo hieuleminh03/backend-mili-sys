@@ -375,4 +375,218 @@ class CourseService
             throw $e;
         }
     }
+
+    /**
+     * đăng ký nhiều sinh viên vào lớp học
+     *
+     * @param int $courseId mã lớp học
+     * @param array $studentIds danh sách mã sinh viên
+     * @return array kết quả đăng ký
+     * @throws \Exception
+     */
+    public function bulkEnrollStudents(int $courseId, array $studentIds): array
+    {
+        try {
+            return DB::transaction(function () use ($courseId, $studentIds) {
+                $course = Course::with('term')->find($courseId);
+                if (!$course) {
+                    throw new \Exception('Không tìm thấy lớp học', 422);
+                }
+                
+                // Kiểm tra xem thời gian đăng ký còn mở không
+                if (now()->gt($course->term->roster_deadline)) {
+                    throw new \Exception('Thời gian đăng ký đã kết thúc cho kỳ học này');
+                }
+                
+                // Kiểm tra xem lớp còn đủ chỗ trống không
+                $currentStudentCount = $course->getCurrentStudentCount();
+                $requestedStudentCount = count($studentIds);
+                
+                if ($currentStudentCount + $requestedStudentCount > $course->enroll_limit) {
+                    throw new \Exception(
+                        sprintf(
+                            'Không thể đăng ký %d sinh viên. Lớp học chỉ còn %d chỗ trống (giới hạn %d, hiện tại %d)',
+                            $requestedStudentCount,
+                            $course->enroll_limit - $currentStudentCount,
+                            $course->enroll_limit,
+                            $currentStudentCount
+                        )
+                    );
+                }
+                
+                // Lấy danh sách sinh viên hiện có trong lớp
+                $existingStudentIds = StudentCourse::where('course_id', $courseId)
+                    ->pluck('user_id')
+                    ->toArray();
+                
+                $result = [
+                    'success' => [],
+                    'failed' => [],
+                    'already_enrolled' => []
+                ];
+                
+                // Xử lý từng sinh viên
+                foreach ($studentIds as $studentId) {
+                    // Kiểm tra xem sinh viên đã đăng ký chưa
+                    if (in_array($studentId, $existingStudentIds)) {
+                        $result['already_enrolled'][] = $studentId;
+                        continue;
+                    }
+                    
+                    // Kiểm tra xem có phải sinh viên không
+                    $student = User::find($studentId);
+                    if (!$student || !$student->isStudent()) {
+                        $result['failed'][] = $studentId;
+                        continue;
+                    }
+                    
+                    // Đăng ký sinh viên
+                    StudentCourse::create([
+                        'user_id' => $studentId,
+                        'course_id' => $courseId,
+                        'status' => 'enrolled',
+                    ]);
+                    
+                    $result['success'][] = $studentId;
+                }
+                
+                // Tạo thông báo tổng hợp
+                $successCount = count($result['success']);
+                $failedCount = count($result['failed']);
+                $alreadyEnrolledCount = count($result['already_enrolled']);
+                
+                $message = "";
+                if ($successCount > 0) {
+                    $message .= "Đã đăng ký thành công $successCount sinh viên. ";
+                }
+                if ($failedCount > 0) {
+                    $message .= "Không thể đăng ký $failedCount sinh viên. ";
+                }
+                if ($alreadyEnrolledCount > 0) {
+                    $message .= "Có $alreadyEnrolledCount sinh viên đã được đăng ký trước đó. ";
+                }
+                
+                $result['message'] = trim($message);
+                
+                return $result;
+            });
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * cập nhật điểm hàng loạt cho sinh viên trong một lớp học
+     *
+     * @param int $courseId mã lớp học
+     * @param array $grades danh sách điểm cần cập nhật
+     * @return array kết quả cập nhật
+     * @throws \Exception
+     */
+    public function bulkUpdateGrades(int $courseId, array $grades): array
+    {
+        try {
+            return DB::transaction(function () use ($courseId, $grades) {
+                // Kiểm tra lớp học tồn tại
+                $course = Course::with('term')->find($courseId);
+                if (!$course) {
+                    throw new \Exception('Không tìm thấy lớp học', 422);
+                }
+                
+                // Kiểm tra xem thời gian nhập điểm đã bắt đầu chưa
+                if (now()->lt($course->term->grade_entry_date)) {
+                    throw new \Exception('Thời gian nhập điểm chưa bắt đầu cho kỳ học này');
+                }
+                
+                // Lấy danh sách đăng ký học phần hiện có trong lớp (tối ưu truy vấn)
+                $existingEnrollments = StudentCourse::where('course_id', $courseId)
+                    ->get()
+                    ->keyBy('user_id');
+                
+                $result = [
+                    'success' => [],
+                    'failed' => []
+                ];
+                
+                // Xử lý từng mục trong danh sách điểm
+                foreach ($grades as $gradeData) {
+                    $userId = $gradeData['user_id'];
+                    
+                    // Kiểm tra xem học viên có trong lớp không
+                    if (!$existingEnrollments->has($userId)) {
+                        $result['failed'][] = $userId;
+                        continue;
+                    }
+                    
+                    $enrollment = $existingEnrollments[$userId];
+                    
+                    // Chuẩn bị dữ liệu cập nhật
+                    $updateData = [];
+                    
+                    if (isset($gradeData['midterm_grade'])) {
+                        $updateData['midterm_grade'] = $gradeData['midterm_grade'];
+                    }
+                    
+                    if (isset($gradeData['final_grade'])) {
+                        $updateData['final_grade'] = $gradeData['final_grade'];
+                    }
+                    
+                    // Cập nhật điểm
+                    try {
+                        $enrollment->update($updateData);
+                        
+                        // Tính toán điểm tổng kết nếu có đủ thông tin
+                        if (
+                            ($enrollment->midterm_grade !== null || isset($updateData['midterm_grade'])) && 
+                            ($enrollment->final_grade !== null || isset($updateData['final_grade']))
+                        ) {
+                            // Lấy điểm cuối cùng (sau khi cập nhật)
+                            $midtermGrade = isset($updateData['midterm_grade']) 
+                                ? $updateData['midterm_grade'] 
+                                : $enrollment->midterm_grade;
+                                
+                            $finalGrade = isset($updateData['final_grade']) 
+                                ? $updateData['final_grade'] 
+                                : $enrollment->final_grade;
+                            
+                            // Tính toán điểm tổng
+                            $totalGrade = $course->calculateTotalGrade($midtermGrade, $finalGrade);
+                            $enrollment->total_grade = $totalGrade;
+                            
+                            // Cập nhật trạng thái dựa vào điểm
+                            if ($totalGrade < $course->pass_grade) {
+                                $enrollment->status = 'failed';
+                            } else if ($enrollment->status !== 'dropped') {
+                                $enrollment->status = 'completed';
+                            }
+                            
+                            $enrollment->save();
+                        }
+                        
+                        $result['success'][] = $userId;
+                    } catch (\Exception $e) {
+                        $result['failed'][] = $userId;
+                    }
+                }
+                
+                // Tạo thông báo tổng hợp
+                $successCount = count($result['success']);
+                $failedCount = count($result['failed']);
+                
+                $message = "";
+                if ($successCount > 0) {
+                    $message .= "Đã cập nhật điểm thành công cho $successCount học viên. ";
+                }
+                if ($failedCount > 0) {
+                    $message .= "Không thể cập nhật điểm cho $failedCount học viên. ";
+                }
+                
+                $result['message'] = trim($message);
+                
+                return $result;
+            });
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
 } 

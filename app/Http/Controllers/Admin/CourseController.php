@@ -7,6 +7,8 @@ use App\Http\Requests\CourseRequest;
 use App\Http\Requests\EnrollmentRequest;
 use App\Http\Requests\GradeRequest;
 use App\Http\Requests\TermIdRequest;
+use App\Http\Requests\BulkEnrollmentRequest;
+use App\Http\Requests\BulkGradeUpdateRequest;
 use App\Services\CourseService;
 use Illuminate\Http\JsonResponse;
 
@@ -183,5 +185,79 @@ class CourseController extends BaseController
             fn() => $this->courseService->getCoursesByTerm($request->termId),
             'Lấy danh sách lớp học theo kỳ học thành công'
         );
+    }
+
+    /**
+     * đăng ký hàng loạt sinh viên vào lớp học
+     * 
+     * @param BulkEnrollmentRequest $request
+     * @param int $id course id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function bulkEnrollStudents(BulkEnrollmentRequest $request, int $id)
+    {
+        try {
+            $result = $this->courseService->bulkEnrollStudents($id, $request->student_ids);
+            
+            $status = 'success';
+            if (count($result['success']) === 0 && (count($result['failed']) > 0 || count($result['already_enrolled']) > 0)) {
+                $status = 'error';
+            } elseif (count($result['success']) > 0 && (count($result['failed']) > 0 || count($result['already_enrolled']) > 0)) {
+                $status = 'partial';
+            }
+            
+            // Lấy message từ result và loại bỏ khỏi result để tránh trùng lặp
+            $message = $result['message'];
+            unset($result['message']);
+            
+            return response()->json([
+                'status' => $status,
+                'message' => $message,
+                'data' => $result
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], $e->getCode() && $e->getCode() >= 400 && $e->getCode() < 600 ? $e->getCode() : 500);
+        }
+    }
+
+    /**
+     * cập nhật điểm hàng loạt cho sinh viên trong một lớp học
+     * 
+     * @param BulkGradeUpdateRequest $request
+     * @param int $id mã lớp học
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function bulkUpdateGrades(BulkGradeUpdateRequest $request, int $id)
+    {
+        try {
+            $result = $this->courseService->bulkUpdateGrades($id, $request->grades);
+            
+            $status = 'success';
+            if (count($result['success']) === 0 && count($result['failed']) > 0) {
+                $status = 'error';
+            } elseif (count($result['success']) > 0 && count($result['failed']) > 0) {
+                $status = 'partial';
+            }
+            
+            // Lấy message từ result và loại bỏ khỏi result để tránh trùng lặp
+            $message = $result['message'];
+            unset($result['message']);
+            
+            return response()->json([
+                'status' => $status,
+                'message' => $message,
+                'data' => $result
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], $e->getCode() && $e->getCode() >= 400 && $e->getCode() < 600 ? $e->getCode() : 500);
+        }
     }
 } 
