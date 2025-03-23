@@ -25,7 +25,9 @@ class ManagerDetail extends Model
         'photo_url',
         'management_unit',
         'father_name',
+        'father_birth_year',
         'mother_name',
+        'mother_birth_year',
         'parent_hometown',
         'permanent_address',
     ];
@@ -37,6 +39,8 @@ class ManagerDetail extends Model
      */
     protected $casts = [
         'birth_year' => 'integer',
+        'father_birth_year' => 'integer',
+        'mother_birth_year' => 'integer',
         'is_party_member' => 'boolean',
     ];
 

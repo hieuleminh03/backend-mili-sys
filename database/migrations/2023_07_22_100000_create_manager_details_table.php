@@ -23,7 +23,9 @@ return new class extends Migration
             $table->string('photo_url')->nullable();
             $table->string('management_unit', 100)->nullable();
             $table->string('father_name', 100)->nullable();
+            $table->year('father_birth_year')->nullable();
             $table->string('mother_name', 100)->nullable();
+            $table->year('mother_birth_year')->nullable();
             $table->string('parent_hometown', 100)->nullable();
             $table->string('permanent_address', 255)->nullable();
             $table->timestamps();
