@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\TermController;
+use App\Http\Controllers\Manager\ViolationController;
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\CheckAnyRole;
 use App\Http\Middleware\CustomAuthenticate;
@@ -88,6 +89,14 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
                 'status' => 'success',
                 'message' => 'Danh sách sinh viên'
             ]);
+        });
+        
+        // routes quản lý vi phạm
+        Route::prefix('violations')->group(function () {
+            Route::get('/student/{studentId}', [ViolationController::class, 'getStudentViolations']);
+            Route::post('/', [ViolationController::class, 'create']);
+            Route::put('/{id}', [ViolationController::class, 'update']);
+            Route::delete('/{id}', [ViolationController::class, 'delete']);
         });
     });
     
