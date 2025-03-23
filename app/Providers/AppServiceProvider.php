@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\CheckAnyRole;
+use App\Models\User;
+use App\Observers\UserObserver;
 use Illuminate\Routing\Router;
 
 class AppServiceProvider extends ServiceProvider
@@ -37,5 +39,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CheckAnyRole::class, function ($app) {
             return new CheckAnyRole();
         });
+        
+        // Đăng ký observer
+        User::observe(UserObserver::class);
     }
 }

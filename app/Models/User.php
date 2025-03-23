@@ -148,4 +148,14 @@ class User extends Authenticatable implements JWTSubject
      *
      * @return bool
      */
+
+    /**
+     * Get the manager details for this user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function managerDetail()
+    {
+        return $this->hasOne(ManagerDetail::class);
+    }
 }

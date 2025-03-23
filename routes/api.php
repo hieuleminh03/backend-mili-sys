@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\ManagerController;
 use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\TermController;
 use App\Http\Controllers\Manager\ViolationController;
@@ -114,6 +115,13 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
                 'status' => 'success',
                 'message' => 'Tất cả người dùng'
             ]);
+        });
+        
+        // routes quản lý manager
+        Route::prefix('managers')->group(function () {
+            Route::get('/', [ManagerController::class, 'getAllManagers']);
+            Route::get('/{id}', [ManagerController::class, 'getManagerDetail']);
+            Route::put('/{id}', [ManagerController::class, 'updateManagerDetail']);
         });
     });
     
