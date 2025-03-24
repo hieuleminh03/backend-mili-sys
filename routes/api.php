@@ -1,11 +1,14 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Admin\ClassController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\ManagerController;
 use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\TermController;
+use App\Http\Controllers\Manager\ManagerClassController;
 use App\Http\Controllers\Manager\ViolationController;
+use App\Http\Controllers\Student\StudentClassController;
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\CheckAnyRole;
 use App\Http\Middleware\CustomAuthenticate;
@@ -74,6 +77,12 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
                 'message' => 'Bảng điều khiển sinh viên'
             ]);
         });
+        
+        // Route xem thông tin lớp học
+        Route::prefix('class')->group(function () {
+            Route::get('/', [StudentClassController::class, 'getMyClass']);
+            Route::get('/classmates', [StudentClassController::class, 'getClassmates']);
+        });
     });
     
     // route cho quản lý
@@ -99,6 +108,16 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
             Route::put('/{id}', [ViolationController::class, 'update']);
             Route::delete('/{id}', [ViolationController::class, 'delete']);
         });
+        
+        // Route quản lý lớp học
+        Route::prefix('class')->group(function () {
+            Route::get('/', [ManagerClassController::class, 'getMyClass']);
+            Route::get('/students/{studentId}', [ManagerClassController::class, 'getStudentDetail']);
+            Route::put('/students/{studentId}', [ManagerClassController::class, 'updateStudent']);
+            Route::put('/students/{studentId}/assign-monitor', [ManagerClassController::class, 'assignMonitor']);
+            Route::put('/students/{studentId}/assign-vice-monitor', [ManagerClassController::class, 'assignViceMonitor']);
+            Route::put('/students/{studentId}/assign-student', [ManagerClassController::class, 'assignStudent']);
+        });
     });
     
     // route cho admin
@@ -122,6 +141,26 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
             Route::get('/', [ManagerController::class, 'getAllManagers']);
             Route::get('/{id}', [ManagerController::class, 'getManagerDetail']);
             Route::put('/{id}', [ManagerController::class, 'updateManagerDetail']);
+        });
+        
+        // routes quản lý lớp học
+        Route::prefix('classes')->group(function () {
+            Route::get('/', [ClassController::class, 'getAllClasses']);
+            Route::post('/', [ClassController::class, 'createClass']);
+            Route::get('/{id}', [ClassController::class, 'getClass']);
+            Route::put('/{id}', [ClassController::class, 'updateClass']);
+            Route::delete('/{id}', [ClassController::class, 'deleteClass']);
+            
+            // Student in class management
+            Route::post('/{classId}/students', [ClassController::class, 'addStudentToClass']);
+            Route::get('/{classId}/students/{studentId}', [ClassController::class, 'getStudentClassDetail']);
+            Route::put('/{classId}/students/{studentId}', [ClassController::class, 'updateStudentInClass']);
+            Route::delete('/{classId}/students/{studentId}', [ClassController::class, 'removeStudentFromClass']);
+            
+            // Assign monitor and vice monitor
+            Route::put('/{classId}/students/{studentId}/assign-monitor', [ClassController::class, 'assignMonitor']);
+            Route::put('/{classId}/students/{studentId}/assign-vice-monitor', [ClassController::class, 'assignViceMonitor']);
+            Route::put('/{classId}/students/{studentId}/assign-student', [ClassController::class, 'assignStudent']);
         });
     });
     

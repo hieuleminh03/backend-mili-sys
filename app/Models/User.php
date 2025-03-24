@@ -158,4 +158,56 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(ManagerDetail::class);
     }
+
+    /**
+     * Get the student class details for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function studentClass()
+    {
+        return $this->hasOne(StudentClass::class);
+    }
+
+    /**
+     * Get the class that this student belongs to.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function class()
+    {
+        return $this->belongsToMany(ClassRoom::class, 'student_classes')
+                    ->withPivot(['role', 'status', 'reason', 'note'])
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get the class that this manager manages.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function managedClass()
+    {
+        return $this->hasOne(ClassRoom::class, 'manager_id');
+    }
+    
+    /**
+     * Check if user is a monitor (lớp trưởng) of any class.
+     *
+     * @return bool
+     */
+    public function isMonitor()
+    {
+        return $this->studentClass && $this->studentClass->role === 'monitor';
+    }
+    
+    /**
+     * Check if user is a vice monitor (lớp phó) of any class.
+     *
+     * @return bool
+     */
+    public function isViceMonitor()
+    {
+        return $this->studentClass && $this->studentClass->role === 'vice_monitor';
+    }
 }
