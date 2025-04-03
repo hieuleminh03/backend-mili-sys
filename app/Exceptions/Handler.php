@@ -54,9 +54,21 @@ class Handler extends ExceptionHandler
             // }
             
             // Mã lỗi mặc định
-            $status = method_exists($e, 'getCode') && $e->getCode() >= 400 && $e->getCode() < 600 
-                ? $e->getCode() 
-                : 400;
+            $status = 400;
+            
+            // Nếu có code và là HTTP code (400-599), sử dụng code đó
+            if (method_exists($e, 'getCode') && $e->getCode() >= 400 && $e->getCode() < 600) {
+                $status = $e->getCode();
+            }
+            
+            // Handle thêm cho các business logic error với mã 422
+            if ($e instanceof \Exception &&
+                !($e instanceof \Symfony\Component\HttpKernel\Exception\HttpException) &&
+                (strpos($e->getMessage(), 'đã được đánh giá') !== false ||
+                 strpos($e->getMessage(), 'đã tồn tại') !== false)
+            ) {
+                $status = 422;
+            }
             
             $response = [
                 'status' => 'error',

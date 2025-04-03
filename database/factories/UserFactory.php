@@ -41,4 +41,16 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    /**
+     * Indicate that the user is a student.
+     */
+    public function student(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'role' => \App\Models\User::ROLE_STUDENT,
+            ];
+        });
+    }
 }

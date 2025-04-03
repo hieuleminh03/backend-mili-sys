@@ -11,6 +11,11 @@ use App\Http\Controllers\Manager\FitnessAssessmentController;
 use App\Http\Controllers\Manager\ManagerClassController;
 use App\Http\Controllers\Manager\ViolationController;
 use App\Http\Controllers\Student\StudentClassController;
+use App\Http\Controllers\Student\StudentProfileController;
+use App\Http\Controllers\Student\StudentCourseController;
+use App\Http\Controllers\Student\StudentGradeController;
+use App\Http\Controllers\Student\StudentFitnessAssessmentController;
+use App\Http\Controllers\Student\StudentViolationController;
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\CheckAnyRole;
 use App\Http\Middleware\CustomAuthenticate;
@@ -94,6 +99,21 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
             Route::get('/', [StudentClassController::class, 'getMyClass']);
             Route::get('/classmates', [StudentClassController::class, 'getClassmates']);
         });
+
+        // Route xem thông tin cá nhân
+        Route::get('/profile', [StudentProfileController::class, 'getProfile']);
+
+        // Route xem các học phần đã đăng ký
+        Route::get('/courses', [StudentCourseController::class, 'getMyCourses']);
+
+        // Route xem điểm số
+        Route::get('/grades', [StudentGradeController::class, 'getMyGrades']);
+
+        // Route xem kết quả kiểm tra thể lực
+        Route::get('/fitness-assessments', [StudentFitnessAssessmentController::class, 'getMyAssessments']);
+
+        // Route xem các vi phạm
+        Route::get('/violations', [StudentViolationController::class, 'getMyViolations']);
     });
     
     // route cho quản lý

@@ -7,6 +7,8 @@ use App\Models\FitnessTestThreshold;
 use App\Models\FitnessAssessmentSession;
 use App\Models\StudentFitnessRecord;
 use App\Models\User;
+use App\Http\Resources\FitnessTestResource;
+use App\Http\Resources\FitnessTestCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -21,11 +23,21 @@ class FitnessTestService
      * @param int $page trang hiện tại
      * @return LengthAwarePaginator
      */
-    public function getAllFitnessTests(int $perPage = 15, int $page = 1): LengthAwarePaginator
+    /**
+     * Lấy danh sách tất cả bài kiểm tra thể lực có phân trang
+     *
+     * @param int $perPage số lượng item trên một trang
+     * @param int $page trang hiện tại
+     * @return \App\Http\Resources\FitnessTestCollection
+     */
+    public function getAllFitnessTests(int $perPage = 15, int $page = 1): \App\Http\Resources\FitnessTestCollection
     {
-        return FitnessTest::with('thresholds')
+        $fitnessTests = FitnessTest::with('thresholds')
             ->orderBy('name')
             ->paginate($perPage, ['*'], 'page', $page);
+
+        // Pass the paginator instance directly to the collection resource
+        return new FitnessTestCollection($fitnessTests);
     }
 
     /**
@@ -35,7 +47,14 @@ class FitnessTestService
      * @return FitnessTest|null
      * @throws \Exception nếu không tìm thấy
      */
-    public function getFitnessTest(int $id): ?FitnessTest
+    /**
+     * Lấy thông tin một bài kiểm tra thể lực
+     *
+     * @param int $id mã bài kiểm tra
+     * @return \App\Http\Resources\FitnessTestResource
+     * @throws \Exception nếu không tìm thấy
+     */
+    public function getFitnessTest(int $id): \App\Http\Resources\FitnessTestResource
     {
         $fitnessTest = FitnessTest::with('thresholds')->find($id);
         
@@ -43,7 +62,7 @@ class FitnessTestService
             throw new \Exception('Không tìm thấy bài kiểm tra thể lực', 404);
         }
         
-        return $fitnessTest;
+        return new FitnessTestResource($fitnessTest);
     }
 
     /**
@@ -53,7 +72,14 @@ class FitnessTestService
      * @return FitnessTest
      * @throws \Exception nếu xảy ra lỗi
      */
-    public function createFitnessTest(array $data): FitnessTest
+    /**
+     * Tạo bài kiểm tra thể lực mới
+     *
+     * @param array $data dữ liệu bài kiểm tra
+     * @return \App\Http\Resources\FitnessTestResource
+     * @throws \Exception nếu có lỗi
+     */
+    public function createFitnessTest(array $data): \App\Http\Resources\FitnessTestResource
     {
         try {
             return DB::transaction(function () use ($data) {
@@ -71,7 +97,8 @@ class FitnessTestService
                     'pass_threshold' => $data['pass_threshold'],
                 ]);
 
-                return $fitnessTest->load('thresholds');
+                $fitnessTest->load('thresholds');
+                return new FitnessTestResource($fitnessTest);
             });
         } catch (\Exception $e) {
             \Log::error('Lỗi khi tạo bài kiểm tra thể lực: ' . $e->getMessage());
@@ -87,11 +114,20 @@ class FitnessTestService
      * @return FitnessTest
      * @throws \Exception nếu xảy ra lỗi
      */
-    public function updateFitnessTest(int $id, array $data): FitnessTest
+    /**
+     * Cập nhật bài kiểm tra thể lực
+     *
+     * @param int $id mã bài kiểm tra
+     * @param array $data dữ liệu cập nhật
+     * @return \App\Http\Resources\FitnessTestResource
+     * @throws \Exception nếu có lỗi
+     */
+    public function updateFitnessTest(int $id, array $data): \App\Http\Resources\FitnessTestResource
     {
         try {
             return DB::transaction(function () use ($id, $data) {
-                $fitnessTest = $this->getFitnessTest($id);
+                // Fetch the actual model, not the resource
+                $fitnessTest = FitnessTest::with('thresholds')->findOrFail($id);
                 
                 // Cập nhật thông tin bài kiểm tra
                 if (isset($data['name'])) {
@@ -138,7 +174,8 @@ class FitnessTestService
                     ]);
                 }
 
-                return $fitnessTest->load('thresholds');
+                $fitnessTest->load('thresholds');
+                return new FitnessTestResource($fitnessTest);
             });
         } catch (\Exception $e) {
             \Log::error('Lỗi khi cập nhật bài kiểm tra thể lực: ' . $e->getMessage());
@@ -192,14 +229,29 @@ class FitnessTestService
         $query = FitnessAssessmentSession::query()->orderByDesc('week_start_date');
         
         if ($currentWeekOnly) {
-            $startOfWeek = Carbon::now()->startOfWeek()->toDateString();
-            $endOfWeek = Carbon::now()->endOfWeek()->toDateString();
+            $now = Carbon::now();
+            $startOfWeek = $now->copy()->startOfWeek()->toDateString();
+            $endOfWeek = $now->copy()->endOfWeek()->toDateString();
             
-            $query->where('week_start_date', '=', $startOfWeek)
-                  ->where('week_end_date', '=', $endOfWeek);
+            // Instead of exact matching, check if the session falls within the current week
+            // This improves test reliability with different time generation
+            $query->whereDate('week_start_date', '>=', $startOfWeek)
+                  ->whereDate('week_end_date', '<=', $endOfWeek);
+                  
+            \Log::debug("Querying current week sessions with dates", [
+                'start_date' => $startOfWeek,
+                'end_date' => $endOfWeek
+            ]);
         }
         
-        return $query->get();
+        $results = $query->get();
+        
+        // Debug count for tests
+        if ($currentWeekOnly) {
+            \Log::debug("Current week sessions count: " . $results->count());
+        }
+        
+        return $results;
     }
 
     /**

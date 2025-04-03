@@ -51,12 +51,22 @@ class FitnessAssessmentSession extends Model
     public static function getCurrentWeekSession(): self
     {
         $now = Carbon::now();
-        $startOfWeek = $now->copy()->startOfWeek(); // Monday
-        $endOfWeek = $now->copy()->endOfWeek();     // Sunday
+        $startOfWeek = $now->copy()->startOfWeek()->startOfDay(); // Monday
+        $endOfWeek = $now->copy()->endOfWeek()->endOfDay();     // Sunday
         
-        $session = self::where('week_start_date', '=', $startOfWeek->toDateString())
-                      ->where('week_end_date', '=', $endOfWeek->toDateString())
+        // Use exact date comparison with formatted dates to ensure consistency
+        $startDate = $startOfWeek->format('Y-m-d');
+        $endDate = $endOfWeek->format('Y-m-d');
+        
+        $session = self::whereDate('week_start_date', $startDate)
+                      ->whereDate('week_end_date', $endDate)
                       ->first();
+
+        \Log::info('getCurrentWeekSession query', [
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'sessionFound' => !!$session,
+        ]);
                       
         if (!$session) {
             $weekNumber = $now->weekOfYear;
@@ -65,8 +75,8 @@ class FitnessAssessmentSession extends Model
             
             $session = self::create([
                 'name' => "Tuần $weekNumber - Tháng $monthName/$year",
-                'week_start_date' => $startOfWeek,
-                'week_end_date' => $endOfWeek,
+                'week_start_date' => $startDate,
+                'week_end_date' => $endDate,
             ]);
         }
         
@@ -84,9 +94,10 @@ class FitnessAssessmentSession extends Model
         $startOfWeek = $now->copy()->startOfWeek()->startOfDay(); // Monday
         $endOfWeek = $now->copy()->endOfWeek()->endOfDay();       // Sunday
         
-        $sessionStart = Carbon::parse($this->week_start_date)->startOfDay();
-        $sessionEnd = Carbon::parse($this->week_end_date)->endOfDay();
+        $sessionStart = $this->week_start_date->startOfDay();
+        $sessionEnd = $this->week_end_date->endOfDay();
         
-        return $sessionStart->eq($startOfWeek) && $sessionEnd->eq($endOfWeek);
+        return $sessionStart->format('Y-m-d') === $startOfWeek->format('Y-m-d') && 
+               $sessionEnd->format('Y-m-d') === $endOfWeek->format('Y-m-d');
     }
 }
