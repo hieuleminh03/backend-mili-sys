@@ -3,9 +3,11 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\ClassController;
 use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\FitnessTestController;
 use App\Http\Controllers\Admin\ManagerController;
 use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\TermController;
+use App\Http\Controllers\Manager\FitnessAssessmentController;
 use App\Http\Controllers\Manager\ManagerClassController;
 use App\Http\Controllers\Manager\ViolationController;
 use App\Http\Controllers\Student\StudentClassController;
@@ -67,6 +69,15 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
             Route::put('/{courseId}/students/{userId}/grade', [CourseController::class, 'updateStudentGrade']);
             Route::put('/{id}/grades/bulk', [CourseController::class, 'bulkUpdateGrades']);
         });
+        
+        // quản lý bài kiểm tra thể lực
+        Route::prefix('fitness-tests')->group(function () {
+            Route::get('/', [FitnessTestController::class, 'getAll']);
+            Route::post('/', [FitnessTestController::class, 'create']);
+            Route::get('/{id}', [FitnessTestController::class, 'get']);
+            Route::put('/{id}', [FitnessTestController::class, 'update']);
+            Route::delete('/{id}', [FitnessTestController::class, 'delete']);
+        });
     });
     
     // route cho sinh viên
@@ -117,6 +128,16 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
             Route::put('/students/{studentId}/assign-monitor', [ManagerClassController::class, 'assignMonitor']);
             Route::put('/students/{studentId}/assign-vice-monitor', [ManagerClassController::class, 'assignViceMonitor']);
             Route::put('/students/{studentId}/assign-student', [ManagerClassController::class, 'assignStudent']);
+        });
+        
+        // Routes quản lý đánh giá thể lực
+        Route::prefix('fitness')->group(function () {
+            Route::get('/tests', [FitnessAssessmentController::class, 'getAllFitnessTests']);
+            Route::get('/sessions', [FitnessAssessmentController::class, 'getAllSessions']);
+            Route::get('/current-session', [FitnessAssessmentController::class, 'getCurrentWeekSession']);
+            Route::get('/sessions/{sessionId}/assessments', [FitnessAssessmentController::class, 'getSessionAssessments']);
+            Route::post('/assessments', [FitnessAssessmentController::class, 'recordAssessment']);
+            Route::post('/assessments/batch', [FitnessAssessmentController::class, 'batchRecordAssessments']); // Endpoint mới cho đánh giá hàng loạt
         });
     });
     
