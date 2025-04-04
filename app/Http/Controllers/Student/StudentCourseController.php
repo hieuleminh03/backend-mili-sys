@@ -11,8 +11,6 @@ class StudentCourseController extends BaseController
     /**
      * Lấy danh sách các học phần mà student đang đăng nhập đã đăng ký.
      * Fetches the list of courses the currently logged-in student is enrolled in.
-     *
-     * @return JsonResponse
      */
     public function getMyCourses(): JsonResponse
     {

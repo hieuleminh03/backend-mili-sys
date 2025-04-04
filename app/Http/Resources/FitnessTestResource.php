@@ -10,9 +10,6 @@ class FitnessTestResource extends JsonResource
     /**
      * Transform the resource into an array.
      * Chuyển đổi dữ liệu fitness test để thỏa mãn cấu trúc JSON cần thiết
-     *
-     * @param Request $request
-     * @return array
      */
     public function toArray(Request $request): array
     {
@@ -25,7 +22,7 @@ class FitnessTestResource extends JsonResource
             'good_threshold' => null,
             'pass_threshold' => null,
         ];
-        
+
         return [
             'id' => $this->id,
             'name' => $this->name,

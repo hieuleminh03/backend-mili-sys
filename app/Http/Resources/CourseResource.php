@@ -28,4 +28,4 @@ class CourseResource extends JsonResource
             'term' => new TermResource($this->whenLoaded('term')),
         ];
     }
-} 
+}

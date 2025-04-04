@@ -29,7 +29,7 @@ return new class extends Migration
             $table->string('parent_hometown', 100)->nullable();
             $table->string('permanent_address', 255)->nullable();
             $table->timestamps();
-            
+
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
@@ -41,4 +41,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('manager_details');
     }
-}; 
+};

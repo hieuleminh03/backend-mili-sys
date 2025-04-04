@@ -20,7 +20,7 @@ return new class extends Migration
             $table->date('grade_entry_date'); // Date for grade entry (at least 2 weeks after end_date)
             $table->timestamps();
             $table->softDeletes(); // Add soft deletes to preserve history
-            
+
             $table->unique(['name', 'deleted_at'], 'terms_name_unique');
         });
     }

@@ -18,8 +18,6 @@ class FitnessTestController extends BaseController
 
     /**
      * lấy danh sách tất cả bài kiểm tra thể lực
-     *
-     * @return JsonResponse
      */
     public function getAll(): JsonResponse
     {
@@ -35,8 +33,7 @@ class FitnessTestController extends BaseController
     /**
      * lấy thông tin một bài kiểm tra thể lực
      *
-     * @param int $id mã bài kiểm tra
-     * @return JsonResponse
+     * @param  int  $id  mã bài kiểm tra
      */
     public function get(int $id): JsonResponse
     {
@@ -49,8 +46,7 @@ class FitnessTestController extends BaseController
     /**
      * tạo bài kiểm tra thể lực mới
      *
-     * @param FitnessTestRequest $request dữ liệu bài kiểm tra
-     * @return JsonResponse
+     * @param  FitnessTestRequest  $request  dữ liệu bài kiểm tra
      */
     public function create(FitnessTestRequest $request): JsonResponse
     {
@@ -64,9 +60,8 @@ class FitnessTestController extends BaseController
     /**
      * cập nhật thông tin bài kiểm tra thể lực
      *
-     * @param FitnessTestRequest $request dữ liệu cập nhật
-     * @param int $id mã bài kiểm tra
-     * @return JsonResponse
+     * @param  FitnessTestRequest  $request  dữ liệu cập nhật
+     * @param  int  $id  mã bài kiểm tra
      */
     public function update(FitnessTestRequest $request, int $id): JsonResponse
     {
@@ -79,8 +74,7 @@ class FitnessTestController extends BaseController
     /**
      * xóa bài kiểm tra thể lực
      *
-     * @param int $id mã bài kiểm tra
-     * @return JsonResponse
+     * @param  int  $id  mã bài kiểm tra
      */
     public function delete(int $id): JsonResponse
     {

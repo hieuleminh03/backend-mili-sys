@@ -13,8 +13,6 @@ class ManagerController extends BaseController
 
     /**
      * khởi tạo controller với service
-     *
-     * @param ManagerService $managerService
      */
     public function __construct(ManagerService $managerService)
     {
@@ -23,13 +21,11 @@ class ManagerController extends BaseController
 
     /**
      * lấy danh sách các manager
-     *
-     * @return JsonResponse
      */
     public function getAllManagers(): JsonResponse
     {
         return $this->executeService(
-            fn() => $this->managerService->getAllManagers(),
+            fn () => $this->managerService->getAllManagers(),
             'Lấy danh sách quản lý thành công'
         );
     }
@@ -37,13 +33,12 @@ class ManagerController extends BaseController
     /**
      * xem chi tiết thông tin của một manager
      *
-     * @param int $id ID của manager
-     * @return JsonResponse
+     * @param  int  $id  ID của manager
      */
     public function getManagerDetail(int $id): JsonResponse
     {
         return $this->executeService(
-            fn() => $this->managerService->getManagerDetail($id),
+            fn () => $this->managerService->getManagerDetail($id),
             'Lấy thông tin chi tiết quản lý thành công'
         );
     }
@@ -51,15 +46,13 @@ class ManagerController extends BaseController
     /**
      * cập nhật thông tin chi tiết của manager
      *
-     * @param ManagerDetailUpdateRequest $request
-     * @param int $id ID của manager
-     * @return JsonResponse
+     * @param  int  $id  ID của manager
      */
     public function updateManagerDetail(ManagerDetailUpdateRequest $request, int $id): JsonResponse
     {
         return $this->executeService(
-            fn() => $this->managerService->updateManagerDetail($id, $request->validated()),
+            fn () => $this->managerService->updateManagerDetail($id, $request->validated()),
             'Cập nhật thông tin quản lý thành công'
         );
     }
-} 
+}

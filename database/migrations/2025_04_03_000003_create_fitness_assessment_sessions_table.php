@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date('week_end_date'); // Ngày kết thúc của tuần đánh giá
             $table->text('notes')->nullable(); // Ghi chú về tuần đánh giá
             $table->timestamps();
-            
+
             $table->index('week_start_date');
             $table->index('week_end_date');
         });

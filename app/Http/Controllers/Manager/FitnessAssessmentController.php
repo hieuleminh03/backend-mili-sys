@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Manager;
 
 use App\Http\Controllers\BaseController;
-use App\Http\Requests\FitnessAssessmentRequest;
 use App\Http\Requests\BatchFitnessAssessmentRequest;
+use App\Http\Requests\FitnessAssessmentRequest;
 use App\Services\FitnessTestService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,9 +20,6 @@ class FitnessAssessmentController extends BaseController
 
     /**
      * lấy danh sách tất cả các phiên đánh giá thể lực
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function getAllSessions(Request $request): JsonResponse
     {
@@ -36,8 +33,6 @@ class FitnessAssessmentController extends BaseController
 
     /**
      * lấy hoặc tạo phiên đánh giá cho tuần hiện tại
-     *
-     * @return JsonResponse
      */
     public function getCurrentWeekSession(): JsonResponse
     {
@@ -49,8 +44,6 @@ class FitnessAssessmentController extends BaseController
 
     /**
      * lấy danh sách tất cả bài kiểm tra thể lực
-     *
-     * @return JsonResponse
      */
     public function getAllFitnessTests(): JsonResponse
     {
@@ -66,9 +59,7 @@ class FitnessAssessmentController extends BaseController
     /**
      * lấy kết quả đánh giá của một phiên đánh giá
      *
-     * @param int $sessionId mã phiên đánh giá
-     * @param Request $request
-     * @return JsonResponse
+     * @param  int  $sessionId  mã phiên đánh giá
      */
     public function getSessionAssessments(int $sessionId, Request $request): JsonResponse
     {
@@ -83,9 +74,6 @@ class FitnessAssessmentController extends BaseController
 
     /**
      * ghi nhận kết quả đánh giá thể lực mới cho học viên
-     *
-     * @param FitnessAssessmentRequest $request
-     * @return JsonResponse
      */
     public function recordAssessment(FitnessAssessmentRequest $request): JsonResponse
     {
@@ -102,9 +90,6 @@ class FitnessAssessmentController extends BaseController
     /**
      * ghi nhận kết quả đánh giá thể lực hàng loạt cho nhiều học viên
      * dùng transaction
-     *
-     * @param BatchFitnessAssessmentRequest $request
-     * @return JsonResponse
      */
     public function batchRecordAssessments(BatchFitnessAssessmentRequest $request): JsonResponse
     {

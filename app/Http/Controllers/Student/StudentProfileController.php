@@ -11,14 +11,13 @@ class StudentProfileController extends BaseController
     /**
      * Lấy thông tin profile của student đang đăng nhập.
      * Fetches the profile information of the currently logged-in student.
-     *
-     * @return JsonResponse
      */
     public function getProfile(): JsonResponse
     {
         return $this->executeService(
             function () {
                 $user = auth()->user();
+
                 return new UserResource($user);
             },
             'Lấy thông tin profile thành công'

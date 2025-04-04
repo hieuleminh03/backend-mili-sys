@@ -18,7 +18,7 @@ class ViolationRecord extends Model
         'student_id',
         'manager_id',
         'violation_name',
-        'violation_date'
+        'violation_date',
     ];
 
     /**
@@ -27,7 +27,7 @@ class ViolationRecord extends Model
      * @var array
      */
     protected $casts = [
-        'violation_date' => 'date'
+        'violation_date' => 'date',
     ];
 
     /**
@@ -59,4 +59,4 @@ class ViolationRecord extends Model
     {
         return $this->created_at->diffInDays(now()) < 1;
     }
-} 
+}

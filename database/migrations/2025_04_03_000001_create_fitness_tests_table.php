@@ -18,7 +18,7 @@ return new class extends Migration
             $table->boolean('higher_is_better')->default(false); // True nếu số cao hơn là tốt hơn (như mét), False nếu số thấp hơn là tốt hơn (như giây)
             $table->timestamps();
             $table->softDeletes(); // Soft delete để đảm bảo dữ liệu lịch sử
-            
+
             $table->unique(['name', 'deleted_at']);
         });
     }

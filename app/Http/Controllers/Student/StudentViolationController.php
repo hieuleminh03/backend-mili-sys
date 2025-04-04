@@ -12,8 +12,6 @@ class StudentViolationController extends BaseController
     /**
      * Lấy danh sách các vi phạm của student đang đăng nhập.
      * Fetches the violation records for the currently logged-in student.
-     *
-     * @return JsonResponse
      */
     public function getMyViolations(): JsonResponse
     {

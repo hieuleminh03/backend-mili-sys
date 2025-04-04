@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 
@@ -48,8 +48,9 @@ class EnrollmentRequest extends FormRequest
     /**
      * xử lý validation thất bại và trả về response json
      *
-     * @param Validator $validator validator instance
+     * @param  Validator  $validator  validator instance
      * @return void
+     *
      * @throws HttpResponseException
      */
     protected function failedValidation(Validator $validator)
@@ -58,8 +59,8 @@ class EnrollmentRequest extends FormRequest
             response()->json([
                 'status' => 'error',
                 'message' => 'Lỗi dữ liệu đầu vào',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
         );
     }
-} 
+}

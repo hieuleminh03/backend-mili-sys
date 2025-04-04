@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('violation_name', 100);
             $table->date('violation_date');
             $table->timestamps();
-            
+
             $table->foreign('student_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('manager_id')->references('id')->on('users')->onDelete('cascade');
         });
@@ -31,4 +31,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('violation_records');
     }
-}; 
+};

@@ -13,8 +13,6 @@ class TermService
 {
     /**
      * lấy tất cả các học kỳ, sắp xếp theo ngày bắt đầu giảm dần
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getAllTerms(): Collection
     {
@@ -24,8 +22,6 @@ class TermService
     /**
      * lấy một học kỳ cụ thể cùng với các lớp học
      *
-     * @param int $id
-     * @return Term
      * @throws ModelNotFoundException
      */
     public function getTerm(int $id): Term
@@ -40,8 +36,8 @@ class TermService
     /**
      * thêm mới một học kỳ, có validate dữ liệu và kiểm tra trùng tên
      *
-     * @param array $data dữ liệu học kỳ
-     * @return Term
+     * @param  array  $data  dữ liệu học kỳ
+     *
      * @throws \Exception
      */
     public function createTerm(array $data): Term
@@ -57,11 +53,12 @@ class TermService
                         $existingTerm->restore();
                         // Cập nhật dữ liệu mới
                         $existingTerm->fill($data);
-                        
+
                         // Kiểm tra các ràng buộc nghiệp vụ
                         $this->validateTermBusinessRules($existingTerm);
-                        
+
                         $existingTerm->save();
+
                         return $existingTerm;
                     } else {
                         throw new ValidationException(
@@ -69,13 +66,14 @@ class TermService
                         );
                     }
                 }
-                
+
                 $term = new Term($data);
-                
+
                 // Kiểm tra các ràng buộc nghiệp vụ
                 $this->validateTermBusinessRules($term);
-                
+
                 $term->save();
+
                 return $term;
             });
         } catch (ValidationException $e) {
@@ -83,21 +81,21 @@ class TermService
             throw $e;
         } catch (\Illuminate\Database\QueryException $e) {
             // ghi log lỗi database
-            \Log::error('Lỗi database khi tạo học kỳ: ' . $e->getMessage());
-            
+            \Log::error('Lỗi database khi tạo học kỳ: '.$e->getMessage());
+
             // kiểm tra nếu là lỗi unique constraint
             if ($e->getCode() == 23000 && strpos($e->getMessage(), 'Duplicate entry') !== false) {
                 throw new ValidationException(
                     validator(['name' => $data['name']], ['name' => 'unique:terms,name'])
                 );
             }
-            
+
             throw $e;
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException('Không tìm thấy học kỳ');
         } catch (\Exception $e) {
             // ghi log lỗi khác
-            \Log::error('Lỗi không xác định khi tạo học kỳ: ' . $e->getMessage());
+            \Log::error('Lỗi không xác định khi tạo học kỳ: '.$e->getMessage());
             throw $e;
         }
     }
@@ -105,9 +103,6 @@ class TermService
     /**
      * cập nhật một học kỳ có validate
      *
-     * @param int $id
-     * @param array $data
-     * @return Term
      * @throws \Exception
      */
     public function updateTerm(int $id, array $data): Term
@@ -116,11 +111,12 @@ class TermService
             return DB::transaction(function () use ($id, $data) {
                 $term = Term::findOrFail($id);
                 $term->fill($data);
-                
+
                 // Kiểm tra các ràng buộc nghiệp vụ
                 $this->validateTermBusinessRules($term);
-                
+
                 $term->save();
+
                 return $term;
             });
         } catch (ModelNotFoundException $e) {
@@ -133,8 +129,6 @@ class TermService
      * chỉ có thể xóa học kỳ không có lớp học
      * sử dụng forceDelete để xóa hoàn toàn khỏi database
      *
-     * @param int $id
-     * @return bool
      * @throws \Exception
      */
     public function deleteTerm(int $id): bool
@@ -142,12 +136,12 @@ class TermService
         try {
             return DB::transaction(function () use ($id) {
                 $term = Term::findOrFail($id);
-                
+
                 // check nếu có lớp học liên kết với học kỳ
                 if ($term->courses()->count() > 0) {
                     throw new \Exception('Không thể xóa học kỳ có lớp học');
                 }
-                
+
                 // Sử dụng forceDelete để xóa hoàn toàn, không phải soft delete
                 return $term->forceDelete();
             });
@@ -158,23 +152,22 @@ class TermService
 
     /**
      * Kiểm tra các ràng buộc nghiệp vụ cho học kỳ
-     * 
-     * @param Term $term
+     *
      * @throws \Exception
      */
     protected function validateTermBusinessRules(Term $term)
     {
         // check định dạng tên học kỳ
-        if (!Term::isValidNameFormat($term->name)) {
+        if (! Term::isValidNameFormat($term->name)) {
             throw new \Exception('Tên học kỳ phải theo định dạng YYYY[A-Z] (ví dụ: 2024A)');
         }
-        
+
         // check ngày tháng
         $dateValidation = $this->validateDates($term);
         if ($dateValidation !== true) {
-            throw new \Exception('Lỗi kiểm tra ngày tháng: ' . implode(', ', $dateValidation));
+            throw new \Exception('Lỗi kiểm tra ngày tháng: '.implode(', ', $dateValidation));
         }
-        
+
         // check trùng thời gian
         if ($this->hasTermOverlap($term)) {
             throw new \Exception('Thời gian của học kỳ chồng chéo với một học kỳ khác');
@@ -183,45 +176,41 @@ class TermService
 
     /**
      * kiểm tra xem ngày tháng của học kỳ có hợp lệ hay không
-     * 
      *
-     * @param Term $term
+     *
      * @return array|true Array of errors or true if valid
      */
     protected function validateDates(Term $term)
     {
         $errors = [];
-        
+
         // ngày kết thúc phải sau ngày bắt đầu
         if ($term->end_date <= $term->start_date) {
             $errors[] = 'ngày kết thúc phải sau ngày bắt đầu';
         }
-        
+
         // hạn chốt lớp phải sau ngày bắt đầu ít nhất 2 tuần
         $minRosterDeadline = Carbon::parse($term->start_date)->addWeeks(2);
         if ($term->roster_deadline < $minRosterDeadline) {
             $errors[] = 'hạn chốt lớp phải sau ngày bắt đầu ít nhất 2 tuần';
         }
-        
+
         // hạn chốt lớp phải trước ngày kết thúc
         if ($term->roster_deadline >= $term->end_date) {
             $errors[] = 'hạn chốt lớp phải trước ngày kết thúc';
         }
-        
+
         // ngày nhập điểm phải sau ngày kết thúc ít nhất 2 tuần
         $minGradeEntryDate = Carbon::parse($term->end_date)->addWeeks(2);
         if ($term->grade_entry_date < $minGradeEntryDate) {
             $errors[] = 'ngày nhập điểm phải sau ngày kết thúc ít nhất 2 tuần';
         }
-        
+
         return empty($errors) ? true : $errors;
     }
 
     /**
      * kiểm tra xem một học kỳ có trùng thời gian với học kỳ khác
-     *
-     * @param Term $term
-     * @return bool
      */
     protected function hasTermOverlap(Term $term): bool
     {
@@ -234,7 +223,7 @@ class TermService
                             ->where('end_date', '>=', $term->end_date);
                     });
             });
-            
+
         return $query->exists();
     }
-} 
+}

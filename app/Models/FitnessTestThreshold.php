@@ -11,7 +11,7 @@ class FitnessTestThreshold extends Model
     use HasFactory;
 
     /**
-     * The attributes that are mass assignable.
+     * Các thuộc tính có thể gán hàng loạt
      *
      * @var array
      */
@@ -23,7 +23,7 @@ class FitnessTestThreshold extends Model
     ];
 
     /**
-     * The attributes that should be cast.
+     * Các thuộc tính cần cast
      *
      * @var array
      */
@@ -34,9 +34,7 @@ class FitnessTestThreshold extends Model
     ];
 
     /**
-     * Get the fitness test this threshold belongs to.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * Lấy bài kiểm tra thể lực mà ngưỡng này thuộc về
      */
     public function fitnessTest(): BelongsTo
     {
@@ -44,40 +42,40 @@ class FitnessTestThreshold extends Model
     }
 
     /**
-     * Xác thực rằng các ngưỡng đánh giá phải tuân theo thứ tự đúng
-     * Excellent phải tốt hơn Good và Good phải tốt hơn Pass
+     * Kiểm tra tính hợp lệ của thứ tự các ngưỡng đánh giá
+     * Excellent > Good > Pass (hoặc ngược lại tùy thuộc vào higher_is_better)
      *
-     * @return bool|array true nếu thỏa mãn, array chứa lỗi nếu không
+     * @return bool|array True nếu hợp lệ, array chứa thông báo lỗi nếu không
      */
     public function validateThresholdOrder()
     {
         $errors = [];
         $test = $this->fitnessTest;
-        
-        if (!$test) {
-            return true; // Cannot validate without test
+
+        if (! $test) {
+            return true; // Không thể validate khi chưa có bài kiểm tra
         }
-        
+
         if ($test->higher_is_better) {
-            // Highest values should be better (ví dụ mét, lần)
+            // Giá trị cao hơn là tốt hơn (chạy xa, bơi xa)
             if ($this->excellent_threshold < $this->good_threshold) {
-                $errors[] = "Ngưỡng Giỏi phải cao hơn hoặc bằng ngưỡng Khá";
+                $errors[] = 'Ngưỡng Giỏi phải cao hơn hoặc bằng ngưỡng Khá';
             }
-            
+
             if ($this->good_threshold < $this->pass_threshold) {
-                $errors[] = "Ngưỡng Khá phải cao hơn hoặc bằng ngưỡng Đạt";
+                $errors[] = 'Ngưỡng Khá phải cao hơn hoặc bằng ngưỡng Đạt';
             }
         } else {
-            // Lowest values should be better (ví dụ giây)
+            // Giá trị thấp hơn là tốt hơn (thời gian chạy)
             if ($this->excellent_threshold > $this->good_threshold) {
-                $errors[] = "Ngưỡng Giỏi phải thấp hơn hoặc bằng ngưỡng Khá";
+                $errors[] = 'Ngưỡng Giỏi phải thấp hơn hoặc bằng ngưỡng Khá';
             }
-            
+
             if ($this->good_threshold > $this->pass_threshold) {
-                $errors[] = "Ngưỡng Khá phải thấp hơn hoặc bằng ngưỡng Đạt";
+                $errors[] = 'Ngưỡng Khá phải thấp hơn hoặc bằng ngưỡng Đạt';
             }
         }
-        
+
         return empty($errors) ? true : $errors;
     }
 }

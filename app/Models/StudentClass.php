@@ -20,7 +20,7 @@ class StudentClass extends Model
         'role',
         'status',
         'reason',
-        'note'
+        'note',
     ];
 
     /**
@@ -31,7 +31,7 @@ class StudentClass extends Model
     const ROLES = [
         'monitor' => 'Lớp trưởng',
         'vice_monitor' => 'Lớp phó',
-        'student' => 'Học viên'
+        'student' => 'Học viên',
     ];
 
     /**
@@ -41,7 +41,7 @@ class StudentClass extends Model
      */
     const STATUSES = [
         'active' => 'Đang học',
-        'suspended' => 'Tạm hoãn'
+        'suspended' => 'Tạm hoãn',
     ];
 
     /**
@@ -63,4 +63,4 @@ class StudentClass extends Model
     {
         return $this->belongsTo(ClassRoom::class, 'class_id');
     }
-} 
+}

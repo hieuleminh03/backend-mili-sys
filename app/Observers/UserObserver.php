@@ -10,7 +10,6 @@ class UserObserver
     /**
      * Xử lý sự kiện sau khi một user được tạo.
      *
-     * @param  \App\Models\User  $user
      * @return void
      */
     public function created(User $user)
@@ -26,16 +25,15 @@ class UserObserver
     /**
      * Xử lý sự kiện sau khi một user được cập nhật.
      *
-     * @param  \App\Models\User  $user
      * @return void
      */
     public function updated(User $user)
     {
         // Nếu role được cập nhật thành manager và chưa có bản ghi manager_detail
-        if ($user->isManager() && !$user->managerDetail) {
+        if ($user->isManager() && ! $user->managerDetail) {
             ManagerDetail::create([
                 'user_id' => $user->id,
             ]);
         }
     }
-} 
+}

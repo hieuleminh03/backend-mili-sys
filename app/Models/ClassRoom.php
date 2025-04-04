@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -24,7 +23,7 @@ class ClassRoom extends Model
      */
     protected $fillable = [
         'name',
-        'manager_id'
+        'manager_id',
     ];
 
     /**
@@ -55,8 +54,8 @@ class ClassRoom extends Model
     protected function studentsQuery()
     {
         return $this->belongsToMany(User::class, 'student_classes', 'class_id', 'user_id')
-                    ->withPivot(['role', 'status', 'reason', 'note'])
-                    ->withTimestamps();
+            ->withPivot(['role', 'status', 'reason', 'note'])
+            ->withTimestamps();
     }
 
     /**
@@ -77,8 +76,8 @@ class ClassRoom extends Model
     protected function monitorQuery()
     {
         return $this->belongsToMany(User::class, 'student_classes', 'class_id', 'user_id')
-                    ->withPivot(['role', 'status', 'reason', 'note'])
-                    ->wherePivot('role', 'monitor');
+            ->withPivot(['role', 'status', 'reason', 'note'])
+            ->wherePivot('role', 'monitor');
     }
 
     /**
@@ -99,8 +98,8 @@ class ClassRoom extends Model
     protected function viceMonitorsQuery()
     {
         return $this->belongsToMany(User::class, 'student_classes', 'class_id', 'user_id')
-                    ->withPivot(['role', 'status', 'reason', 'note'])
-                    ->wherePivot('role', 'vice_monitor');
+            ->withPivot(['role', 'status', 'reason', 'note'])
+            ->wherePivot('role', 'vice_monitor');
     }
 
     /**
@@ -112,4 +111,4 @@ class ClassRoom extends Model
     {
         return $this->viceMonitorsQuery()->get();
     }
-} 
+}

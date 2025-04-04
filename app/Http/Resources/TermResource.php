@@ -20,4 +20,4 @@ class TermResource extends JsonResource
             'name' => $this->name,
         ];
     }
-} 
+}

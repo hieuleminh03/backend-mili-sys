@@ -31,7 +31,7 @@ class StudentClassAddRequest extends FormRequest
             'role' => 'nullable|string|in:monitor,vice_monitor,student',
             'status' => 'nullable|string|in:active,suspended',
             'reason' => 'nullable|string|required_if:status,suspended',
-            'note' => 'nullable|string'
+            'note' => 'nullable|string',
         ];
     }
 
@@ -52,15 +52,16 @@ class StudentClassAddRequest extends FormRequest
             'status.in' => 'Trạng thái không hợp lệ',
             'reason.string' => 'Lý do phải là chuỗi',
             'reason.required_if' => 'Lý do là bắt buộc khi trạng thái là tạm hoãn',
-            'note.string' => 'Ghi chú phải là chuỗi'
+            'note.string' => 'Ghi chú phải là chuỗi',
         ];
     }
 
     /**
      * xử lý validation thất bại và trả về response json
      *
-     * @param Validator $validator validator instance
+     * @param  Validator  $validator  validator instance
      * @return void
+     *
      * @throws HttpResponseException
      */
     protected function failedValidation(Validator $validator)
@@ -69,8 +70,8 @@ class StudentClassAddRequest extends FormRequest
             response()->json([
                 'status' => 'error',
                 'message' => 'Lỗi dữ liệu đầu vào',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
         );
     }
-} 
+}

@@ -17,7 +17,9 @@ class User extends Authenticatable implements JWTSubject
      * Role constants
      */
     const ROLE_STUDENT = 'student';
+
     const ROLE_MANAGER = 'manager';
+
     const ROLE_ADMIN = 'admin';
 
     /**
@@ -66,9 +68,6 @@ class User extends Authenticatable implements JWTSubject
 
     /**
      * Check if user has a specific role
-     *
-     * @param string $role
-     * @return bool
      */
     public function hasRole(string $role): bool
     {
@@ -77,8 +76,6 @@ class User extends Authenticatable implements JWTSubject
 
     /**
      * Check if user is a student
-     *
-     * @return bool
      */
     public function isStudent(): bool
     {
@@ -87,8 +84,6 @@ class User extends Authenticatable implements JWTSubject
 
     /**
      * Check if user is a manager
-     *
-     * @return bool
      */
     public function isManager(): bool
     {
@@ -97,8 +92,6 @@ class User extends Authenticatable implements JWTSubject
 
     /**
      * Check if user is an admin
-     *
-     * @return bool
      */
     public function isAdmin(): bool
     {
@@ -113,7 +106,7 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [
-            'role' => $this->role
+            'role' => $this->role,
         ];
     }
 
@@ -177,8 +170,8 @@ class User extends Authenticatable implements JWTSubject
     public function class()
     {
         return $this->belongsToMany(ClassRoom::class, 'student_classes')
-                    ->withPivot(['role', 'status', 'reason', 'note'])
-                    ->withTimestamps();
+            ->withPivot(['role', 'status', 'reason', 'note'])
+            ->withTimestamps();
     }
 
     /**
@@ -190,7 +183,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(ClassRoom::class, 'manager_id');
     }
-    
+
     /**
      * Check if user is a monitor (lớp trưởng) of any class.
      *
@@ -200,7 +193,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->studentClass && $this->studentClass->role === 'monitor';
     }
-    
+
     /**
      * Check if user is a vice monitor (lớp phó) of any class.
      *

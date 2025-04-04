@@ -4,16 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FitnessTest extends Model
 {
     use HasFactory, SoftDeletes;
 
     /**
-     * The attributes that are mass assignable.
+     * Các thuộc tính có thể gán hàng loạt
      *
      * @var array
      */
@@ -24,7 +24,7 @@ class FitnessTest extends Model
     ];
 
     /**
-     * The attributes that should be cast.
+     * Các thuộc tính cần cast
      *
      * @var array
      */
@@ -33,9 +33,7 @@ class FitnessTest extends Model
     ];
 
     /**
-     * Get the thresholds for this fitness test.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * Lấy ngưỡng đánh giá của bài kiểm tra
      */
     public function thresholds(): HasOne
     {
@@ -43,9 +41,7 @@ class FitnessTest extends Model
     }
 
     /**
-     * Get the student records for this fitness test.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * Lấy kết quả đánh giá của học viên cho bài kiểm tra này
      */
     public function studentRecords(): HasMany
     {
@@ -53,19 +49,19 @@ class FitnessTest extends Model
     }
 
     /**
-     * Xác định xếp loại dựa trên performance và thresholds
+     * Xác định xếp loại dựa trên kết quả và ngưỡng đánh giá
      *
-     * @param float $performance kết quả đạt được
-     * @return string xếp loại ('excellent', 'good', 'pass' hoặc 'fail')
+     * @param  float  $performance  Kết quả đạt được
+     * @return string Xếp loại ('excellent', 'good', 'pass' hoặc 'fail')
      */
     public function determineRating(float $performance): string
     {
-        if (!$this->thresholds) {
+        if (! $this->thresholds) {
             return 'fail';
         }
 
         if ($this->higher_is_better) {
-            // Với các chỉ số cao hơn là tốt hơn (như mét đạt được)
+            // Với các chỉ số cao hơn là tốt hơn (như chạy xa, bơi xa)
             if ($performance >= $this->thresholds->excellent_threshold) {
                 return 'excellent';
             } elseif ($performance >= $this->thresholds->good_threshold) {
@@ -74,7 +70,7 @@ class FitnessTest extends Model
                 return 'pass';
             }
         } else {
-            // Với các chỉ số thấp hơn là tốt hơn (như giây chạy)
+            // Với các chỉ số thấp hơn là tốt hơn (như thời gian chạy)
             if ($performance <= $this->thresholds->excellent_threshold) {
                 return 'excellent';
             } elseif ($performance <= $this->thresholds->good_threshold) {

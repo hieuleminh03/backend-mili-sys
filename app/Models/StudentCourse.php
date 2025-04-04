@@ -67,6 +67,7 @@ class StudentCourse extends Model
     public function canEditGrade()
     {
         $term = $this->course->term;
+
         return now()->gte($term->grade_entry_date);
     }
 

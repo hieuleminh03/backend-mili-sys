@@ -21,7 +21,7 @@ return new class extends Migration
             $table->enum('status', ['enrolled', 'completed', 'dropped', 'failed'])->default('enrolled'); // Trạng thái của sinh viên trong lớp học
             $table->text('notes')->nullable(); // Ghi chú về sinh viên trong lớp học này
             $table->timestamps();
-            
+
             // Đảm bảo một sinh viên chỉ có thể đăng ký một lần trong một lớp học
             $table->unique(['user_id', 'course_id']);
         });

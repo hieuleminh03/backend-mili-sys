@@ -61,7 +61,7 @@ class Course extends Model
 
     /**
      * Get all students with their grades in this course.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getStudentsWithGrades()
@@ -71,6 +71,7 @@ class Course extends Model
             ->get()
             ->map(function ($student) {
                 $enrollment = $student->pivot;
+
                 return [
                     'id' => $student->id,
                     'name' => $student->name,
@@ -92,36 +93,37 @@ class Course extends Model
         do {
             $code = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
         } while (self::where('code', $code)->exists());
-        
+
         return $code;
     }
 
     /**
      * tính điểm tổng kết dựa vào hệ số và điểm giữa kỳ, cuối kỳ
-     * 
-     * @param float $midtermGrade điểm giữa kỳ
-     * @param float $finalGrade điểm cuối kỳ
+     *
+     * @param  float  $midtermGrade  điểm giữa kỳ
+     * @param  float  $finalGrade  điểm cuối kỳ
      * @return float điểm tổng kết
      */
     public function calculateTotalGrade(float $midtermGrade, float $finalGrade): float
     {
         return round($this->midterm_weight * $midtermGrade + (1 - $this->midterm_weight) * $finalGrade, 2);
     }
-    
+
     /**
      * kiểm tra xem lớp học còn chỗ không
-     * 
+     *
      * @return bool true nếu còn chỗ để đăng ký
      */
     public function hasAvailableSlots(): bool
     {
         $currentStudentCount = $this->studentCourses()->count();
+
         return $currentStudentCount < $this->enroll_limit;
     }
-    
+
     /**
      * lấy số lượng sinh viên hiện tại trong lớp
-     * 
+     *
      * @return int số lượng sinh viên hiện tại
      */
     public function getCurrentStudentCount(): int

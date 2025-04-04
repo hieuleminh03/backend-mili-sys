@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Carbon\Carbon;
 
 class Term extends Model
 {
@@ -52,29 +52,29 @@ class Term extends Model
     public function validateDates()
     {
         $errors = [];
-        
+
         // End date must be after start date
         if ($this->end_date <= $this->start_date) {
             $errors[] = 'End date must be after start date.';
         }
-        
+
         // Roster deadline must be at least 2 weeks after start date
         $minRosterDeadline = Carbon::parse($this->start_date)->addWeeks(2);
         if ($this->roster_deadline < $minRosterDeadline) {
             $errors[] = 'Roster deadline must be at least 2 weeks after start date.';
         }
-        
+
         // Roster deadline must be before end date
         if ($this->roster_deadline >= $this->end_date) {
             $errors[] = 'Roster deadline must be before end date.';
         }
-        
+
         // Grade entry date must be at least 2 weeks after end date
         $minGradeEntryDate = Carbon::parse($this->end_date)->addWeeks(2);
         if ($this->grade_entry_date < $minGradeEntryDate) {
             $errors[] = 'Grade entry date must be at least 2 weeks after end date.';
         }
-        
+
         return empty($errors) ? true : $errors;
     }
 
@@ -94,14 +94,14 @@ class Term extends Model
                             ->where('end_date', '>=', $this->end_date);
                     });
             });
-            
+
         return $query->exists();
     }
-    
+
     /**
      * Validate the term name format (year-letter).
      *
-     * @param string $name
+     * @param  string  $name
      * @return bool
      */
     public static function isValidNameFormat($name)

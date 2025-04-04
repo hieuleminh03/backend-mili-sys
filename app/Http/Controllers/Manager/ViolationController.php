@@ -14,8 +14,6 @@ class ViolationController extends BaseController
 
     /**
      * khởi tạo controller với service
-     *
-     * @param ViolationService $violationService
      */
     public function __construct(ViolationService $violationService)
     {
@@ -25,27 +23,23 @@ class ViolationController extends BaseController
     /**
      * lấy danh sách vi phạm của một học viên
      *
-     * @param int $studentId ID của học viên
-     * @return JsonResponse
+     * @param  int  $studentId  ID của học viên
      */
     public function getStudentViolations(int $studentId): JsonResponse
     {
         return $this->executeService(
-            fn() => $this->violationService->getStudentViolations($studentId),
+            fn () => $this->violationService->getStudentViolations($studentId),
             'Lấy danh sách vi phạm thành công'
         );
     }
 
     /**
      * tạo mới bản ghi vi phạm
-     *
-     * @param ViolationCreateRequest $request
-     * @return JsonResponse
      */
     public function create(ViolationCreateRequest $request): JsonResponse
     {
         return $this->executeService(
-            fn() => $this->violationService->createViolation(
+            fn () => $this->violationService->createViolation(
                 $request->validated(),
                 auth()->id()
             ),
@@ -57,14 +51,12 @@ class ViolationController extends BaseController
     /**
      * cập nhật thông tin vi phạm
      *
-     * @param ViolationUpdateRequest $request
-     * @param int $id ID của vi phạm
-     * @return JsonResponse
+     * @param  int  $id  ID của vi phạm
      */
     public function update(ViolationUpdateRequest $request, int $id): JsonResponse
     {
         return $this->executeService(
-            fn() => $this->violationService->updateViolation(
+            fn () => $this->violationService->updateViolation(
                 $id,
                 $request->validated(),
                 auth()->id()
@@ -76,14 +68,13 @@ class ViolationController extends BaseController
     /**
      * xóa bản ghi vi phạm
      *
-     * @param int $id ID của vi phạm
-     * @return JsonResponse
+     * @param  int  $id  ID của vi phạm
      */
     public function delete(int $id): JsonResponse
     {
         return $this->executeService(
-            fn() => $this->violationService->deleteViolation($id, auth()->id()),
+            fn () => $this->violationService->deleteViolation($id, auth()->id()),
             'Xóa vi phạm thành công'
         );
     }
-} 
+}

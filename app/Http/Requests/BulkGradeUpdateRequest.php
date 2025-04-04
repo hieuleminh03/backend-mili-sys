@@ -60,8 +60,9 @@ class BulkGradeUpdateRequest extends FormRequest
     /**
      * xử lý validation thất bại và trả về response json
      *
-     * @param Validator $validator validator instance
+     * @param  Validator  $validator  validator instance
      * @return void
+     *
      * @throws HttpResponseException
      */
     protected function failedValidation(Validator $validator)
@@ -70,8 +71,8 @@ class BulkGradeUpdateRequest extends FormRequest
             response()->json([
                 'status' => 'error',
                 'message' => 'Lỗi dữ liệu đầu vào',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
         );
     }
-} 
+}

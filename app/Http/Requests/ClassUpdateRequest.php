@@ -27,8 +27,8 @@ class ClassUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'sometimes|required|string|max:100|unique:classes,name,' . $this->route('id'),
-            'manager_id' => 'sometimes|nullable|integer|exists:users,id,role,manager'
+            'name' => 'sometimes|required|string|max:100|unique:classes,name,'.$this->route('id'),
+            'manager_id' => 'sometimes|nullable|integer|exists:users,id,role,manager',
         ];
     }
 
@@ -45,15 +45,16 @@ class ClassUpdateRequest extends FormRequest
             'name.max' => 'Tên lớp không được vượt quá 100 ký tự',
             'name.unique' => 'Tên lớp đã tồn tại',
             'manager_id.integer' => 'ID quản lý phải là số nguyên',
-            'manager_id.exists' => 'Quản lý không tồn tại hoặc không phải là manager'
+            'manager_id.exists' => 'Quản lý không tồn tại hoặc không phải là manager',
         ];
     }
 
     /**
      * xử lý validation thất bại và trả về response json
      *
-     * @param Validator $validator validator instance
+     * @param  Validator  $validator  validator instance
      * @return void
+     *
      * @throws HttpResponseException
      */
     protected function failedValidation(Validator $validator)
@@ -62,8 +63,8 @@ class ClassUpdateRequest extends FormRequest
             response()->json([
                 'status' => 'error',
                 'message' => 'Lỗi dữ liệu đầu vào',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
         );
     }
-} 
+}

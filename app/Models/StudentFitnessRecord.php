@@ -11,7 +11,7 @@ class StudentFitnessRecord extends Model
     use HasFactory;
 
     /**
-     * The attributes that are mass assignable.
+     * Các thuộc tính có thể gán hàng loạt
      *
      * @var array
      */
@@ -26,7 +26,7 @@ class StudentFitnessRecord extends Model
     ];
 
     /**
-     * The attributes that should be cast.
+     * Các thuộc tính cần cast
      *
      * @var array
      */
@@ -35,9 +35,7 @@ class StudentFitnessRecord extends Model
     ];
 
     /**
-     * Get the student (user) that owns this record.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * Lấy thông tin học viên sở hữu bản ghi đánh giá này
      */
     public function student(): BelongsTo
     {
@@ -45,9 +43,7 @@ class StudentFitnessRecord extends Model
     }
 
     /**
-     * Get the manager that created this record.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * Lấy thông tin quản lý đã tạo bản ghi đánh giá
      */
     public function manager(): BelongsTo
     {
@@ -55,9 +51,7 @@ class StudentFitnessRecord extends Model
     }
 
     /**
-     * Get the fitness test for this record.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * Lấy thông tin bài kiểm tra thể lực của bản ghi
      */
     public function fitnessTest(): BelongsTo
     {
@@ -65,9 +59,7 @@ class StudentFitnessRecord extends Model
     }
 
     /**
-     * Get the assessment session for this record.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * Lấy thông tin phiên đánh giá của bản ghi
      */
     public function assessmentSession(): BelongsTo
     {
@@ -75,10 +67,8 @@ class StudentFitnessRecord extends Model
     }
 
     /**
-     * Tự động tính toán rating dựa trên performance và thresholds
-     * Gọi trước khi lưu record
-     *
-     * @return void
+     * Tính toán xếp loại dựa trên kết quả và ngưỡng đánh giá
+     * Cần gọi trước khi lưu bản ghi
      */
     public function calculateRating(): void
     {

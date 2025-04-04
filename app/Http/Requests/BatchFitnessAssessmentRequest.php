@@ -42,21 +42,21 @@ class BatchFitnessAssessmentRequest extends FormRequest
             'fitness_test_id.required' => 'Mã bài kiểm tra thể lực là bắt buộc',
             'fitness_test_id.integer' => 'Mã bài kiểm tra thể lực phải là số nguyên',
             'fitness_test_id.exists' => 'Bài kiểm tra thể lực không tồn tại trong hệ thống',
-            
+
             'assessment_session_id.integer' => 'Mã phiên đánh giá phải là số nguyên',
             'assessment_session_id.exists' => 'Phiên đánh giá không tồn tại trong hệ thống',
-            
+
             'assessments.required' => 'Danh sách đánh giá là bắt buộc',
             'assessments.array' => 'Danh sách đánh giá phải là một mảng',
             'assessments.min' => 'Phải có ít nhất một bản ghi đánh giá',
-            
+
             'assessments.*.user_id.required' => 'Mã học viên là bắt buộc',
             'assessments.*.user_id.integer' => 'Mã học viên phải là số nguyên',
             'assessments.*.user_id.exists' => 'Học viên không tồn tại trong hệ thống',
-            
+
             'assessments.*.performance.required' => 'Kết quả thực hiện là bắt buộc',
             'assessments.*.performance.numeric' => 'Kết quả thực hiện phải là số',
-            
+
             'assessments.*.notes.string' => 'Ghi chú phải là chuỗi',
         ];
     }

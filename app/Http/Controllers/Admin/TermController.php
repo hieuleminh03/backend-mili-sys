@@ -24,8 +24,8 @@ class TermController extends BaseController
     public function getAll(): JsonResponse
     {
         return $this->executeService(
-            fn() => $this->termService->getAllTerms(), 
-            'Lấy danh sách học kỳ thành công', 
+            fn () => $this->termService->getAllTerms(),
+            'Lấy danh sách học kỳ thành công',
             200
         );
     }
@@ -33,13 +33,13 @@ class TermController extends BaseController
     /**
      * tạo mới một học kỳ
      *
-     * @param TermRequest $request dữ liệu học kỳ
-     * @return JsonResponse kết quả 
+     * @param  TermRequest  $request  dữ liệu học kỳ
+     * @return JsonResponse kết quả
      */
     public function create(TermRequest $request): JsonResponse
     {
         return $this->executeService(
-            fn() => $this->termService->createTerm($request->validated()),
+            fn () => $this->termService->createTerm($request->validated()),
             'Thêm mới học kỳ thành công',
             201
         );
@@ -48,27 +48,27 @@ class TermController extends BaseController
     /**
      * lấy thông tin một học kỳ
      *
-     * @param int $id mã học kỳ
-     * @return JsonResponse kết quả 
+     * @param  int  $id  mã học kỳ
+     * @return JsonResponse kết quả
      */
     public function get(int $id): JsonResponse
     {
         return $this->executeService(
-            fn() => $this->termService->getTerm($id)
+            fn () => $this->termService->getTerm($id)
         );
     }
 
     /**
      * cập nhật thông tin một học kỳ
      *
-     * @param TermRequest $request dữ liệu học kỳ
-     * @param int $id mã học kỳ
-     * @return JsonResponse kết quả 
+     * @param  TermRequest  $request  dữ liệu học kỳ
+     * @param  int  $id  mã học kỳ
+     * @return JsonResponse kết quả
      */
     public function update(TermRequest $request, int $id): JsonResponse
     {
         return $this->executeService(
-            fn() => $this->termService->updateTerm($id, $request->validated()),
+            fn () => $this->termService->updateTerm($id, $request->validated()),
             'Cập nhật học kỳ thành công'
         );
     }
@@ -76,14 +76,14 @@ class TermController extends BaseController
     /**
      * xóa một học kỳ
      *
-     * @param int $id mã học kỳ
-     * @return JsonResponse kết quả 
+     * @param  int  $id  mã học kỳ
+     * @return JsonResponse kết quả
      */
     public function delete(int $id): JsonResponse
     {
         return $this->executeService(
-            fn() => $this->termService->deleteTerm($id),
+            fn () => $this->termService->deleteTerm($id),
             'Xóa học kỳ thành công'
         );
     }
-} 
+}

@@ -32,7 +32,7 @@ class FitnessTestFactory extends Factory
             'updated_at' => now(),
         ];
     }
-    
+
     /**
      * Configure the factory to create a test where higher scores are better.
      *
@@ -46,7 +46,7 @@ class FitnessTestFactory extends Factory
             ];
         });
     }
-    
+
     /**
      * Configure the factory to create a test where lower scores are better.
      *

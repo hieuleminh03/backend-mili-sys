@@ -16,9 +16,9 @@ return new class extends Migration
             $table->string('name', 100)->unique();
             $table->unsignedBigInteger('manager_id')->nullable();
             $table->timestamps();
-            
+
             $table->foreign('manager_id')->references('id')->on('users')
-                  ->onDelete('set null');
+                ->onDelete('set null');
         });
     }
 
@@ -29,4 +29,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('classes');
     }
-}; 
+};

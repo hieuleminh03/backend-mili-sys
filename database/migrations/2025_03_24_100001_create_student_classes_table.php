@@ -20,13 +20,13 @@ return new class extends Migration
             $table->text('reason')->nullable();
             $table->text('note')->nullable();
             $table->timestamps();
-            
+
             $table->foreign('user_id')->references('id')->on('users')
-                  ->onDelete('cascade');
-                  
+                ->onDelete('cascade');
+
             $table->foreign('class_id')->references('id')->on('classes')
-                  ->onDelete('cascade');
-                  
+                ->onDelete('cascade');
+
             // Đảm bảo một học viên chỉ thuộc về duy nhất một lớp
             $table->unique('user_id');
         });
@@ -39,4 +39,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('student_classes');
     }
-}; 
+};

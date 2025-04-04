@@ -29,16 +29,16 @@ class ManagerDetailUpdateRequest extends FormRequest
         return [
             'full_name' => 'nullable|string|max:100',
             'rank' => 'nullable|string|max:50',
-            'birth_year' => 'nullable|integer|min:1900|max:' . date('Y'),
+            'birth_year' => 'nullable|integer|min:1900|max:'.date('Y'),
             'hometown' => 'nullable|string|max:100',
             'phone_number' => 'nullable|string|max:20',
             'is_party_member' => 'nullable|boolean',
             'photo_url' => 'nullable|string|max:255',
             'management_unit' => 'nullable|string|max:100',
             'father_name' => 'nullable|string|max:100',
-            'father_birth_year' => 'nullable|integer|min:1900|max:' . date('Y'),
+            'father_birth_year' => 'nullable|integer|min:1900|max:'.date('Y'),
             'mother_name' => 'nullable|string|max:100',
-            'mother_birth_year' => 'nullable|integer|min:1900|max:' . date('Y'),
+            'mother_birth_year' => 'nullable|integer|min:1900|max:'.date('Y'),
             'parent_hometown' => 'nullable|string|max:100',
             'permanent_address' => 'nullable|string|max:255',
         ];
@@ -88,8 +88,9 @@ class ManagerDetailUpdateRequest extends FormRequest
     /**
      * xử lý validation thất bại và trả về response json
      *
-     * @param Validator $validator validator instance
+     * @param  Validator  $validator  validator instance
      * @return void
+     *
      * @throws HttpResponseException
      */
     protected function failedValidation(Validator $validator)
@@ -98,8 +99,8 @@ class ManagerDetailUpdateRequest extends FormRequest
             response()->json([
                 'status' => 'error',
                 'message' => 'Lỗi dữ liệu đầu vào',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
         );
     }
-} 
+}

@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('fitness_test_id')->constrained('fitness_tests')->onDelete('cascade');
             $table->decimal('excellent_threshold', 8, 2); // Mốc cho mức "Giỏi"
-            $table->decimal('good_threshold', 8, 2); // Mốc cho mức "Khá" 
+            $table->decimal('good_threshold', 8, 2); // Mốc cho mức "Khá"
             $table->decimal('pass_threshold', 8, 2); // Mốc cho mức "Đạt"
             // Nếu dưới pass_threshold thì sẽ là "Không đạt"
             $table->timestamps();
-            
+
             $table->unique('fitness_test_id');
         });
     }

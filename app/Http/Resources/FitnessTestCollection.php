@@ -11,9 +11,6 @@ class FitnessTestCollection extends ResourceCollection
     /**
      * Transform the resource collection into an array.
      * Chuyển đổi collection thành array JSON với format chuẩn
-     *
-     * @param Request $request
-     * @return array
      */
     public function toArray(Request $request): array
     {

@@ -21,10 +21,10 @@ return new class extends Migration
             $table->enum('rating', ['excellent', 'good', 'pass', 'fail'])->nullable(); // Xếp loại tự động dựa trên thresholds
             $table->text('notes')->nullable(); // Ghi chú
             $table->timestamps();
-            
+
             // Một học viên chỉ có thể có một kết quả cho mỗi bài kiểm tra trong một tuần đánh giá
             $table->unique(['user_id', 'fitness_test_id', 'assessment_session_id']);
-            
+
             // Indexes for common queries
             $table->index('manager_id');
             $table->index(['assessment_session_id', 'fitness_test_id']);
