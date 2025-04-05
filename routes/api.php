@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\AllowanceController;
 use App\Http\Controllers\Admin\ClassController;
 use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\EquipmentController;
 use App\Http\Controllers\Admin\FitnessTestController;
 use App\Http\Controllers\Admin\ManagerController;
 use App\Http\Controllers\Admin\SearchController;
@@ -10,8 +12,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Manager\FitnessAssessmentController;
 use App\Http\Controllers\Manager\ManagerClassController;
 use App\Http\Controllers\Manager\ViolationController;
+use App\Http\Controllers\Student\StudentAllowanceController;
 use App\Http\Controllers\Student\StudentClassController;
 use App\Http\Controllers\Student\StudentCourseController;
+use App\Http\Controllers\Student\StudentEquipmentController;
 use App\Http\Controllers\Student\StudentFitnessAssessmentController;
 use App\Http\Controllers\Student\StudentGradeController;
 use App\Http\Controllers\Student\StudentProfileController;
@@ -41,7 +45,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
 
     // route cho admin
-    Route::middleware([CheckRole::class.':'.User::ROLE_ADMIN])->group(function () {
+    Route::middleware([CheckRole::class . ':' . User::ROLE_ADMIN])->group(function () {
         // đăng ký người dùng mới
         Route::post('register', [AuthController::class, 'register']);
 
@@ -86,7 +90,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
     });
 
     // route cho sinh viên
-    Route::middleware([CheckRole::class.':'.User::ROLE_STUDENT])->prefix('student')->group(function () {
+    Route::middleware([CheckRole::class . ':' . User::ROLE_STUDENT])->prefix('student')->group(function () {
         Route::get('/dashboard', function () {
             return response()->json([
                 'status' => 'success',
@@ -114,10 +118,18 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
 
         // Route xem các vi phạm
         Route::get('/violations', [StudentViolationController::class, 'getMyViolations']);
+
+        // Route quản lý quân tư trang
+        Route::get('/equipment', [StudentEquipmentController::class, 'getMyEquipment']);
+        Route::put('/equipment/{receiptId}', [StudentEquipmentController::class, 'updateReceiptStatus']);
+
+        // Route quản lý phụ cấp
+        Route::get('/allowances', [StudentAllowanceController::class, 'getMyAllowances']);
+        Route::put('/allowances/{allowanceId}', [StudentAllowanceController::class, 'updateAllowanceStatus']);
     });
 
     // route cho quản lý
-    Route::middleware([CheckRole::class.':'.User::ROLE_MANAGER])->prefix('manager')->group(function () {
+    Route::middleware([CheckRole::class . ':' . User::ROLE_MANAGER])->prefix('manager')->group(function () {
         Route::get('/dashboard', function () {
             return response()->json([
                 'status' => 'success',
@@ -162,7 +174,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
     });
 
     // route cho admin
-    Route::middleware([CheckRole::class.':'.User::ROLE_ADMIN])->prefix('admin')->group(function () {
+    Route::middleware([CheckRole::class . ':' . User::ROLE_ADMIN])->prefix('admin')->group(function () {
         Route::get('/dashboard', function () {
             return response()->json([
                 'status' => 'success',
@@ -203,10 +215,44 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
             Route::put('/{classId}/students/{studentId}/assign-vice-monitor', [ClassController::class, 'assignViceMonitor']);
             Route::put('/{classId}/students/{studentId}/assign-student', [ClassController::class, 'assignStudent']);
         });
+
+        // routes quản lý quân tư trang
+        Route::prefix('equipment')->group(function () {
+            // Quản lý loại quân tư trang
+            Route::get('/types', [EquipmentController::class, 'getAllEquipmentTypes']);
+            Route::post('/types', [EquipmentController::class, 'createEquipmentType']);
+            Route::put('/types/{id}', [EquipmentController::class, 'updateEquipmentType']);
+            Route::delete('/types/{id}', [EquipmentController::class, 'deleteEquipmentType']);
+
+            // Quản lý phân phối quân tư trang theo năm
+            Route::get('/distributions', [EquipmentController::class, 'getDistributions']);
+            Route::post('/distributions', [EquipmentController::class, 'createDistribution']);
+            Route::put('/distributions/{id}', [EquipmentController::class, 'updateDistribution']);
+            Route::delete('/distributions/{id}', [EquipmentController::class, 'deleteDistribution']);
+
+            // Quản lý biên nhận
+            Route::post('/receipts', [EquipmentController::class, 'createReceipts']);
+            Route::get('/pending', [EquipmentController::class, 'getStudentsWithPendingEquipment']);
+
+            // Xem quân tư trang của học viên cụ thể
+            Route::get('/students/{studentId}', [EquipmentController::class, 'getStudentEquipment']);
+        });
+
+        // routes quản lý phụ cấp
+        Route::prefix('allowances')->group(function () {
+            Route::get('/', [AllowanceController::class, 'getAllowances']);
+            Route::post('/', [AllowanceController::class, 'createAllowance']);
+            Route::post('/bulk', [AllowanceController::class, 'createBulkAllowances']);
+            Route::put('/{id}', [AllowanceController::class, 'updateAllowance']);
+            Route::delete('/{id}', [AllowanceController::class, 'deleteAllowance']);
+
+            Route::get('/pending', [AllowanceController::class, 'getStudentsWithPendingAllowances']);
+            Route::get('/students/{studentId}', [AllowanceController::class, 'getStudentAllowances']);
+        });
     });
 
     // route cho cả quản lý và admin
-    Route::middleware([CheckAnyRole::class.':'.User::ROLE_MANAGER.','.User::ROLE_ADMIN])->group(function () {
+    Route::middleware([CheckAnyRole::class . ':' . User::ROLE_MANAGER . ',' . User::ROLE_ADMIN])->group(function () {
         Route::get('/reports', function () {
             return response()->json([
                 'status' => 'success',

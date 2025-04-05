@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
@@ -202,5 +203,25 @@ class User extends Authenticatable implements JWTSubject
     public function isViceMonitor()
     {
         return $this->studentClass && $this->studentClass->role === 'vice_monitor';
+    }
+
+    /**
+     * Get the equipment receipts for this user
+     *
+     * @return HasMany
+     */
+    public function equipmentReceipts(): HasMany
+    {
+        return $this->hasMany(StudentEquipmentReceipt::class);
+    }
+
+    /**
+     * Get the monthly allowances for this user
+     *
+     * @return HasMany
+     */
+    public function monthlyAllowances(): HasMany
+    {
+        return $this->hasMany(MonthlyAllowance::class);
     }
 }

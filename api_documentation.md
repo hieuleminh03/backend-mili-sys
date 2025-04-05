@@ -644,3 +644,483 @@ Response:
 7. Không thể xóa khóa học nếu có sinh viên đã đăng ký. (có thể update sau)
 8. Không thể xóa học kỳ nếu có khóa học liên quan. (có thể update sau)
 9. chỉ có thể thêm sinh viên vào lớp trước thời gian hạn chót đăng ký của học kỳ.
+
+## Quân tư trang và Phụ cấp
+
+### Quân tư trang (Học viên)
+
+#### Lấy danh sách quân tư trang của học viên
+
+```
+GET /api/student/equipment
+
+Headers:
+Authorization: Bearer {token}
+
+Query Parameters:
+year: Năm cần lấy dữ liệu (tùy chọn)
+
+Response:
+{
+    "status": "success",
+    "data": [
+        {
+            "id": 1,
+            "user_id": 5,
+            "distribution_id": 1,
+            "received": true,
+            "received_at": "2024-04-10T08:30:00.000000Z",
+            "notes": null,
+            "created_at": "2024-04-01T00:00:00.000000Z",
+            "updated_at": "2024-04-10T08:30:00.000000Z",
+            "distribution": {
+                "id": 1,
+                "year": 2024,
+                "equipment_type_id": 1,
+                "quantity": 2,
+                "created_at": "2024-03-15T00:00:00.000000Z",
+                "updated_at": "2024-03-15T00:00:00.000000Z",
+                "equipment_type": {
+                    "id": 1,
+                    "name": "Quần áo K03",
+                    "description": "Quần áo kaki mùa hè",
+                    "created_at": "2024-03-01T00:00:00.000000Z",
+                    "updated_at": "2024-03-01T00:00:00.000000Z"
+                }
+            }
+        },
+        {
+            "id": 2,
+            "user_id": 5,
+            "distribution_id": 2,
+            "received": false,
+            "received_at": null,
+            "notes": null,
+            "created_at": "2024-04-01T00:00:00.000000Z",
+            "updated_at": "2024-04-01T00:00:00.000000Z",
+            "distribution": {
+                "id": 2,
+                "year": 2024,
+                "equipment_type_id": 2,
+                "quantity": 2,
+                "created_at": "2024-03-15T00:00:00.000000Z",
+                "updated_at": "2024-03-15T00:00:00.000000Z",
+                "equipment_type": {
+                    "id": 2,
+                    "name": "Giày vải",
+                    "description": "Giày vải quân đội",
+                    "created_at": "2024-03-01T00:00:00.000000Z",
+                    "updated_at": "2024-03-01T00:00:00.000000Z"
+                }
+            }
+        }
+    ]
+}
+```
+
+#### Cập nhật trạng thái nhận quân tư trang
+
+```
+PUT /api/student/equipment/{receiptId}
+
+Headers:
+Authorization: Bearer {token}
+
+Body:
+{
+    "received": true,
+    "notes": "Đã nhận đầy đủ"
+}
+
+Response:
+{
+    "status": "success",
+    "data": {
+        "id": 2,
+        "user_id": 5,
+        "distribution_id": 2,
+        "received": true,
+        "received_at": "2024-04-10T10:15:22.000000Z",
+        "notes": "Đã nhận đầy đủ",
+        "created_at": "2024-04-01T00:00:00.000000Z",
+        "updated_at": "2024-04-10T10:15:22.000000Z"
+    },
+    "message": "Trạng thái nhận quân tư trang đã được cập nhật"
+}
+```
+
+### Phụ cấp (Học viên)
+
+#### Lấy danh sách phụ cấp của học viên
+
+```
+GET /api/student/allowances
+
+Headers:
+Authorization: Bearer {token}
+
+Query Parameters:
+month: Tháng cần lấy dữ liệu (tùy chọn)
+year: Năm cần lấy dữ liệu (tùy chọn)
+
+Response:
+{
+    "status": "success",
+    "data": [
+        {
+            "id": 1,
+            "user_id": 5,
+            "month": 7,
+            "year": 2024,
+            "amount": "2000000.00",
+            "received": true,
+            "received_at": "2024-07-03T08:45:00.000000Z",
+            "notes": null,
+            "created_at": "2024-07-01T00:00:00.000000Z",
+            "updated_at": "2024-07-03T08:45:00.000000Z"
+        },
+        {
+            "id": 2,
+            "user_id": 5,
+            "month": 8,
+            "year": 2024,
+            "amount": "2000000.00",
+            "received": false,
+            "received_at": null,
+            "notes": null,
+            "created_at": "2024-08-01T00:00:00.000000Z",
+            "updated_at": "2024-08-01T00:00:00.000000Z"
+        }
+    ]
+}
+```
+
+#### Cập nhật trạng thái nhận phụ cấp
+
+```
+PUT /api/student/allowances/{allowanceId}
+
+Headers:
+Authorization: Bearer {token}
+
+Body:
+{
+    "received": true,
+    "notes": "Đã nhận đầy đủ"
+}
+
+Response:
+{
+    "status": "success",
+    "data": {
+        "id": 2,
+        "user_id": 5,
+        "month": 8,
+        "year": 2024,
+        "amount": "2000000.00",
+        "received": true,
+        "received_at": "2024-08-05T09:30:15.000000Z",
+        "notes": "Đã nhận đầy đủ",
+        "created_at": "2024-08-01T00:00:00.000000Z",
+        "updated_at": "2024-08-05T09:30:15.000000Z"
+    },
+    "message": "Trạng thái nhận phụ cấp đã được cập nhật"
+}
+```
+
+### Quản lý quân tư trang (Admin)
+
+#### Lấy danh sách loại quân tư trang
+
+```
+GET /api/admin/equipment/types
+
+Headers:
+Authorization: Bearer {token}
+
+Response:
+{
+    "status": "success",
+    "data": [
+        {
+            "id": 1,
+            "name": "Quần áo K03",
+            "description": "Quần áo kaki mùa hè",
+            "created_at": "2024-03-01T00:00:00.000000Z",
+            "updated_at": "2024-03-01T00:00:00.000000Z"
+        },
+        {
+            "id": 2,
+            "name": "Giày vải",
+            "description": "Giày vải quân đội",
+            "created_at": "2024-03-01T00:00:00.000000Z",
+            "updated_at": "2024-03-01T00:00:00.000000Z"
+        }
+    ]
+}
+```
+
+#### Tạo loại quân tư trang mới
+
+```
+POST /api/admin/equipment/types
+
+Headers:
+Authorization: Bearer {token}
+
+Body:
+{
+    "name": "Mũ kêpi",
+    "description": "Mũ kêpi quân đội"
+}
+
+Response:
+{
+    "status": "success",
+    "data": {
+        "id": 3,
+        "name": "Mũ kêpi",
+        "description": "Mũ kêpi quân đội",
+        "created_at": "2024-04-10T11:20:00.000000Z",
+        "updated_at": "2024-04-10T11:20:00.000000Z"
+    },
+    "message": "Loại quân tư trang được tạo thành công"
+}
+```
+
+#### Lấy danh sách phân phối quân tư trang
+
+```
+GET /api/admin/equipment/distributions
+
+Headers:
+Authorization: Bearer {token}
+
+Query Parameters:
+year: Năm cần lấy dữ liệu (tùy chọn)
+
+Response:
+{
+    "status": "success",
+    "data": [
+        {
+            "id": 1,
+            "year": 2024,
+            "equipment_type_id": 1,
+            "quantity": 2,
+            "created_at": "2024-03-15T00:00:00.000000Z",
+            "updated_at": "2024-03-15T00:00:00.000000Z",
+            "equipment_type": {
+                "id": 1,
+                "name": "Quần áo K03",
+                "description": "Quần áo kaki mùa hè",
+                "created_at": "2024-03-01T00:00:00.000000Z",
+                "updated_at": "2024-03-01T00:00:00.000000Z"
+            }
+        },
+        {
+            "id": 2,
+            "year": 2024,
+            "equipment_type_id": 2,
+            "quantity": 2,
+            "created_at": "2024-03-15T00:00:00.000000Z",
+            "updated_at": "2024-03-15T00:00:00.000000Z",
+            "equipment_type": {
+                "id": 2,
+                "name": "Giày vải",
+                "description": "Giày vải quân đội",
+                "created_at": "2024-03-01T00:00:00.000000Z",
+                "updated_at": "2024-03-01T00:00:00.000000Z"
+            }
+        }
+    ]
+}
+```
+
+#### Tạo phân phối quân tư trang mới
+
+```
+POST /api/admin/equipment/distributions
+
+Headers:
+Authorization: Bearer {token}
+
+Body:
+{
+    "year": 2024,
+    "equipment_type_id": 3,
+    "quantity": 1
+}
+
+Response:
+{
+    "status": "success",
+    "data": {
+        "id": 3,
+        "year": 2024,
+        "equipment_type_id": 3,
+        "quantity": 1,
+        "created_at": "2024-04-10T11:30:00.000000Z",
+        "updated_at": "2024-04-10T11:30:00.000000Z"
+    },
+    "message": "Phân phối quân tư trang được tạo thành công"
+}
+```
+
+#### Tạo biên nhận quân tư trang cho học viên
+
+```
+POST /api/admin/equipment/receipts
+
+Headers:
+Authorization: Bearer {token}
+
+Body:
+{
+    "distribution_id": 3,
+    "student_ids": [5, 6, 7, 8]
+}
+
+Response:
+{
+    "status": "success",
+    "data": {
+        "count": 4
+    },
+    "message": "Biên nhận quân tư trang được tạo thành công"
+}
+```
+
+### Quản lý phụ cấp (Admin)
+
+#### Lấy danh sách phụ cấp
+
+```
+GET /api/admin/allowances
+
+Headers:
+Authorization: Bearer {token}
+
+Query Parameters:
+month: Tháng cần lấy dữ liệu (tùy chọn)
+year: Năm cần lấy dữ liệu (tùy chọn)
+
+Response:
+{
+    "status": "success",
+    "data": [
+        {
+            "id": 1,
+            "user_id": 5,
+            "month": 7,
+            "year": 2024,
+            "amount": "2000000.00",
+            "received": true,
+            "received_at": "2024-07-03T08:45:00.000000Z",
+            "notes": null,
+            "created_at": "2024-07-01T00:00:00.000000Z",
+            "updated_at": "2024-07-03T08:45:00.000000Z",
+            "student": {
+                "id": 5,
+                "name": "Nguyễn Văn A",
+                "email": "nguyenvana@example.com",
+                "role": "student"
+            }
+        },
+        {
+            "id": 2,
+            "user_id": 6,
+            "month": 7,
+            "year": 2024,
+            "amount": "2000000.00",
+            "received": false,
+            "received_at": null,
+            "notes": null,
+            "created_at": "2024-07-01T00:00:00.000000Z",
+            "updated_at": "2024-07-01T00:00:00.000000Z",
+            "student": {
+                "id": 6,
+                "name": "Trần Văn B",
+                "email": "tranvanb@example.com",
+                "role": "student"
+            }
+        }
+    ]
+}
+```
+
+#### Tạo phụ cấp hàng loạt
+
+```
+POST /api/admin/allowances/bulk
+
+Headers:
+Authorization: Bearer {token}
+
+Body:
+{
+    "student_ids": [5, 6, 7, 8],
+    "month": 8,
+    "year": 2024,
+    "amount": 2000000
+}
+
+Response:
+{
+    "status": "success",
+    "data": {
+        "count": 4
+    },
+    "message": "Phụ cấp hàng tháng được tạo thành công"
+}
+```
+
+#### Lấy danh sách học viên chưa nhận phụ cấp
+
+```
+GET /api/admin/allowances/pending
+
+Headers:
+Authorization: Bearer {token}
+
+Body:
+{
+    "month": 7,
+    "year": 2024
+}
+
+Response:
+{
+    "status": "success",
+    "data": [
+        {
+            "student": {
+                "id": 6,
+                "name": "Trần Văn B",
+                "email": "tranvanb@example.com",
+                "role": "student",
+                "student_class": {
+                    "class": {
+                        "id": 1,
+                        "name": "40TS1",
+                        "manager_id": 2
+                    }
+                }
+            },
+            "allowance": {
+                "id": 2,
+                "user_id": 6,
+                "month": 7,
+                "year": 2024,
+                "amount": "2000000.00",
+                "received": false,
+                "received_at": null,
+                "notes": null,
+                "created_at": "2024-07-01T00:00:00.000000Z",
+                "updated_at": "2024-07-01T00:00:00.000000Z"
+            }
+        }
+    ],
+    "message": "Danh sách học viên chưa nhận phụ cấp"
+}
+```
