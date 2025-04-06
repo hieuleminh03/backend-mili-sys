@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Database\Seeders\AdminUserSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,6 +21,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(AdminUserSeeder::class);
 
         // Danh sách tên học viên
         $studentNames = ['Hiếu', 'Văn', 'Hoàng', 'Trung', 'Tú', 'Quỳnh', 'Nam', 'Tâm', 'Vân', 'Uyên'];
