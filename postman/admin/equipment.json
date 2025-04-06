@@ -1,0 +1,457 @@
+{
+    "info": {
+        "_postman_id": "d4d4e5e5-1111-4e9e-e9e9-e9e9e9e9e9e9",
+        "name": "MilitaryManagementSystem API - Admin Equipment",
+        "description": "Admin Equipment management endpoints. Requires Admin role. Import all topic files into Postman.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Admin - Equipment Types",
+            "item": [
+                {
+                    "name": "Get All Equipment Types",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/equipment/types",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "equipment",
+                                "types"
+                            ]
+                        },
+                        "description": "Lấy tất cả loại quân tư trang (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Equipment Type",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Mũ cối\",\n    \"description\": \"Mũ bảo vệ tiêu chuẩn\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/equipment/types",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "equipment",
+                                "types"
+                            ]
+                        },
+                        "description": "Tạo mới loại quân tư trang (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Equipment Type",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Mũ cối loại mới\",\n    \"description\": \"Mũ bảo vệ tiêu chuẩn - phiên bản cập nhật\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/equipment/types/:typeId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "equipment",
+                                "types",
+                                ":typeId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "typeId",
+                                    "value": "1",
+                                    "description": "ID of the equipment type to update"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật loại quân tư trang (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Equipment Type",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/equipment/types/:typeId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "equipment",
+                                "types",
+                                ":typeId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "typeId",
+                                    "value": "1",
+                                    "description": "ID of the equipment type to delete"
+                                }
+                            ]
+                        },
+                        "description": "Xóa loại quân tư trang (Admin Only)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Endpoints for managing equipment types by Admin."
+        },
+        {
+            "name": "Admin - Equipment Distributions",
+            "item": [
+                 {
+                    "name": "Get Yearly Distributions",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/equipment/distributions?year=2025",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "equipment",
+                                "distributions"
+                            ],
+                            "query": [
+                                {
+                                    "key": "year",
+                                    "value": "2025",
+                                    "description": "(Optional) Filter by year"
+                                }
+                            ]
+                        },
+                        "description": "Lấy danh sách phân phối quân tư trang theo năm (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Yearly Distribution",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"year\": 2025,\n    \"equipment_type_id\": 1, \n    \"quantity\": 100 \n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/equipment/distributions",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "equipment",
+                                "distributions"
+                            ]
+                        },
+                        "description": "Tạo mới phân phối quân tư trang cho một năm (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Yearly Distribution",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"year\": 2025,\n    \"equipment_type_id\": 1,\n    \"quantity\": 120 \n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/equipment/distributions/:distributionId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "equipment",
+                                "distributions",
+                                ":distributionId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "distributionId",
+                                    "value": "1",
+                                    "description": "ID of the distribution record to update"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật phân phối quân tư trang (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Yearly Distribution",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/equipment/distributions/:distributionId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "equipment",
+                                "distributions",
+                                ":distributionId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "distributionId",
+                                    "value": "1",
+                                    "description": "ID of the distribution record to delete"
+                                }
+                            ]
+                        },
+                        "description": "Xóa phân phối quân tư trang (Admin Only)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Endpoints for managing yearly equipment distributions by Admin."
+        },
+        {
+            "name": "Admin - Equipment Receipts",
+            "item": [
+                {
+                    "name": "Create Receipts for Students",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"distribution_id\": 1, \n    \"student_ids\": [4, 5, 6] \n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/equipment/receipts",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "equipment",
+                                "receipts"
+                            ]
+                        },
+                        "description": "Tạo biên nhận quân tư trang cho học viên (Admin Only)\n`distribution_id` là ID của bản ghi phân phối theo năm."
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Endpoints for managing student equipment receipts by Admin."
+        },
+        {
+            "name": "Admin - Student Equipment Status",
+            "item": [
+                {
+                    "name": "Get Students With Pending Equipment",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/equipment/pending?year=2025",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "equipment",
+                                "pending"
+                            ],
+                            "query": [
+                                {
+                                    "key": "year",
+                                    "value": "2025",
+                                    "description": "(Required) Year to check pending equipment"
+                                }
+                            ]
+                        },
+                        "description": "Lấy danh sách học viên chưa nhận đủ quân tư trang cho một năm (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Specific Student's Equipment",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/equipment/students/:studentId?year=2025",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "equipment",
+                                "students",
+                                ":studentId"
+                            ],
+                            "query": [
+                                {
+                                    "key": "year",
+                                    "value": "2025",
+                                    "description": "(Optional) Filter by year"
+                                }
+                            ],
+                            "variable": [
+                                {
+                                    "key": "studentId",
+                                    "value": "4",
+                                    "description": "ID of the student user"
+                                }
+                            ]
+                        },
+                        "description": "Lấy danh sách quân tư trang của học viên (Admin Only)\nCó thể lọc theo năm."
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Endpoints for checking student equipment status by Admin."
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{authToken}}",
+                "type": "string"
+            }
+        ]
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8000/api",
+            "type": "string"
+        },
+        {
+            "key": "authToken",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}

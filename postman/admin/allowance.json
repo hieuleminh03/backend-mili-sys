@@ -1,0 +1,318 @@
+{
+    "info": {
+        "_postman_id": "a1a1b2b2-1111-4c3c-c3c3-c3c3c3c3c3c3",
+        "name": "MilitaryManagementSystem API - Admin Allowance",
+        "description": "Admin Allowance management endpoints. Requires Admin role. Import all topic files into Postman.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Admin - Allowance Management",
+            "item": [
+                {
+                    "name": "Get Allowances List",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/allowances?month=4&year=2025",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "allowances"
+                            ],
+                            "query": [
+                                {
+                                    "key": "month",
+                                    "value": "4",
+                                    "description": "(Optional) Filter by month (1-12)"
+                                },
+                                {
+                                    "key": "year",
+                                    "value": "2025",
+                                    "description": "(Optional) Filter by year"
+                                }
+                            ]
+                        },
+                        "description": "Lấy danh sách phụ cấp hàng tháng (Admin Only)\nCó thể lọc theo tháng và năm."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Monthly Allowance",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"user_id\": 1, \n    \"month\": 4,\n    \"year\": 2025,\n    \"amount\": 500000,\n    \"notes\": \"Phụ cấp tháng 4/2025\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/allowances",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "allowances"
+                            ]
+                        },
+                        "description": "Tạo mới phụ cấp hàng tháng cho một học viên (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Bulk Monthly Allowances",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"student_ids\": [1, 2, 3],\n    \"month\": 4,\n    \"year\": 2025,\n    \"amount\": 500000\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/allowances/bulk",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "allowances",
+                                "bulk"
+                            ]
+                        },
+                        "description": "Tạo phụ cấp hàng loạt cho nhiều học viên (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Monthly Allowance",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"amount\": 550000,\n    \"received\": true,\n    \"notes\": \"Updated allowance\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/allowances/:allowanceId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "allowances",
+                                ":allowanceId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "allowanceId",
+                                    "value": "1",
+                                    "description": "ID of the allowance record to update"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật phụ cấp hàng tháng (Admin Only)\nCần cung cấp ID của bản ghi phụ cấp."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Monthly Allowance",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/allowances/:allowanceId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "allowances",
+                                ":allowanceId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "allowanceId",
+                                    "value": "1",
+                                    "description": "ID of the allowance record to delete"
+                                }
+                            ]
+                        },
+                        "description": "Xóa phụ cấp hàng tháng (Admin Only)\nCần cung cấp ID của bản ghi phụ cấp."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Students With Pending Allowances",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/allowances/pending?month=4&year=2025",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "allowances",
+                                "pending"
+                            ],
+                             "query": [
+                                {
+                                    "key": "month",
+                                    "value": "4",
+                                    "description": "(Required) Filter by month (1-12)"
+                                },
+                                {
+                                    "key": "year",
+                                    "value": "2025",
+                                    "description": "(Required) Filter by year"
+                                }
+                            ]
+                        },
+                        "description": "Lấy danh sách học viên chưa nhận phụ cấp cho tháng/năm cụ thể (Admin Only)"
+                    },
+                    "response": []
+                },
+                 {
+                    "name": "Get Specific Student's Allowances",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                             {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/allowances/students/:studentId?month=4&year=2025",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "allowances",
+                                "students",
+                                ":studentId"
+                            ],
+                            "query": [
+                                {
+                                    "key": "month",
+                                    "value": "4",
+                                    "description": "(Optional) Filter by month (1-12)"
+                                },
+                                {
+                                    "key": "year",
+                                    "value": "2025",
+                                    "description": "(Optional) Filter by year"
+                                }
+                            ],
+                            "variable": [
+                                {
+                                    "key": "studentId",
+                                    "value": "1",
+                                    "description": "ID of the student user"
+                                }
+                            ]
+                        },
+                        "description": "Lấy danh sách phụ cấp của một học viên cụ thể (Admin Only)\nCần cung cấp ID của học viên. Có thể lọc theo tháng/năm."
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Endpoints for managing monthly allowances by Admin.",
+            "auth": {
+                "type": "bearer",
+                "bearer": [
+                    {
+                        "key": "token",
+                        "value": "{{authToken}}",
+                        "type": "string"
+                    }
+                ]
+            }
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{authToken}}",
+                "type": "string"
+            }
+        ]
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8000/api",
+            "type": "string"
+        },
+        {
+            "key": "authToken",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}

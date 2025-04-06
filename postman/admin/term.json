@@ -1,0 +1,218 @@
+{
+    "info": {
+        "_postman_id": "h8h8i9i9-1111-4m7m-m7m7-m7m7m7m7m7m7",
+        "name": "MilitaryManagementSystem API - Admin Term",
+        "description": "Admin Term management endpoints. Requires Admin role. Import all topic files into Postman.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Admin - Term Management",
+            "item": [
+                {
+                    "name": "Get All Terms",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/terms",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "terms"
+                            ]
+                        },
+                        "description": "Lấy danh sách các học kỳ (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create New Term",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Học kỳ 1 Năm 2025\",\n    \"start_date\": \"2025-09-01\",\n    \"end_date\": \"2026-01-15\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/terms",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "terms"
+                            ]
+                        },
+                        "description": "Tạo mới một học kỳ (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Term Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/terms/:termId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "terms",
+                                ":termId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "termId",
+                                    "value": "1",
+                                    "description": "ID of the term"
+                                }
+                            ]
+                        },
+                        "description": "Lấy thông tin một học kỳ (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Term",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Học kỳ 1 Năm 2025 (Updated)\",\n    \"start_date\": \"2025-09-05\",\n    \"end_date\": \"2026-01-20\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/terms/:termId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "terms",
+                                ":termId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "termId",
+                                    "value": "1",
+                                    "description": "ID of the term to update"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật thông tin một học kỳ (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Term",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/terms/:termId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "terms",
+                                ":termId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "termId",
+                                    "value": "1",
+                                    "description": "ID of the term to delete"
+                                }
+                            ]
+                        },
+                        "description": "Xóa một học kỳ (Admin Only)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Endpoints for managing terms by Admin.",
+            "auth": {
+                "type": "bearer",
+                "bearer": [
+                    {
+                        "key": "token",
+                        "value": "{{authToken}}",
+                        "type": "string"
+                    }
+                ]
+            }
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{authToken}}",
+                "type": "string"
+            }
+        ]
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8000/api",
+            "type": "string"
+        },
+        {
+            "key": "authToken",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}

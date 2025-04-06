@@ -1,0 +1,249 @@
+{
+    "info": {
+        "_postman_id": "j0j0k1k1-1111-4q1q-q1q1-q1q1q1q1q1q1",
+        "name": "MilitaryManagementSystem API - Manager Class",
+        "description": "Manager Class management endpoints. Requires Manager role. Import all topic files into Postman.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Manager - Class Management",
+            "item": [
+                {
+                    "name": "Get My Managed Class",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/manager/class",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "manager",
+                                "class"
+                            ]
+                        },
+                        "description": "Lấy thông tin lớp của manager đang đăng nhập (Manager Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Student Details in My Class",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/manager/class/students/:studentId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "manager",
+                                "class",
+                                "students",
+                                ":studentId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "studentId",
+                                    "value": "4",
+                                    "description": "ID of the student user"
+                                }
+                            ]
+                        },
+                        "description": "Lấy thông tin chi tiết của học viên trong lớp của manager (Manager Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Student in My Class",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"join_date\": \"2025-04-08\",\n    \"status\": \"active\",\n    \"notes\": \"Reactivated student\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/manager/class/students/:studentId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "manager",
+                                "class",
+                                "students",
+                                ":studentId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "studentId",
+                                    "value": "4",
+                                    "description": "ID of the student user to update"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật thông tin học viên trong lớp của manager (Manager Only)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Endpoints for managing the manager's own class."
+        },
+        {
+            "name": "Manager - Assign Class Roles",
+            "item": [
+                {
+                    "name": "Assign Monitor",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/manager/class/students/:studentId/assign-monitor",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "manager",
+                                "class",
+                                "students",
+                                ":studentId",
+                                "assign-monitor"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "studentId",
+                                    "value": "4",
+                                    "description": "ID of the student user to assign as monitor"
+                                }
+                            ]
+                        },
+                        "description": "Chỉ định lớp trưởng trong lớp của manager (Manager Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Assign Vice Monitor",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/manager/class/students/:studentId/assign-vice-monitor",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "manager",
+                                "class",
+                                "students",
+                                ":studentId",
+                                "assign-vice-monitor"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "studentId",
+                                    "value": "5",
+                                    "description": "ID of the student user to assign as vice monitor"
+                                }
+                            ]
+                        },
+                        "description": "Chỉ định lớp phó trong lớp của manager (Manager Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Assign Student (Regular Member)",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/manager/class/students/:studentId/assign-student",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "manager",
+                                "class",
+                                "students",
+                                ":studentId",
+                                "assign-student"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "studentId",
+                                    "value": "6",
+                                    "description": "ID of the student user to assign as regular member"
+                                }
+                            ]
+                        },
+                        "description": "Chỉ định học viên làm thành viên thường trong lớp của manager (Manager Only)\n(Dùng để reset vai trò lớp trưởng/phó)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Endpoints for assigning roles to students in the manager's class."
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{authToken}}",
+                "type": "string"
+            }
+        ]
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8000/api",
+            "type": "string"
+        },
+        {
+            "key": "authToken",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}

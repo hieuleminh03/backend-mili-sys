@@ -1,0 +1,72 @@
+{
+    "info": {
+        "_postman_id": "s9s9t0t0-1111-4b2b-b2b2-b2b2b2b2b2b2",
+        "name": "MilitaryManagementSystem API - Student Violation",
+        "description": "Student Violation information endpoints. Requires Student role. Import all parts into Postman.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Student - Violation Info",
+            "item": [
+                {
+                    "name": "Get My Violations",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/student/violations",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "student",
+                                "violations"
+                            ]
+                        },
+                        "description": "Lấy danh sách các vi phạm của student đang đăng nhập (Student Only)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Endpoints for students to view their violation records.",
+            "auth": {
+                "type": "bearer",
+                "bearer": [
+                    {
+                        "key": "token",
+                        "value": "{{authToken}}",
+                        "type": "string"
+                    }
+                ]
+            }
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{authToken}}",
+                "type": "string"
+            }
+        ]
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8000/api",
+            "type": "string"
+        },
+        {
+            "key": "authToken",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}

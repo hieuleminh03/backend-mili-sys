@@ -1,0 +1,124 @@
+{
+    "info": {
+        "_postman_id": "o5o5p6p6-1111-4x8x-x8x8-x8x8x8x8x8x8",
+        "name": "MilitaryManagementSystem API - Student Equipment",
+        "description": "Student Equipment endpoints. Requires Student role. Import all parts into Postman.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Student - Equipment",
+            "item": [
+                {
+                    "name": "Get My Equipment",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/student/equipment?year=2025",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "student",
+                                "equipment"
+                            ],
+                            "query": [
+                                {
+                                    "key": "year",
+                                    "value": "2025",
+                                    "description": "(Optional) Filter by year"
+                                }
+                            ]
+                        },
+                        "description": "Lấy danh sách quân tư trang của học viên đăng nhập (Student Only)\nCó thể lọc theo năm."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update My Equipment Receipt Status",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"received\": true,\n    \"notes\": \"Confirmed receipt of equipment\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/student/equipment/:receiptId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "student",
+                                "equipment",
+                                ":receiptId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "receiptId",
+                                    "value": "1",
+                                    "description": "ID of the equipment receipt record"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật trạng thái nhận quân tư trang (Student Only)\nHọc viên chỉ có thể cập nhật biên nhận của chính mình."
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Endpoints for students to manage their equipment receipts.",
+            "auth": {
+                "type": "bearer",
+                "bearer": [
+                    {
+                        "key": "token",
+                        "value": "{{authToken}}",
+                        "type": "string"
+                    }
+                ]
+            }
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{authToken}}",
+                "type": "string"
+            }
+        ]
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8000/api",
+            "type": "string"
+        },
+        {
+            "key": "authToken",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}

@@ -1,0 +1,517 @@
+{
+    "info": {
+        "_postman_id": "c3c3d4d4-1111-4a5a-a5a5-a5a5a5a5a5a5",
+        "name": "MilitaryManagementSystem API - Admin Course",
+        "description": "Admin Course management endpoints. Requires Admin role. Import all topic files into Postman.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Admin - Course Management",
+            "item": [
+                {
+                    "name": "Get All Courses",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/courses",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "courses"
+                            ]
+                        },
+                        "description": "Lấy danh sách tất cả các lớp học (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create New Course",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Advanced Tactics\",\n    \"code\": \"AT101\",\n    \"credits\": 3,\n    \"term_id\": 1\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/courses",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "courses"
+                            ]
+                        },
+                        "description": "Tạo mới một lớp học (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Courses By Term",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/courses/getAllByTerm?termId=1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "courses",
+                                "getAllByTerm"
+                            ],
+                            "query": [
+                                {
+                                    "key": "termId",
+                                    "value": "1",
+                                    "description": "(Required) ID of the term"
+                                }
+                            ]
+                        },
+                        "description": "Lấy danh sách lớp học theo kỳ học (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Course Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/courses/:courseId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "courses",
+                                ":courseId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "courseId",
+                                    "value": "1",
+                                    "description": "ID of the course to retrieve"
+                                }
+                            ]
+                        },
+                        "description": "Lấy thông tin một lớp học (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Course",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Updated Advanced Tactics\",\n    \"code\": \"AT101-U\",\n    \"credits\": 4,\n    \"term_id\": 1\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/courses/:courseId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "courses",
+                                ":courseId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "courseId",
+                                    "value": "1",
+                                    "description": "ID of the course to update"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật thông tin lớp học (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Course",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/courses/:courseId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "courses",
+                                ":courseId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "courseId",
+                                    "value": "1",
+                                    "description": "ID of the course to delete"
+                                }
+                            ]
+                        },
+                        "description": "Xóa một lớp học (Admin Only)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Endpoints for managing courses by Admin."
+        },
+        {
+            "name": "Admin - Course Enrollment",
+            "item": [
+                {
+                    "name": "Get Enrolled Students",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/courses/:courseId/students",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "courses",
+                                ":courseId",
+                                "students"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "courseId",
+                                    "value": "1",
+                                    "description": "ID of the course"
+                                }
+                            ]
+                        },
+                        "description": "Lấy danh sách sinh viên tham gia một lớp học (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Enroll Single Student",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"user_id\": 4 \n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/courses/:courseId/students",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "courses",
+                                ":courseId",
+                                "students"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "courseId",
+                                    "value": "1",
+                                    "description": "ID of the course"
+                                }
+                            ]
+                        },
+                        "description": "Đăng ký sinh viên vào lớp học (Admin Only)\n`user_id` là ID của user có role 'student'."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Bulk Enroll Students",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"student_ids\": [5, 6, 7]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/courses/:courseId/students/bulk",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "courses",
+                                ":courseId",
+                                "students",
+                                "bulk"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "courseId",
+                                    "value": "1",
+                                    "description": "ID of the course"
+                                }
+                            ]
+                        },
+                        "description": "Đăng ký hàng loạt sinh viên vào lớp học (Admin Only)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Endpoints for managing student enrollment in courses by Admin."
+        },
+        {
+            "name": "Admin - Course Student Management",
+            "item": [
+                {
+                    "name": "Unenroll Student",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/courses/:courseId/students/:userId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "courses",
+                                ":courseId",
+                                "students",
+                                ":userId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "courseId",
+                                    "value": "1",
+                                    "description": "ID of the course"
+                                },
+                                {
+                                    "key": "userId",
+                                    "value": "4",
+                                    "description": "ID of the student user to unenroll"
+                                }
+                            ]
+                        },
+                        "description": "Hủy đăng ký sinh viên khỏi lớp học (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Student Grade",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"grade\": 8.5,\n    \"notes\": \"Midterm exam score\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/courses/:courseId/students/:userId/grade",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "courses",
+                                ":courseId",
+                                "students",
+                                ":userId",
+                                "grade"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "courseId",
+                                    "value": "1",
+                                    "description": "ID of the course"
+                                },
+                                {
+                                    "key": "userId",
+                                    "value": "4",
+                                    "description": "ID of the student user"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật điểm sinh viên trong một lớp học (Admin Only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Bulk Update Grades",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"grades\": [\n        {\n            \"user_id\": 5,\n            \"grade\": 9.0,\n            \"notes\": \"Final exam score\"\n        },\n        {\n            \"user_id\": 6,\n            \"grade\": 7.5\n        }\n    ]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/courses/:courseId/grades/bulk",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "courses",
+                                ":courseId",
+                                "grades",
+                                "bulk"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "courseId",
+                                    "value": "1",
+                                    "description": "ID of the course"
+                                }
+                            ]
+                        },
+                        "description": "Cập nhật điểm hàng loạt cho sinh viên trong một lớp học (Admin Only)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Endpoints for managing student grades and enrollment status in courses by Admin."
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{authToken}}",
+                "type": "string"
+            }
+        ]
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8000/api",
+            "type": "string"
+        },
+        {
+            "key": "authToken",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}
