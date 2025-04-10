@@ -148,9 +148,213 @@ class AuthServiceTest extends TestCase
         $this->authService->login($credentials);
     }
     
-    /**
+/**
      * Test đăng nhập không mật khẩu
      * 
      */
-
+    
+    /**
+     * Test đăng xuất thành công
+     *
+     * @return void
+     */
+    public function testLogoutSuccessfully()
+    {
+        // 1. Arrange - Chuẩn bị mock cho JWT
+        $token = 'valid_token';
+        
+        JWTAuth::shouldReceive('getToken')
+            ->once()
+            ->andReturn($token);
+            
+        JWTAuth::shouldReceive('invalidate')
+            ->once()
+            ->with($token)
+            ->andReturn(true);
+        
+        // 2. Act - Thực hiện hành động
+        $result = $this->authService->logout();
+        
+        // 3. Assert - Kiểm tra kết quả
+        $this->assertTrue($result);
+    }
+    
+    /**
+     * Test đăng xuất khi không có token
+     *
+     * @return void
+     */
+    public function testLogoutWithNoToken()
+    {
+        // 1. Arrange - Chuẩn bị mock cho JWT
+        JWTAuth::shouldReceive('getToken')
+            ->once()
+            ->andReturn(null);
+        
+        // 2. Act - Thực hiện hành động
+        $result = $this->authService->logout();
+        
+        // 3. Assert - Kiểm tra kết quả
+        $this->assertTrue($result);
+    }
+    
+    /**
+     * Test đăng xuất với token hết hạn
+     *
+     * @return void
+     */
+    public function testLogoutWithExpiredToken()
+    {
+        // 1. Arrange - Chuẩn bị mock cho JWT
+        $token = 'expired_token';
+        
+        JWTAuth::shouldReceive('getToken')
+            ->once()
+            ->andReturn($token);
+            
+        JWTAuth::shouldReceive('invalidate')
+            ->once()
+            ->with($token)
+            ->andThrow(new \Tymon\JWTAuth\Exceptions\TokenExpiredException());
+        
+        // 2. Act - Thực hiện hành động
+        $result = $this->authService->logout();
+        
+        // 3. Assert - Kiểm tra kết quả
+        $this->assertTrue($result);
+    }
+    
+    /**
+     * Test đăng xuất với token không hợp lệ
+     *
+     * @return void
+     */
+    public function testLogoutWithInvalidToken()
+    {
+        // 1. Arrange - Chuẩn bị mock cho JWT
+        $token = 'invalid_token';
+        
+        JWTAuth::shouldReceive('getToken')
+            ->once()
+            ->andReturn($token);
+            
+        JWTAuth::shouldReceive('invalidate')
+            ->once()
+            ->with($token)
+            ->andThrow(new \Tymon\JWTAuth\Exceptions\TokenInvalidException());
+        
+        // 2. Act - Thực hiện hành động
+        $result = $this->authService->logout();
+        
+        // 3. Assert - Kiểm tra kết quả
+        $this->assertTrue($result);
+    }
+    
+    /**
+     * Test đăng xuất với lỗi JWT
+     *
+     * @return void
+     */
+    public function testLogoutWithJwtException()
+    {
+        // 1. Arrange - Chuẩn bị mock cho JWT
+        $token = 'problematic_token';
+        $exception = new \Tymon\JWTAuth\Exceptions\JWTException('JWT error occurred');
+        
+        JWTAuth::shouldReceive('getToken')
+            ->once()
+            ->andReturn($token);
+            
+        JWTAuth::shouldReceive('invalidate')
+            ->once()
+            ->with($token)
+            ->andThrow($exception);
+        
+        // 2 & 3. Act & Assert - Thực hiện và kiểm tra kết quả
+        $this->expectException(\Tymon\JWTAuth\Exceptions\JWTException::class);
+        $this->expectExceptionMessage('JWT error occurred');
+        
+        $this->authService->logout();
+    }
+    
+    /**
+     * Test lấy thông tin người dùng đã xác thực thành công
+     *
+     * @return void
+     */
+    public function testGetAuthenticatedUserSuccessfully()
+    {
+        // 1. Arrange - Chuẩn bị mock cho JWTAuth và user
+        $user = User::factory()->create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'role' => User::ROLE_STUDENT,
+        ]);
+        
+        $jwtMock = Mockery::mock('Tymon\JWTAuth\JWTAuth');
+        
+        JWTAuth::shouldReceive('parseToken')
+            ->once()
+            ->andReturn($jwtMock);
+        
+        $jwtMock->shouldReceive('authenticate')
+            ->once()
+            ->andReturn($user);
+        
+        // 2. Act - Thực hiện hành động
+        $result = $this->authService->getAuthenticatedUser();
+        
+        // 3. Assert - Kiểm tra kết quả
+        $this->assertInstanceOf(User::class, $result);
+        $this->assertEquals($user->id, $result->id);
+        $this->assertEquals('Test User', $result->name);
+        $this->assertEquals('test@example.com', $result->email);
+        $this->assertEquals(User::ROLE_STUDENT, $result->role);
+    }
+    
+    /**
+     * Test lấy thông tin với token không hợp lệ
+     *
+     * @return void
+     */
+    public function testGetAuthenticatedUserWithInvalidToken()
+    {
+        // 1. Arrange - Chuẩn bị mock cho JWTAuth
+        $exception = new \Tymon\JWTAuth\Exceptions\TokenInvalidException('Token is Invalid');
+        
+        JWTAuth::shouldReceive('parseToken')
+            ->once()
+            ->andThrow($exception);
+        
+        // 2 & 3. Act & Assert - Thực hiện và kiểm tra kết quả
+        $this->expectException(\Tymon\JWTAuth\Exceptions\TokenInvalidException::class);
+        $this->expectExceptionMessage('Token is Invalid');
+        
+        $this->authService->getAuthenticatedUser();
+    }
+    
+    /**
+     * Test lấy thông tin khi không tìm thấy người dùng
+     *
+     * @return void
+     */
+    public function testGetAuthenticatedUserWithUserNotFound()
+    {
+        // 1. Arrange - Chuẩn bị mock cho JWTAuth
+        $jwtMock = Mockery::mock('Tymon\JWTAuth\JWTAuth');
+        
+        JWTAuth::shouldReceive('parseToken')
+            ->once()
+            ->andReturn($jwtMock);
+        
+        $jwtMock->shouldReceive('authenticate')
+            ->once()
+            ->andReturn(null);
+        
+        // 2 & 3. Act & Assert - Thực hiện và kiểm tra kết quả
+        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        $this->expectExceptionMessage('Không tìm thấy người dùng');
+        
+        $this->authService->getAuthenticatedUser();
+    }
 }
