@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\TermController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Manager\FitnessAssessmentController;
 use App\Http\Controllers\Manager\ManagerClassController;
+use App\Http\Controllers\Manager\SearchController as ManagerSearchController;
 use App\Http\Controllers\Manager\ViolationController;
 use App\Http\Controllers\Student\StudentAllowanceController;
 use App\Http\Controllers\Student\StudentClassController;
@@ -136,6 +137,9 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
                 'message' => 'Bảng điều khiển quản lý',
             ]);
         });
+
+        // tìm kiếm học viên
+        Route::post('/search/student', [ManagerSearchController::class, 'searchStudents']);
 
         Route::get('/students', function () {
             return response()->json([
