@@ -210,6 +210,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
 
             // Student in class management
             Route::post('/{classId}/students', [ClassController::class, 'addStudentToClass']);
+            Route::post('/{classId}/students/bulk', [ClassController::class, 'bulkAddStudentsToClass']);
             Route::get('/{classId}/students/{studentId}', [ClassController::class, 'getStudentClassDetail']);
             Route::put('/{classId}/students/{studentId}', [ClassController::class, 'updateStudentInClass']);
             Route::delete('/{classId}/students/{studentId}', [ClassController::class, 'removeStudentFromClass']);

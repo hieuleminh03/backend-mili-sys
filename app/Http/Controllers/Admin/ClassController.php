@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\BulkEnrollmentRequest;
 use App\Http\Requests\ClassCreateRequest;
 use App\Http\Requests\ClassUpdateRequest;
 use App\Http\Requests\StudentClassAddRequest;
@@ -157,6 +158,22 @@ class ClassController extends BaseController
         return $this->executeService(
             fn () => $this->classService->assignStudent($classId, $studentId),
             'Chỉ định thành viên thường thành công'
+        );
+    }
+
+    /**
+     * Thêm nhiều học viên vào lớp theo bulk
+     */
+    public function bulkAddStudentsToClass(BulkEnrollmentRequest $request, int $classId): JsonResponse
+    {
+        $data = $request->validated();
+        $studentIds = $data['student_ids'];
+        unset($data['student_ids']);
+
+        return $this->executeService(
+            fn () => $this->classService->bulkAddStudentsToClass($classId, $studentIds, $data),
+            'Thêm học viên vào lớp theo bulk thành công',
+            201
         );
     }
 }

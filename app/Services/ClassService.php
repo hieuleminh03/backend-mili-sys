@@ -259,6 +259,82 @@ class ClassService
     }
 
     /**
+     * Thêm nhiều học viên vào lớp theo bulk
+     *
+     * @param int $classId
+     * @param array $studentIds Mảng chứa IDs của học viên
+     * @param array $data Thông tin bổ sung
+     * @return array Kết quả với thông tin thành công/thất bại cho từng học viên
+     * @throws Exception
+     */
+    public function bulkAddStudentsToClass(int $classId, array $studentIds, array $data = [])
+    {
+        // Kiểm tra lớp tồn tại
+        $class = ClassRoom::find($classId);
+        if (!$class) {
+            throw new Exception('Không tìm thấy lớp', 422);
+        }
+
+        $results = [
+            'success' => [],
+            'failed' => []
+        ];
+
+        // Xử lý trong một transaction
+        DB::beginTransaction();
+        try {
+            foreach ($studentIds as $studentId) {
+                try {
+                    // Kiểm tra học viên
+                    $student = User::where('id', $studentId)
+                        ->where('role', User::ROLE_STUDENT)
+                        ->first();
+
+                    if (!$student) {
+                        throw new Exception('Không tìm thấy học viên hoặc người dùng không phải là học viên');
+                    }
+
+                    // Kiểm tra xem học viên đã thuộc lớp nào chưa
+                    $existingClass = StudentClass::where('user_id', $studentId)->first();
+                    if ($existingClass) {
+                        throw new Exception('Học viên đã thuộc về một lớp khác');
+                    }
+
+                    // Thêm học viên vào lớp
+                    $studentClass = StudentClass::create([
+                        'user_id' => $studentId,
+                        'class_id' => $classId,
+                        'role' => $data['role'] ?? 'student',
+                        'status' => $data['status'] ?? 'active',
+                        'reason' => $data['reason'] ?? null,
+                        'note' => $data['note'] ?? null,
+                    ]);
+
+                    $results['success'][] = [
+                        'id' => $studentId,
+                        'name' => $student->name,
+                        'message' => 'Đã thêm thành công vào lớp'
+                    ];
+                } catch (Exception $e) {
+                    // Ghi lại lỗi cho học viên này nhưng vẫn tiếp tục với học viên khác
+                    $student = User::find($studentId);
+                    $results['failed'][] = [
+                        'id' => $studentId,
+                        'name' => $student ? $student->name : 'Unknown',
+                        'message' => $e->getMessage()
+                    ];
+                }
+            }
+
+            DB::commit();
+            return $results;
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    /**
      * Cập nhật thông tin học viên trong lớp
      *
      * @return StudentClass
