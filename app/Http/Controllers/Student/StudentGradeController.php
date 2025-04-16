@@ -25,9 +25,11 @@ class StudentGradeController extends BaseController
                     return [
                         'course_id' => $course->id,
                         'course_name' => $course->name,
-                        'grade' => $course->pivot->grade, // Access grade from pivot
-                        'status' => $course->pivot->status, // Optionally include status
-                        'notes' => $course->pivot->notes, // Optionally include notes
+                        'midterm_grade' => $course->pivot->midterm_grade,
+                        'final_grade' => $course->pivot->final_grade,
+                        'total_grade' => $course->pivot->total_grade,
+                        'status' => $course->pivot->status,
+                        'notes' => $course->pivot->notes,
                     ];
                 });
             },

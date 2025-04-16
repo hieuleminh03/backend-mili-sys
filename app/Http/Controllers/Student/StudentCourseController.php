@@ -19,7 +19,7 @@ class StudentCourseController extends BaseController
                 $user = auth()->user();
 
                 // Lấy danh sách các học phần mà user đã đăng ký
-                $courses = $user->courses()->with(['term', 'manager'])->get();
+                $courses = $user->courses()->with(['term'])->get();
 
                 return CourseResource::collection($courses);
             },

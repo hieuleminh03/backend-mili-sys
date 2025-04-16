@@ -176,13 +176,13 @@ class CourseController extends BaseController
     /**
      * lấy danh sách lớp học theo kỳ học
      *
-     * @param  TermIdRequest  $request  dữ liệu chứa mã kỳ học
+     * @param  int  $id  mã kỳ học
      * @return JsonResponse danh sách lớp học
      */
-    public function getAllByTerm(TermIdRequest $request): JsonResponse
+    public function getAllByTerm(int $id): JsonResponse
     {
         return $this->executeService(
-            fn () => $this->courseService->getCoursesByTerm($request->termId),
+            fn () => $this->courseService->getCoursesByTerm($id),
             'Lấy danh sách lớp học theo kỳ học thành công'
         );
     }
