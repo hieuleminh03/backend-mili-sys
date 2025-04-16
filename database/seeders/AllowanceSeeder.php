@@ -26,7 +26,7 @@ class AllowanceSeeder extends Seeder
         MonthlyAllowance::whereDate('created_at', Carbon::today())->delete();
         
         // Get all students
-        $students = User::where('role', 'student')->get();
+        $students = User::where('role', User::ROLE_STUDENT)->get();
         
         if ($students->isEmpty()) {
             return;

@@ -107,7 +107,7 @@ class EquipmentSeeder extends Seeder
         StudentEquipmentReceipt::whereDate('created_at', Carbon::today())->delete();
         
         // Get all students
-        $students = User::where('role', 'student')->get();
+        $students = User::where('role', User::ROLE_STUDENT)->get();
         
         if ($students->isEmpty() || empty($distributions)) {
             return;
@@ -125,26 +125,14 @@ class EquipmentSeeder extends Seeder
         
         foreach ($students as $student) {
             // Each student gets 3-7 different equipment items
-            $itemCount = rand(3, 7);
-            $selectedDistributions = array_rand(array_flip(array_column($currentYearDistributions, 'id')), 
-                                              min($itemCount, count($currentYearDistributions)));
+            $itemCount = min(rand(3, 7), count($currentYearDistributions));
             
-            if (!is_array($selectedDistributions)) {
-                $selectedDistributions = [$selectedDistributions];
-            }
+            // Shuffle distributions and take a random subset
+            $shuffledDistributions = $currentYearDistributions;
+            shuffle($shuffledDistributions);
+            $selectedDistributions = array_slice($shuffledDistributions, 0, $itemCount);
             
-            foreach ($selectedDistributions as $distId) {
-                // Find the distribution
-                $distribution = null;
-                foreach ($currentYearDistributions as $dist) {
-                    if ($dist->id == $distId) {
-                        $distribution = $dist;
-                        break;
-                    }
-                }
-                
-                if (!$distribution) continue;
-                
+            foreach ($selectedDistributions as $distribution) {
                 // 70% chance the student has received the equipment
                 $received = rand(1, 10) <= 7;
                 $receivedAt = $received ? Carbon::now()->subDays(rand(1, 90)) : null;
