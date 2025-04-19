@@ -110,6 +110,19 @@ class CourseService
                     }
                 }
 
+                // Nếu cập nhật trọng số giữa kỳ, kiểm tra đã có điểm chưa
+                if (isset($data['midterm_weight'])) {
+                    $hasGrades = StudentCourse::where('course_id', $id)
+                        ->where(function ($query) {
+                            $query->whereNotNull('midterm_grade')
+                                  ->orWhereNotNull('final_grade');
+                        })
+                        ->exists();
+                    if ($hasGrades) {
+                        throw new \Exception('Điểm số của lớp đã được ghi nhận, không thể cập nhật trọng số', 422);
+                    }
+                }
+
                 $course->update($data);
 
                 return $course->fresh(['term']);
