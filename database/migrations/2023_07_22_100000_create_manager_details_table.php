@@ -26,7 +26,8 @@ return new class extends Migration
             $table->year('father_birth_year')->nullable();
             $table->string('mother_name', 100)->nullable();
             $table->year('mother_birth_year')->nullable();
-            $table->string('parent_hometown', 100)->nullable();
+            $table->string('father_hometown', 100)->nullable();
+            $table->string('mother_hometown', 100)->nullable();
             $table->string('permanent_address', 255)->nullable();
             $table->timestamps();
 

@@ -39,7 +39,8 @@ class ManagerDetailUpdateRequest extends FormRequest
             'father_birth_year' => 'nullable|integer|min:1900|max:'.date('Y'),
             'mother_name' => 'nullable|string|max:100',
             'mother_birth_year' => 'nullable|integer|min:1900|max:'.date('Y'),
-            'parent_hometown' => 'nullable|string|max:100',
+            'father_hometown' => 'nullable|string|max:100',
+            'mother_hometown' => 'nullable|string|max:100',
             'permanent_address' => 'nullable|string|max:255',
         ];
     }
@@ -78,8 +79,10 @@ class ManagerDetailUpdateRequest extends FormRequest
             'mother_birth_year.integer' => 'Năm sinh của mẹ phải là số nguyên',
             'mother_birth_year.min' => 'Năm sinh của mẹ không hợp lệ',
             'mother_birth_year.max' => 'Năm sinh của mẹ không được lớn hơn năm hiện tại',
-            'parent_hometown.string' => 'Quê quán bố mẹ phải là chuỗi',
-            'parent_hometown.max' => 'Quê quán bố mẹ không được vượt quá 100 ký tự',
+            'father_hometown.string' => 'Quê quán bố phải là chuỗi',
+            'father_hometown.max' => 'Quê quán bố không được vượt quá 100 ký tự',
+            'mother_hometown.string' => 'Quê quán mẹ phải là chuỗi',
+            'mother_hometown.max' => 'Quê quán mẹ không được vượt quá 100 ký tự',
             'permanent_address.string' => 'Địa chỉ thường trú phải là chuỗi',
             'permanent_address.max' => 'Địa chỉ thường trú không được vượt quá 255 ký tự',
         ];
