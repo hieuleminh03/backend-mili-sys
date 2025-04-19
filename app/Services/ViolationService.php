@@ -38,9 +38,10 @@ class ViolationService
                 ->orderBy('created_at', 'desc')
                 ->get();
 
-            // Thêm trường is_editable cho mỗi vi phạm
-            $violations->each(function ($violation) {
+            // Thêm trường is_editable và student_name cho mỗi vi phạm
+            $violations->each(function ($violation) use ($student) {
                 $violation->is_editable = $violation->isEditable();
+                $violation->student_name = $student->name;
             });
 
             return $violations;
