@@ -497,10 +497,14 @@ class ClassService
                     throw new Exception('Học viên không thuộc lớp này', 422);
                 }
 
-                // Hủy bỏ lớp trưởng hiện tại
-                StudentClass::where('class_id', $classId)
+                // Kiểm tra xem lớp đã có lớp trưởng chưa
+                $existingMonitor = StudentClass::where('class_id', $classId)
                     ->where('role', 'monitor')
-                    ->update(['role' => 'student']);
+                    ->first();
+
+                if ($existingMonitor) {
+                    throw new Exception('Lớp đang có lớp trưởng, cần chỉ định về học viên bình thường trước khi chỉ định lớp trưởng mới', 422);
+                }
 
                 // Chỉ định lớp trưởng mới
                 $studentClass->update(['role' => 'monitor']);
