@@ -360,26 +360,18 @@ class ClassService
                     throw new Exception('Học viên không thuộc lớp này', 422);
                 }
 
-                // Kiểm tra nếu thay đổi vai trò thành lớp trưởng
-                if (isset($data['role']) && $data['role'] === 'monitor' && $studentClass->role !== 'monitor') {
-                    // Kiểm tra xem lớp đã có lớp trưởng chưa
-                    $existingMonitor = StudentClass::where('class_id', $classId)
-                        ->where('role', 'monitor')
-                        ->where('user_id', '!=', $studentId)
-                        ->first();
-
-                    if ($existingMonitor) {
-                        throw new Exception('Lớp đã có lớp trưởng', 422);
-                    }
-                }
 
                 // Kiểm tra nếu trạng thái tạm hoãn mà không có lý do
                 if (isset($data['status']) && $data['status'] === 'suspended' && empty($data['reason'])) {
                     throw new Exception('Cần cung cấp lý do khi tạm hoãn học viên', 422);
                 }
 
-                // Cập nhật thông tin
-                $studentClass->update($data);
+                // Cập nhật thông tin (chỉ nhận status, reason, note)
+                $studentClass->update([
+                    'status' => $data['status'] ?? $studentClass->status,
+                    'reason' => $data['reason'] ?? $studentClass->reason,
+                    'note' => $data['note'] ?? $studentClass->note,
+                ]);
 
                 return $studentClass;
             });

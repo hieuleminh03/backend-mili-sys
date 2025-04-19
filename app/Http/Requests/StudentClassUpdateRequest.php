@@ -27,7 +27,6 @@ class StudentClassUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'role' => 'nullable|string|in:monitor,vice_monitor,student',
             'status' => 'nullable|string|in:active,suspended',
             'reason' => 'nullable|string|required_if:status,suspended',
             'note' => 'nullable|string',
@@ -42,8 +41,6 @@ class StudentClassUpdateRequest extends FormRequest
     public function messages()
     {
         return [
-            'role.string' => 'Vai trò phải là chuỗi',
-            'role.in' => 'Vai trò không hợp lệ',
             'status.string' => 'Trạng thái phải là chuỗi',
             'status.in' => 'Trạng thái không hợp lệ',
             'reason.string' => 'Lý do phải là chuỗi',
