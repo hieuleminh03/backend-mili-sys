@@ -29,7 +29,7 @@ class ManagerDetail extends Model
         'mother_name',
         'mother_birth_year',
         'father_hometown',
-        'mother_hometome',
+        'mother_hometown',
         'permanent_address',
     ];
 
