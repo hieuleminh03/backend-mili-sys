@@ -88,7 +88,7 @@ class EquipmentSeeder extends Seeder
                         'equipment_type_id' => $type->id,
                         'year' => $currentYear + 1
                     ],
-                    ['quantity' => rand(30, 100)]
+                    ['quantity' => rand(1,5)]
                 );
             }
         }

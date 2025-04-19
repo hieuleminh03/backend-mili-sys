@@ -49,10 +49,12 @@ class CourseSeeder extends Seeder
         
         foreach ($terms as $termIndex => $term) {
             $termSuffix = chr(65 + $termIndex); // A, B, C, D...
+
+            $random_weights = [0.3, 0.4, 0.5];
             
             foreach ($courseData as $code => $name) {
                 $uniqueCode = substr($code, 0, 4) . $termSuffix;
-                $midtermWeight = mt_rand(30, 50) / 100; // 0.3 to 0.5
+                $midtermWeight = $random_weights[array_rand($random_weights)];
                 $enrollLimit = mt_rand(30, 60);
                 
                 $courses[] = Course::firstOrCreate(
