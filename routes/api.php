@@ -42,9 +42,9 @@ use Illuminate\Support\Facades\Route;
 Route::post('login', [AuthController::class, 'login']);
 Route::get('auth-test', function () {
     return response()->json([
-        'status' => 'success',
+        'status'  => 'success',
         'message' => 'Xác thực thành công',
-        'user' => auth()->check() ? auth()->user() : null,
+        'user'    => auth()->check() ? auth()->user() : null,
     ]);
 })->middleware(CustomAuthenticate::class);
 
@@ -59,14 +59,14 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
         Route::get('/user', [AuthController::class, 'getUser']);
         Route::post('/logout', [AuthController::class, 'logout']);
     });
-    
+
     /**
      * Shared routes - các route dùng chung cho nhiều vai trò
      */
     Route::middleware([CheckAnyRole::class . ':' . User::ROLE_MANAGER . ',' . User::ROLE_ADMIN])->group(function () {
         Route::get('/reports', function () {
             return response()->json([
-                'status' => 'success',
+                'status'  => 'success',
                 'message' => 'Dữ liệu báo cáo',
             ]);
         });
@@ -81,7 +81,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
             // Trang chủ học viên
             Route::get('/dashboard', function () {
                 return response()->json([
-                    'status' => 'success',
+                    'status'  => 'success',
                     'message' => 'Bảng điều khiển sinh viên',
                 ]);
             });
@@ -129,7 +129,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
             // Trang chủ quản lý
             Route::get('/dashboard', function () {
                 return response()->json([
-                    'status' => 'success',
+                    'status'  => 'success',
                     'message' => 'Bảng điều khiển quản lý',
                 ]);
             });
@@ -138,7 +138,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
             Route::prefix('students')->group(function () {
                 Route::get('/', function () {
                     return response()->json([
-                        'status' => 'success',
+                        'status'  => 'success',
                         'message' => 'Danh sách sinh viên',
                     ]);
                 });
@@ -186,7 +186,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
                 // Trang chủ admin
                 Route::get('/dashboard', function () {
                     return response()->json([
-                        'status' => 'success',
+                        'status'  => 'success',
                         'message' => 'Bảng điều khiển admin',
                     ]);
                 });
@@ -194,7 +194,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
                 // Quản lý người dùng
                 Route::get('/users', function () {
                     return response()->json([
-                        'status' => 'success',
+                        'status'  => 'success',
                         'message' => 'Tất cả người dùng',
                     ]);
                 });
@@ -208,98 +208,98 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
                     Route::get('/{id}', [ManagerController::class, 'getManagerDetail']);
                     Route::put('/{id}', [ManagerController::class, 'updateManagerDetail']);
                 });
-            });
 
-            // Quản lý học kỳ
-            Route::prefix('terms')->group(function () {
-                Route::get('/', [TermController::class, 'getAll']);
-                Route::post('/', [TermController::class, 'create']);
-                Route::get('/{id}', [TermController::class, 'get']);
-                Route::put('/{id}', [TermController::class, 'update']);
-                Route::delete('/{id}', [TermController::class, 'delete']);
-            });
-
-            // Quản lý khóa học
-            Route::prefix('courses')->group(function () {
-                Route::get('/', [CourseController::class, 'getAll']);
-                Route::post('/', [CourseController::class, 'create']);
-                Route::get('/getAllByTerm/{id}', [CourseController::class, 'getAllByTerm']);
-                Route::get('/{id}', [CourseController::class, 'get']);
-                Route::put('/{id}', [CourseController::class, 'update']);
-                Route::delete('/{id}', [CourseController::class, 'delete']);
-
-                // Quản lý học viên trong khóa học
-                Route::get('/{id}/students', [CourseController::class, 'getStudents']);
-                Route::post('/{id}/students', [CourseController::class, 'enrollStudent']);
-                Route::post('/{id}/students/bulk', [CourseController::class, 'bulkEnrollStudents']);
-                Route::delete('/{courseId}/students/{userId}', [CourseController::class, 'unenrollStudent']);
-                Route::put('/{courseId}/students/{userId}/grade', [CourseController::class, 'updateStudentGrade']);
-                Route::put('/{id}/grades/bulk', [CourseController::class, 'bulkUpdateGrades']);
-            });
-
-            // Quản lý lớp học
-            Route::prefix('classes')->group(function () {
-                Route::get('/', [ClassController::class, 'getAllClasses']);
-                Route::post('/', [ClassController::class, 'createClass']);
-                Route::get('/{id}', [ClassController::class, 'getClass']);
-                Route::put('/{id}', [ClassController::class, 'updateClass']);
-                Route::delete('/{id}', [ClassController::class, 'deleteClass']);
-
-                // Quản lý học viên trong lớp
-                Route::post('/{classId}/students', [ClassController::class, 'addStudentToClass']);
-                Route::post('/{classId}/students/bulk', [ClassController::class, 'bulkAddStudentsToClass']);
-                Route::get('/{classId}/students/{studentId}', [ClassController::class, 'getStudentClassDetail']);
-                Route::put('/{classId}/students/{studentId}', [ClassController::class, 'updateStudentInClass']);
-                Route::delete('/{classId}/students/{studentId}', [ClassController::class, 'removeStudentFromClass']);
-
-                // Phân công lớp trưởng, lớp phó
-                Route::put('/{classId}/students/{studentId}/assign-monitor', [ClassController::class, 'assignMonitor']);
-                Route::put('/{classId}/students/{studentId}/assign-vice-monitor', [ClassController::class, 'assignViceMonitor']);
-                Route::put('/{classId}/students/{studentId}/assign-student', [ClassController::class, 'assignStudent']);
-            });
-
-            // Quản lý thể lực
-            Route::prefix('fitness-tests')->group(function () {
-                Route::get('/', [FitnessTestController::class, 'getAll']);
-                Route::post('/', [FitnessTestController::class, 'create']);
-                Route::get('/{id}', [FitnessTestController::class, 'get']);
-                Route::put('/{id}', [FitnessTestController::class, 'update']);
-                Route::delete('/{id}', [FitnessTestController::class, 'delete']);
-            });
-
-            // Quản lý quân tư trang
-            Route::prefix('equipment')->group(function () {
-                // Quản lý loại quân tư trang
-                Route::prefix('types')->group(function () {
-                    Route::get('/', [EquipmentController::class, 'getAllEquipmentTypes']);
-                    Route::post('/', [EquipmentController::class, 'createEquipmentType']);
-                    Route::put('/{id}', [EquipmentController::class, 'updateEquipmentType']);
-                    Route::delete('/{id}', [EquipmentController::class, 'deleteEquipmentType']);
+                // Quản lý học kỳ
+                Route::prefix('terms')->group(function () {
+                    Route::get('/', [TermController::class, 'getAll']);
+                    Route::post('/', [TermController::class, 'create']);
+                    Route::get('/{id}', [TermController::class, 'get']);
+                    Route::put('/{id}', [TermController::class, 'update']);
+                    Route::delete('/{id}', [TermController::class, 'delete']);
                 });
 
-                // Quản lý phân phối quân tư trang
-                Route::prefix('distributions')->group(function () {
-                    Route::get('/', [EquipmentController::class, 'getDistributions']);
-                    Route::post('/', [EquipmentController::class, 'createDistribution']);
-                    Route::put('/{id}', [EquipmentController::class, 'updateDistribution']);
-                    Route::delete('/{id}', [EquipmentController::class, 'deleteDistribution']);
+                // Quản lý khóa học
+                Route::prefix('courses')->group(function () {
+                    Route::get('/', [CourseController::class, 'getAll']);
+                    Route::post('/', [CourseController::class, 'create']);
+                    Route::get('/getAllByTerm/{id}', [CourseController::class, 'getAllByTerm']);
+                    Route::get('/{id}', [CourseController::class, 'get']);
+                    Route::put('/{id}', [CourseController::class, 'update']);
+                    Route::delete('/{id}', [CourseController::class, 'delete']);
+
+                    // Quản lý học viên trong khóa học
+                    Route::get('/{id}/students', [CourseController::class, 'getStudents']);
+                    Route::post('/{id}/students', [CourseController::class, 'enrollStudent']);
+                    Route::post('/{id}/students/bulk', [CourseController::class, 'bulkEnrollStudents']);
+                    Route::delete('/{courseId}/students/{userId}', [CourseController::class, 'unenrollStudent']);
+                    Route::put('/{courseId}/students/{userId}/grade', [CourseController::class, 'updateStudentGrade']);
+                    Route::put('/{id}/grades/bulk', [CourseController::class, 'bulkUpdateGrades']);
                 });
 
-                // Quản lý biên nhận
-                Route::post('/receipts', [EquipmentController::class, 'createReceipts']);
-                Route::get('/pending', [EquipmentController::class, 'getStudentsWithPendingEquipment']);
-                Route::get('/students/{studentId}', [EquipmentController::class, 'getStudentEquipment']);
-            });
+                // Quản lý lớp học
+                Route::prefix('classes')->group(function () {
+                    Route::get('/', [ClassController::class, 'getAllClasses']);
+                    Route::post('/', [ClassController::class, 'createClass']);
+                    Route::get('/{id}', [ClassController::class, 'getClass']);
+                    Route::put('/{id}', [ClassController::class, 'updateClass']);
+                    Route::delete('/{id}', [ClassController::class, 'deleteClass']);
 
-            // Quản lý phụ cấp
-            Route::prefix('allowances')->group(function () {
-                Route::get('/', [AllowanceController::class, 'getAllowances']);
-                Route::post('/', [AllowanceController::class, 'createAllowance']);
-                Route::post('/bulk', [AllowanceController::class, 'createBulkAllowances']);
-                Route::put('/{id}', [AllowanceController::class, 'updateAllowance']);
-                Route::delete('/{id}', [AllowanceController::class, 'deleteAllowance']);
-                Route::get('/pending', [AllowanceController::class, 'getStudentsWithPendingAllowances']);
-                Route::get('/students/{studentId}', [AllowanceController::class, 'getStudentAllowances']);
+                    // Quản lý học viên trong lớp
+                    Route::post('/{classId}/students', [ClassController::class, 'addStudentToClass']);
+                    Route::post('/{classId}/students/bulk', [ClassController::class, 'bulkAddStudentsToClass']);
+                    Route::get('/{classId}/students/{studentId}', [ClassController::class, 'getStudentClassDetail']);
+                    Route::put('/{classId}/students/{studentId}', [ClassController::class, 'updateStudentInClass']);
+                    Route::delete('/{classId}/students/{studentId}', [ClassController::class, 'removeStudentFromClass']);
+
+                    // Phân công lớp trưởng, lớp phó
+                    Route::put('/{classId}/students/{studentId}/assign-monitor', [ClassController::class, 'assignMonitor']);
+                    Route::put('/{classId}/students/{studentId}/assign-vice-monitor', [ClassController::class, 'assignViceMonitor']);
+                    Route::put('/{classId}/students/{studentId}/assign-student', [ClassController::class, 'assignStudent']);
+                });
+
+                // Quản lý thể lực
+                Route::prefix('fitness-tests')->group(function () {
+                    Route::get('/', [FitnessTestController::class, 'getAll']);
+                    Route::post('/', [FitnessTestController::class, 'create']);
+                    Route::get('/{id}', [FitnessTestController::class, 'get']);
+                    Route::put('/{id}', [FitnessTestController::class, 'update']);
+                    Route::delete('/{id}', [FitnessTestController::class, 'delete']);
+                });
+
+                // Quản lý quân tư trang
+                Route::prefix('equipment')->group(function () {
+                    // Quản lý loại quân tư trang
+                    Route::prefix('types')->group(function () {
+                        Route::get('/', [EquipmentController::class, 'getAllEquipmentTypes']);
+                        Route::post('/', [EquipmentController::class, 'createEquipmentType']);
+                        Route::put('/{id}', [EquipmentController::class, 'updateEquipmentType']);
+                        Route::delete('/{id}', [EquipmentController::class, 'deleteEquipmentType']);
+                    });
+
+                    // Quản lý phân phối quân tư trang
+                    Route::prefix('distributions')->group(function () {
+                        Route::get('/', [EquipmentController::class, 'getDistributions']);
+                        Route::post('/', [EquipmentController::class, 'createDistribution']);
+                        Route::put('/{id}', [EquipmentController::class, 'updateDistribution']);
+                        Route::delete('/{id}', [EquipmentController::class, 'deleteDistribution']);
+                    });
+
+                    // Quản lý biên nhận
+                    Route::post('/receipts', [EquipmentController::class, 'createReceipts']);
+                    Route::get('/pending', [EquipmentController::class, 'getStudentsWithPendingEquipment']);
+                    Route::get('/students/{studentId}', [EquipmentController::class, 'getStudentEquipment']);
+                });
+
+                // Quản lý phụ cấp
+                Route::prefix('allowances')->group(function () {
+                    Route::get('/', [AllowanceController::class, 'getAllowances']);
+                    Route::post('/', [AllowanceController::class, 'createAllowance']);
+                    Route::post('/bulk', [AllowanceController::class, 'createBulkAllowances']);
+                    Route::put('/{id}', [AllowanceController::class, 'updateAllowance']);
+                    Route::delete('/{id}', [AllowanceController::class, 'deleteAllowance']);
+                    Route::get('/pending', [AllowanceController::class, 'getStudentsWithPendingAllowances']);
+                    Route::get('/students/{studentId}', [AllowanceController::class, 'getStudentAllowances']);
+                });
             });
         });
 });
