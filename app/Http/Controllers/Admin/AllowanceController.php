@@ -141,22 +141,22 @@ class AllowanceController extends BaseController
     /**
      * Lấy danh sách học viên chưa nhận phụ cấp
      */
-    public function getStudentsWithPendingAllowances(Request $request): JsonResponse
+public function getStudentsWithPendingAllowances(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'month' => 'required|integer|min:1|max:12',
-            'year' => 'required|integer|min:2000|max:2100',
+            'month' => 'sometimes|integer|min:1|max:12',
+            'year' => 'sometimes|integer|min:2000|max:2100',
         ]);
 
         if ($validator->fails()) {
             return $this->errorResponse('Lỗi dữ liệu nhập vào', $validator->errors());
         }
 
+        $month = $request->input('month');
+        $year = $request->input('year');
+
         return $this->executeService(
-            fn() => $this->allowanceService->getStudentsWithPendingAllowances(
-                $request->input('month'),
-                $request->input('year')
-            ),
+            fn() => $this->allowanceService->getStudentsWithPendingAllowances($month, $year),
             'Danh sách học viên chưa nhận phụ cấp'
         );
     }

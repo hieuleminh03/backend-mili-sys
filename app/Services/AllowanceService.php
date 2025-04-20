@@ -162,29 +162,43 @@ class AllowanceService
     /**
      * Lấy danh sách học viên chưa nhận phụ cấp theo tháng/năm
      * 
-     * @param int $month Tháng cần kiểm tra
-     * @param int $year Năm cần kiểm tra
+     * @param int|null $month Tháng cần kiểm tra, null để lấy tất cả
+     * @param int|null $year Năm cần kiểm tra, null để lấy tất cả
      * @return array
      */
-    public function getStudentsWithPendingAllowances(int $month, int $year): array
+    public function getStudentsWithPendingAllowances(?int $month = null, ?int $year = null): array
     {
         $students = User::where('role', User::ROLE_STUDENT)
-            ->with(['studentClass.class'])
+            ->with(['studentClass.classRoom'])
             ->get();
 
         $result = [];
 
         foreach ($students as $student) {
-            $pendingAllowance = MonthlyAllowance::where('user_id', $student->id)
-                ->where('month', $month)
-                ->where('year', $year)
-                ->where('received', false)
-                ->first();
+            $query = MonthlyAllowance::where('user_id', $student->id)
+                ->where('received', false);
+
+            if ($month) {
+                $query->where('month', $month);
+            }
+            if ($year) {
+                $query->where('year', $year);
+            }
+
+            $pendingAllowance = $query->first();
 
             if ($pendingAllowance) {
                 $result[] = [
-                    'student' => $student,
-                    'allowance' => $pendingAllowance,
+                    'id' => $student->id,
+                    'name' => $student->name,
+                    'email' => $student->email,
+                    'allowance' => [
+                        'month' => $pendingAllowance->month,
+                        'year' => $pendingAllowance->year,
+                        'notes' => $pendingAllowance->notes,
+                        'amount' => $pendingAllowance->amount,
+                        'created_at' => $pendingAllowance->created_at,
+                    ],
                 ];
             }
         }
