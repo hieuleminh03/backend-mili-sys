@@ -80,7 +80,6 @@ class StudentClassController extends BaseController
                 $classId = $studentClass->class_id;
 
                 return StudentClass::where('class_id', $classId)
-                    ->where('status', 'active')
                     ->with('student:id,name,email')
                     ->get()
                     ->map(function ($item) {

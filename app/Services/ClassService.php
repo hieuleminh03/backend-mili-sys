@@ -22,7 +22,6 @@ class ClassService
         // Thêm số lượng học viên trong mỗi lớp
         foreach ($classes as $class) {
             $class->student_count = StudentClass::where('class_id', $class->id)
-                ->where('status', 'active')
                 ->count();
         }
 
