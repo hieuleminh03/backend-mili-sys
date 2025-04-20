@@ -28,13 +28,12 @@ class FitnessTestService
      * @param  int  $perPage  số lượng item trên một trang
      * @param  int  $page  trang hiện tại
      */
-    public function getAllFitnessTests(int $perPage = 15, int $page = 1): \App\Http\Resources\FitnessTestCollection
+    public function getAllFitnessTests(): \App\Http\Resources\FitnessTestCollection
     {
         $fitnessTests = FitnessTest::with('thresholds')
             ->orderBy('name')
-            ->paginate($perPage, ['*'], 'page', $page);
+            ->get();
 
-        // Pass the paginator instance directly to the collection resource
         return new FitnessTestCollection($fitnessTests);
     }
 

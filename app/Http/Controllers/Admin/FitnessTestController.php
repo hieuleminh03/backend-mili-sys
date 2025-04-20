@@ -22,10 +22,7 @@ class FitnessTestController extends BaseController
     public function getAll(): JsonResponse
     {
         return $this->executeService(
-            fn () => $this->fitnessTestService->getAllFitnessTests(
-                request()->input('per_page', 15),
-                request()->input('page', 1)
-            ),
+            fn () => $this->fitnessTestService->getAllFitnessTests(),
             'Lấy danh sách bài kiểm tra thể lực thành công'
         );
     }
