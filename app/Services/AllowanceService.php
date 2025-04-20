@@ -92,6 +92,20 @@ class AllowanceService
     public function updateAllowance(int $id, array $data): MonthlyAllowance
     {
         $allowance = MonthlyAllowance::findOrFail($id);
+
+        if (array_key_exists('received', $data)) {
+            $currentReceived = $allowance->received;
+            $newReceived = $data['received'];
+
+            if ($newReceived) {
+                // Luôn cập nhật received_at khi nhận
+                $data['received_at'] = now();
+            } else if ($currentReceived !== $newReceived) {
+                // Chỉ xóa received_at khi chuyển từ đã nhận sang chưa nhận
+                $data['received_at'] = null;
+            }
+        }
+
         $allowance->update($data);
         return $allowance;
     }

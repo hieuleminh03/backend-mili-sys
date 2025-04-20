@@ -121,6 +121,7 @@ class AllowanceController extends BaseController
                     }
                 }
 
+                // Luôn gọi updateAllowance để xử lý mọi trường hợp (bao gồm cả received)
                 return $this->allowanceService->updateAllowance($id, $request->all());
             },
             'Phụ cấp hàng tháng được cập nhật thành công'
