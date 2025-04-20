@@ -203,10 +203,11 @@ class AllowanceService
 
             if ($pendingAllowance) {
                 $result[] = [
-                    'id' => $student->id,
+                    'user_id' => $student->id,
                     'name' => $student->name,
                     'email' => $student->email,
                     'allowance' => [
+                        "id" => $pendingAllowance->id,
                         'month' => $pendingAllowance->month,
                         'year' => $pendingAllowance->year,
                         'notes' => $pendingAllowance->notes,
