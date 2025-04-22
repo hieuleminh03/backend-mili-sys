@@ -100,6 +100,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
             Route::prefix('courses')->group(function () {
                 Route::get('/', [StudentCourseController::class, 'getMyCourses']);
                 Route::get('/grades', [StudentGradeController::class, 'getMyGrades']);
+                Route::get('/{id}', [StudentCourseController::class, 'getCourseDetail']);
             });
 
             // Quản lý thể lực
