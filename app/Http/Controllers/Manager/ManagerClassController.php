@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Manager;
 
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\StudentClassUpdateRequest;
+use App\Http\Resources\ClassDetailResource;
 use App\Services\ClassService;
 use Illuminate\Http\JsonResponse;
 
@@ -27,7 +28,10 @@ class ManagerClassController extends BaseController
         $managerId = auth()->id();
 
         return $this->executeService(
-            fn () => $this->classService->getManagerClass($managerId),
+            function () use ($managerId) {
+                $class = $this->classService->getManagerClass($managerId);
+                return new ClassDetailResource($class);
+            },
             'Lấy thông tin lớp quản lý thành công'
         );
     }
@@ -43,7 +47,7 @@ class ManagerClassController extends BaseController
             function () use ($managerId, $studentId) {
                 $class = $this->classService->getManagerClass($managerId);
 
-                return $this->classService->getStudentClassDetail($class['id'], $studentId);
+                return $this->classService->getStudentClassDetail($class->id, $studentId);
             },
             'Lấy thông tin chi tiết học viên thành công'
         );
@@ -60,7 +64,7 @@ class ManagerClassController extends BaseController
             function () use ($managerId, $studentId, $request) {
                 $class = $this->classService->getManagerClass($managerId);
 
-                return $this->classService->updateStudentClass($class['id'], $studentId, $request->validated());
+                return $this->classService->updateStudentClass($class->id, $studentId, $request->validated());
             },
             'Cập nhật thông tin học viên thành công'
         );
@@ -77,7 +81,7 @@ class ManagerClassController extends BaseController
             function () use ($managerId, $studentId) {
                 $class = $this->classService->getManagerClass($managerId);
 
-                return $this->classService->assignMonitor($class['id'], $studentId);
+                return $this->classService->assignMonitor($class->id, $studentId);
             },
             'Chỉ định lớp trưởng thành công'
         );
@@ -94,7 +98,7 @@ class ManagerClassController extends BaseController
             function () use ($managerId, $studentId) {
                 $class = $this->classService->getManagerClass($managerId);
 
-                return $this->classService->assignViceMonitor($class['id'], $studentId);
+                return $this->classService->assignViceMonitor($class->id, $studentId);
             },
             'Chỉ định lớp phó thành công'
         );
@@ -111,7 +115,7 @@ class ManagerClassController extends BaseController
             function () use ($managerId, $studentId) {
                 $class = $this->classService->getManagerClass($managerId);
 
-                return $this->classService->assignStudent($class['id'], $studentId);
+                return $this->classService->assignStudent($class->id, $studentId);
             },
             'Chỉ định thành viên thường thành công'
         );

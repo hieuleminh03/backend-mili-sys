@@ -31,28 +31,22 @@ class ClassService
     /**
      * Lấy thông tin chi tiết của một lớp
      *
-     * @return array
+     * @return ClassRoom
      *
      * @throws Exception
      */
     public function getClass(int $classId)
     {
-        $class = ClassRoom::with(['manager:id,name,email,image', 'students:id,name,email,image'])
-            ->find($classId);
+        $class = ClassRoom::with([
+            'manager:id,name,email,image', 
+            'students:id,name,email,image'
+        ])->find($classId);
 
         if (! $class) {
             throw new Exception('Không tìm thấy lớp', 422);
         }
 
-        // Sử dụng các phương thức model thay vì truy vấn lại
-        $monitor = $class->monitor();
-        $viceMonitors = $class->viceMonitors();
-
-        $result = $class->toArray();
-        $result['monitor_id'] = $monitor ? $monitor->id : null;
-        $result['vice_monitor_ids'] = $viceMonitors->pluck('id')->toArray();
-
-        return $result;
+        return $class;
     }
 
     /**
@@ -416,29 +410,23 @@ class ClassService
     /**
      * Lấy thông tin lớp của một manager
      *
-     * @return array
+     * @return ClassRoom
      *
      * @throws Exception
      */
     public function getManagerClass(int $managerId)
     {
-        $class = ClassRoom::with(['manager:id,name,email,image', 'students:id,name,email,image'])
-            ->where('manager_id', $managerId)
+        $class = ClassRoom::with([
+            'manager:id,name,email,image', 
+            'students:id,name,email,image'
+        ])->where('manager_id', $managerId)
             ->first();
 
         if (! $class) {
             throw new Exception('Không tìm thấy lớp', 422);
         }
 
-        // Sử dụng các phương thức model thay vì truy vấn lại
-        $monitor = $class->monitor();
-        $viceMonitors = $class->viceMonitors();
-
-        $result = $class->toArray();
-        $result['monitor_id'] = $monitor ? $monitor->id : null;
-        $result['vice_monitor_ids'] = $viceMonitors->pluck('id')->toArray();
-
-        return $result;
+        return $class;
     }
 
     /**

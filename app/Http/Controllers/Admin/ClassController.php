@@ -8,6 +8,7 @@ use App\Http\Requests\ClassCreateRequest;
 use App\Http\Requests\ClassUpdateRequest;
 use App\Http\Requests\StudentClassAddRequest;
 use App\Http\Requests\StudentClassUpdateRequest;
+use App\Http\Resources\ClassDetailResource;
 use App\Services\ClassService;
 use Illuminate\Http\JsonResponse;
 
@@ -40,7 +41,10 @@ class ClassController extends BaseController
     public function getClass(int $id): JsonResponse
     {
         return $this->executeService(
-            fn () => $this->classService->getClass($id),
+            function () use ($id) {
+                $class = $this->classService->getClass($id);
+                return new ClassDetailResource($class);
+            },
             'Lấy thông tin chi tiết lớp thành công'
         );
     }

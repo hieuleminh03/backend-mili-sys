@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Resources\ClassDetailResource;
+use App\Models\ClassRoom;
 use App\Models\StudentClass;
 use Illuminate\Http\JsonResponse;
 
@@ -19,7 +21,6 @@ class StudentClassController extends BaseController
             function () use ($studentId) {
                 // Lấy thông tin lớp của học viên
                 $studentClass = StudentClass::where('user_id', $studentId)
-                    ->with(['classRoom', 'classRoom.manager:id,name,email,image'])
                     ->first();
 
                 if (! $studentClass) {
@@ -29,26 +30,19 @@ class StudentClassController extends BaseController
                     ];
                 }
 
-                // Lấy thông tin về lớp trưởng và lớp phó
-                $classId = $studentClass->class_id;
-                $classmates = StudentClass::where('class_id', $classId)
-                    ->with('student:id,name,email,image')
-                    ->get();
+                // Lấy thông tin lớp với đầy đủ dữ liệu
+                $class = ClassRoom::with([
+                    'manager:id,name,email,image',
+                    'students:id,name,email,image'
+                ])->findOrFail($studentClass->class_id);
 
-                $monitor = $classmates->where('role', 'monitor')->first();
-                $viceMonitors = $classmates->where('role', 'vice_monitor')->values();
-
-                // Tạo kết quả
+                // Lấy thông tin vai trò và trạng thái của học viên trong lớp
                 return [
-                    'class' => $studentClass->classRoom,
+                    'class' => new ClassDetailResource($class),
                     'role' => $studentClass->role,
                     'status' => $studentClass->status,
                     'reason' => $studentClass->reason,
-                    'monitor' => $monitor ? $monitor->student : null,
-                    'vice_monitors' => $viceMonitors->map(function ($vm) {
-                        return $vm->student;
-                    }),
-                    'classmates_count' => $classmates->count(),
+                    'classmates_count' => $class->students->count(),
                 ];
             },
             'Lấy thông tin lớp thành công'
