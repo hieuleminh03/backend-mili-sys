@@ -267,7 +267,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
                 });
 
                 // Quản lý quân tư trang
-                Route::prefix('equipment')->group(function () {
+                Route::prefix('equipments')->group(function () {
                     // Quản lý loại quân tư trang
                     Route::prefix('types')->group(function () {
                         Route::get('/', [EquipmentController::class, 'getAllEquipmentTypes']);
