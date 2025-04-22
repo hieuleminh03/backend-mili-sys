@@ -89,6 +89,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
 
             // Thông tin cá nhân
             Route::get('/profile', [StudentProfileController::class, 'getProfile']);
+            Route::put('/profile/detail', [StudentProfileController::class, 'updateStudentDetail']);
 
             // Quản lý lớp học
             Route::prefix('class')->group(function () {
@@ -201,6 +202,10 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
                     ]);
                 });
                 Route::post('/users/{userId}/image', [AuthController::class, 'updateUserImage']);
+
+                // Quản lý chi tiết học viên
+                Route::get('/students/{userId}/detail', [\App\Http\Controllers\Admin\StudentDetailController::class, 'show']);
+                Route::put('/students/{userId}/detail', [\App\Http\Controllers\Admin\StudentDetailController::class, 'update']);
 
                 // Tìm kiếm
                 Route::post('/search/student', [SearchController::class, 'searchStudents']);

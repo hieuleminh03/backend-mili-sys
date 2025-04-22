@@ -1,44 +1,46 @@
 <?php
 
-namespace App\Http\Controllers\Student;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\BaseController;
 use App\Http\Resources\StudentDetailResource;
-use App\Http\Resources\UserResource;
 use App\Models\StudentDetail;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class StudentProfileController extends BaseController
+class StudentDetailController extends BaseController
 {
     /**
-     * Lấy thông tin profile của student đang đăng nhập.
-     * Fetches the profile information of the currently logged-in student.
+     * Xem chi tiết thông tin student (admin).
      */
-    public function getProfile(): JsonResponse
+    public function show($userId): JsonResponse
     {
         return $this->executeService(
-            function () {
-                $user = auth()->user()->load('studentDetail');
-                
-                return new UserResource($user);
+            function () use ($userId) {
+                $user = User::with('studentDetail')->findOrFail($userId);
+                if (!$user->isStudent()) {
+                    return $this->sendError('User is not a student', [], 404);
+                }
+                return new StudentDetailResource($user->studentDetail);
             },
-            'Lấy thông tin profile thành công'
+            'Lấy thông tin chi tiết học viên thành công'
         );
     }
-    
+
     /**
-     * Cập nhật thông tin chi tiết của student đang đăng nhập.
-     * Updates the detailed information of the currently logged-in student.
+     * Cập nhật thông tin chi tiết student (admin).
      */
-    public function updateStudentDetail(Request $request): JsonResponse
+    public function update(Request $request, $userId): JsonResponse
     {
         return $this->executeService(
-            function () use ($request) {
-                $user = auth()->user();
-                
-                // Validate input
+            function () use ($request, $userId) {
+                $user = User::with('studentDetail')->findOrFail($userId);
+                if (!$user->isStudent()) {
+                    return $this->sendError('User is not a student', [], 404);
+                }
+
                 $validator = Validator::make($request->all(), [
                     'date_of_birth' => 'nullable|date',
                     'rank' => 'nullable|string|max:255',
@@ -54,23 +56,22 @@ class StudentProfileController extends BaseController
                     'parents_place_of_origin' => 'nullable|string|max:255',
                     'parents_occupation' => 'nullable|string|max:255',
                 ]);
-                
+
                 if ($validator->fails()) {
                     return $this->sendError('Validation Error', $validator->errors(), 422);
                 }
-                
-                // Create or update student detail
+
                 $studentDetail = $user->studentDetail;
                 if (!$studentDetail) {
                     $studentDetail = new StudentDetail(['user_id' => $user->id]);
                 }
-                
+
                 $studentDetail->fill($request->all());
                 $studentDetail->save();
-                
+
                 return new StudentDetailResource($studentDetail);
             },
-            'Cập nhật thông tin chi tiết thành công'
+            'Cập nhật thông tin chi tiết học viên thành công'
         );
     }
 }

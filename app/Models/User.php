@@ -225,4 +225,14 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(MonthlyAllowance::class);
     }
+
+    /**
+     * Get the student details for this user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function studentDetail()
+    {
+        return $this->hasOne(StudentDetail::class);
+    }
 }

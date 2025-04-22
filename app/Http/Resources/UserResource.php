@@ -14,7 +14,7 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        $data = [
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
@@ -23,5 +23,12 @@ class UserResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
+
+        // Include student details if available and the user is a student
+        if ($this->isStudent() && $this->whenLoaded('studentDetail')) {
+            $data['student_detail'] = new StudentDetailResource($this->studentDetail);
+        }
+
+        return $data;
     }
 }
