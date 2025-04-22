@@ -80,14 +80,12 @@ class AllowanceController extends BaseController
         }
 
         return $this->executeService(
-            fn() => [
-                'count' => $this->allowanceService->createBulkAllowances(
-                    $request->input('student_ids'),
-                    $request->input('month'),
-                    $request->input('year'),
-                    $request->input('amount')
-                )
-            ],
+            fn() => $this->allowanceService->createBulkAllowances(
+                $request->input('student_ids'),
+                $request->input('month'),
+                $request->input('year'),
+                $request->input('amount')
+            ),
             'Phụ cấp hàng tháng được tạo thành công',
             201
         );

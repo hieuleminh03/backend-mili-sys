@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Models\MonthlyAllowance;
@@ -12,7 +11,7 @@ class AllowanceService
 {
     /**
      * Lấy danh sách phụ cấp theo tháng/năm
-     * 
+     *
      * @param int|null $month Tháng cần lấy, null để lấy tất cả
      * @param int|null $year Năm cần lấy, null để lấy tất cả
      * @return Collection<MonthlyAllowance>
@@ -34,7 +33,7 @@ class AllowanceService
 
     /**
      * Tạo mới một phụ cấp hàng tháng
-     * 
+     *
      * @param array $data Dữ liệu cho phụ cấp
      * @return MonthlyAllowance
      */
@@ -45,14 +44,14 @@ class AllowanceService
 
     /**
      * Tạo nhiều phụ cấp hàng tháng cùng lúc
-     * 
+     *
      * @param array $studentIds Danh sách ID học viên
      * @param int $month Tháng của phụ cấp
      * @param int $year Năm của phụ cấp
      * @param float $amount Số tiền phụ cấp
-     * @return int Số phụ cấp đã tạo
+     * @return array Mảng chứa số lượng và danh sách ID phụ cấp đã tạo
      */
-    public function createBulkAllowances(array $studentIds, int $month, int $year, float $amount): int
+    public function createBulkAllowances(array $studentIds, int $month, int $year, float $amount): array
     {
         $existingAllowances = MonthlyAllowance::whereIn('user_id', $studentIds)
             ->where('month', $month)
@@ -60,31 +59,44 @@ class AllowanceService
             ->pluck('user_id')
             ->toArray();
 
-        $newStudentIds = array_diff($studentIds, $existingAllowances);
+        $newStudentIds      = array_diff($studentIds, $existingAllowances);
         $allowancesToCreate = [];
 
         foreach ($newStudentIds as $studentId) {
             $allowancesToCreate[] = [
-                'user_id' => $studentId,
-                'month' => $month,
-                'year' => $year,
-                'amount' => $amount,
-                'received' => false,
+                'user_id'    => $studentId,
+                'month'      => $month,
+                'year'       => $year,
+                'amount'     => $amount,
+                'received'   => false,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
         }
 
-        if (!empty($allowancesToCreate)) {
+        $allowanceIds = [];
+        
+        if (! empty($allowancesToCreate)) {
+            // Insert the allowances
             DB::table('monthly_allowances')->insert($allowancesToCreate);
+            
+            // Get the IDs of the newly created allowances
+            $allowanceIds = MonthlyAllowance::whereIn('user_id', $newStudentIds)
+                ->where('month', $month)
+                ->where('year', $year)
+                ->pluck('id')
+                ->toArray();
         }
 
-        return count($allowancesToCreate);
+        return [
+            'count' => count($allowancesToCreate),
+            'allowance_ids' => $allowanceIds
+        ];
     }
 
     /**
      * Cập nhật phụ cấp hàng tháng
-     * 
+     *
      * @param int $id ID của phụ cấp
      * @param array $data Dữ liệu cập nhật
      * @return MonthlyAllowance
@@ -95,7 +107,7 @@ class AllowanceService
 
         if (array_key_exists('received', $data)) {
             $currentReceived = $allowance->received;
-            $newReceived = $data['received'];
+            $newReceived     = $data['received'];
 
             if ($newReceived) {
                 // Luôn cập nhật received_at khi nhận
@@ -112,7 +124,7 @@ class AllowanceService
 
     /**
      * Xóa phụ cấp hàng tháng
-     * 
+     *
      * @param int $id ID của phụ cấp
      * @return bool
      */
@@ -123,7 +135,7 @@ class AllowanceService
 
     /**
      * Cập nhật trạng thái nhận phụ cấp của học viên
-     * 
+     *
      * @param int $allowanceId ID của phụ cấp
      * @param bool $received Trạng thái đã nhận hay chưa
      * @param string|null $notes Ghi chú (nếu có)
@@ -150,7 +162,7 @@ class AllowanceService
 
     /**
      * Lấy phụ cấp của một học viên
-     * 
+     *
      * @param int $studentId ID của học viên
      * @param int|null $month Tháng cần lấy, null để lấy tất cả
      * @param int|null $year Năm cần lấy, null để lấy tất cả
@@ -175,7 +187,7 @@ class AllowanceService
 
     /**
      * Lấy danh sách học viên chưa nhận phụ cấp theo tháng/năm
-     * 
+     *
      * @param int|null $month Tháng cần kiểm tra, null để lấy tất cả
      * @param int|null $year Năm cần kiểm tra, null để lấy tất cả
      * @return array
@@ -203,15 +215,15 @@ class AllowanceService
 
             if ($pendingAllowance) {
                 $result[] = [
-                    'user_id' => $student->id,
-                    'name' => $student->name,
-                    'email' => $student->email,
+                    'user_id'   => $student->id,
+                    'name'      => $student->name,
+                    'email'     => $student->email,
                     'allowance' => [
-                        "id" => $pendingAllowance->id,
-                        'month' => $pendingAllowance->month,
-                        'year' => $pendingAllowance->year,
-                        'notes' => $pendingAllowance->notes,
-                        'amount' => $pendingAllowance->amount,
+                        "id"         => $pendingAllowance->id,
+                        'month'      => $pendingAllowance->month,
+                        'year'       => $pendingAllowance->year,
+                        'notes'      => $pendingAllowance->notes,
+                        'amount'     => $pendingAllowance->amount,
                         'created_at' => $pendingAllowance->created_at,
                     ],
                 ];
