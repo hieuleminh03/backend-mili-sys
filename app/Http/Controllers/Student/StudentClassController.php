@@ -19,7 +19,7 @@ class StudentClassController extends BaseController
             function () use ($studentId) {
                 // Lấy thông tin lớp của học viên
                 $studentClass = StudentClass::where('user_id', $studentId)
-                    ->with(['classRoom', 'classRoom.manager:id,name,email'])
+                    ->with(['classRoom', 'classRoom.manager:id,name,email,image'])
                     ->first();
 
                 if (! $studentClass) {
@@ -32,7 +32,7 @@ class StudentClassController extends BaseController
                 // Lấy thông tin về lớp trưởng và lớp phó
                 $classId = $studentClass->class_id;
                 $classmates = StudentClass::where('class_id', $classId)
-                    ->with('student:id,name,email')
+                    ->with('student:id,name,email,image')
                     ->get();
 
                 $monitor = $classmates->where('role', 'monitor')->first();
@@ -80,13 +80,14 @@ class StudentClassController extends BaseController
                 $classId = $studentClass->class_id;
 
                 return StudentClass::where('class_id', $classId)
-                    ->with('student:id,name,email')
+                    ->with('student:id,name,email,image')
                     ->get()
                     ->map(function ($item) {
                         return [
                             'id' => $item->student->id,
                             'name' => $item->student->name,
                             'email' => $item->student->email,
+                            'image' => $item->student->image,
                             'role' => $item->role,
                             'status' => $item->status,
                         ];

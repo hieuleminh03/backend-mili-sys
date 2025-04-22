@@ -17,7 +17,7 @@ class ManagerService
     public function getAllManagers()
     {
         try {
-            $managers = User::select('id', 'name', 'email')
+            $managers = User::select('id', 'name', 'email', 'image')
                 ->where('role', User::ROLE_MANAGER)
                 ->orderBy('name')
                 ->get();
@@ -64,6 +64,7 @@ class ManagerService
                 'id' => $manager->id,
                 'name' => $manager->name,
                 'email' => $manager->email,
+                'image' => $manager->image,
                 'detail' => $detailArray,
             ];
 
@@ -113,6 +114,7 @@ class ManagerService
                     'id' => $manager->id,
                     'name' => $manager->name,
                     'email' => $manager->email,
+                    'image' => $manager->image,
                     'detail' => $detailArray,
                 ];
 

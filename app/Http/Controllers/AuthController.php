@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AuthLoginRequest;
 use App\Http\Requests\AuthRegisterRequest;
+use App\Http\Requests\UserImageUpdateRequest;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 
@@ -90,6 +91,25 @@ class AuthController extends BaseController
         return $this->executeService(
             fn () => $this->authService->logout(),
             'Đăng xuất thành công'
+        );
+    }
+
+    /**
+     * cập nhật ảnh đại diện cho người dùng
+     * chỉ admin hoặc chính người dùng đó mới có quyền cập nhật
+     *
+     * @param UserImageUpdateRequest $request yêu cầu cập nhật ảnh
+     * @param int|null $userId ID của người dùng cần cập nhật
+     * @return JsonResponse kết quả cập nhật
+     */
+    public function updateUserImage(UserImageUpdateRequest $request, ?int $userId = null): JsonResponse
+    {
+        // If userId is null, use the authenticated user's ID
+        $userId = $userId ?? auth()->id();
+        
+        return $this->executeService(
+            fn () => $this->authService->updateUserImage($userId, $request->image),
+            'Cập nhật ảnh đại diện thành công'
         );
     }
 }

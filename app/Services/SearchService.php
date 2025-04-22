@@ -19,7 +19,7 @@ class SearchService
         // Nếu query null hoặc rỗng, trả về tất cả sinh viên
         if ($query === null || trim($query) === '') {
             return User::where('role', User::ROLE_STUDENT)
-                ->select('id', 'name', 'email')
+                ->select('id', 'name', 'email', 'image')
                 ->get();
         }
 
@@ -32,7 +32,7 @@ class SearchService
                 $queryBuilder->whereRaw('LOWER(name) LIKE ?', ['%'.$sanitizedQuery.'%'])
                     ->orWhereRaw('LOWER(email) LIKE ?', ['%'.$sanitizedQuery.'%']);
             })
-            ->select('id', 'name', 'email')
+            ->select('id', 'name', 'email', 'image')
             ->get();
     }
 }

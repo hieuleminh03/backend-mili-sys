@@ -58,6 +58,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
     Route::prefix('auth')->group(function () {
         Route::get('/user', [AuthController::class, 'getUser']);
         Route::post('/logout', [AuthController::class, 'logout']);
+        Route::post('/update-image', [AuthController::class, 'updateUserImage'])->defaults('userId', null);
     });
 
     /**
@@ -198,6 +199,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
                         'message' => 'Tất cả người dùng',
                     ]);
                 });
+                Route::post('/users/{userId}/image', [AuthController::class, 'updateUserImage']);
 
                 // Tìm kiếm
                 Route::post('/search/student', [SearchController::class, 'searchStudents']);

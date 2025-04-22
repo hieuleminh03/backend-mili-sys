@@ -108,6 +108,7 @@ class AuthService
                 'name' => $user->name,
                 'email' => $user->email,
                 'role' => $user->role,
+                'image' => $user->image,
             ],
         ];
     }
@@ -171,5 +172,30 @@ class AuthService
             Log::error('Logout: Lỗi JWT - '.$e->getMessage());
             throw $e;
         }
+    }
+
+    /**
+     * Update user's profile image
+     *
+     * @param int $userId The ID of the user to update
+     * @param string $imageUrl URL of the image
+     * @return User The updated user
+     *
+     * @throws ModelNotFoundException if user not found
+     * @throws AuthorizationException if not authorized
+     */
+    public function updateUserImage(int $userId, string $imageUrl): User
+    {
+        $user = User::findOrFail($userId);
+        
+        // Only admin can update other users' images
+        if (auth()->id() !== $userId && !auth()->user()->isAdmin()) {
+            throw new AuthorizationException('Bạn không có quyền cập nhật ảnh cho người dùng khác');
+        }
+        
+        $user->image = $imageUrl;
+        $user->save();
+        
+        return $user;
     }
 }

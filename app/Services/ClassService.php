@@ -37,7 +37,7 @@ class ClassService
      */
     public function getClass(int $classId)
     {
-        $class = ClassRoom::with(['manager:id,name,email', 'students:id,name,email'])
+        $class = ClassRoom::with(['manager:id,name,email,image', 'students:id,name,email,image'])
             ->find($classId);
 
         if (! $class) {
@@ -422,7 +422,7 @@ class ClassService
      */
     public function getManagerClass(int $managerId)
     {
-        $class = ClassRoom::with(['manager:id,name,email', 'students:id,name,email'])
+        $class = ClassRoom::with(['manager:id,name,email,image', 'students:id,name,email,image'])
             ->where('manager_id', $managerId)
             ->first();
 
@@ -452,7 +452,7 @@ class ClassService
     {
         $studentClass = StudentClass::where('class_id', $classId)
             ->where('user_id', $studentId)
-            ->with('student:id,name,email')
+            ->with('student:id,name,email,image')
             ->first();
 
         if (! $studentClass) {
