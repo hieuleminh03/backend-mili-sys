@@ -90,7 +90,8 @@ class AllowanceService
 
         return [
             'count' => count($allowancesToCreate),
-            'allowance_ids' => $allowanceIds
+            'allowance_ids' => $allowanceIds,
+            'user_ids' => $newStudentIds
         ];
     }
 
