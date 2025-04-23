@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\TermController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Manager\FitnessAssessmentController;
 use App\Http\Controllers\Manager\ManagerClassController;
+use App\Http\Controllers\Manager\ManagerProfileController;
 use App\Http\Controllers\Manager\SearchController as ManagerSearchController;
 use App\Http\Controllers\Manager\ViolationController;
 use App\Http\Controllers\Student\StudentAllowanceController;
@@ -136,6 +137,10 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
                     'message' => 'Bảng điều khiển quản lý',
                 ]);
             });
+
+            // Thông tin cá nhân
+            Route::get('/profile', [ManagerProfileController::class, 'getProfile']);
+            Route::put('/profile', [ManagerProfileController::class, 'updateProfile']);
 
             // Quản lý học viên
             Route::prefix('students')->group(function () {
