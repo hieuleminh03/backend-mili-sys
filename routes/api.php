@@ -292,6 +292,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
                     // Quản lý phân phối quân tư trang
                     Route::prefix('distributions')->group(function () {
                         Route::get('/', [EquipmentController::class, 'getDistributions']);
+                        Route::get('/{id}/detail', [EquipmentController::class, 'getDistributionDetail']);
                         Route::post('/', [EquipmentController::class, 'createDistribution']);
                         Route::put('/{id}', [EquipmentController::class, 'updateDistribution']);
                         Route::delete('/{id}', [EquipmentController::class, 'deleteDistribution']);

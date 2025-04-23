@@ -257,4 +257,64 @@ class EquipmentService
 
         return $result;
     }
+    
+    /**
+     * Lấy chi tiết của một đợt phân phối quân tư trang và danh sách học viên đã nhận
+     * 
+     * @param int $distributionId ID của đợt phân phối
+     * @return array Thông tin chi tiết và danh sách học viên
+     */
+    public function getDistributionDetail(int $distributionId): array
+    {
+        // Lấy thông tin chi tiết của đợt phân phối
+        $distribution = YearlyEquipmentDistribution::with('equipmentType')
+            ->findOrFail($distributionId);
+        
+        // Lấy danh sách biên nhận của học viên cho đợt phân phối này
+        $receipts = StudentEquipmentReceipt::where('distribution_id', $distributionId)
+            ->with(['student:id,name,email,student_code'])
+            ->get();
+        
+        // Phân loại theo trạng thái đã nhận
+        $receivedReceipts = $receipts->where('received', true);
+        $pendingReceipts = $receipts->where('received', false);
+        
+        // Format dữ liệu để trả về
+        $studentReceipts = [];
+        foreach ($receipts as $receipt) {
+            $studentReceipts[] = [
+                'receipt_id' => $receipt->id,
+                'student' => [
+                    'id' => $receipt->student->id,
+                    'name' => $receipt->student->name,
+                    'email' => $receipt->student->email,
+                    'student_code' => $receipt->student->student_code ?? null
+                ],
+                'received' => $receipt->received,
+                'received_at' => $receipt->received_at,
+                'notes' => $receipt->notes
+            ];
+        }
+        
+        return [
+            'distribution' => [
+                'id' => $distribution->id,
+                'year' => $distribution->year,
+                'equipment_type' => [
+                    'id' => $distribution->equipmentType->id,
+                    'name' => $distribution->equipmentType->name,
+                    'description' => $distribution->equipmentType->description
+                ],
+                'quantity' => $distribution->quantity,
+                'created_at' => $distribution->created_at,
+                'updated_at' => $distribution->updated_at
+            ],
+            'statistics' => [
+                'total_students' => $receipts->count(),
+                'received_count' => $receivedReceipts->count(),
+                'pending_count' => $pendingReceipts->count()
+            ],
+            'student_receipts' => $studentReceipts
+        ];
+    }
 }

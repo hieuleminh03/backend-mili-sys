@@ -205,4 +205,15 @@ class EquipmentController extends BaseController
             'Danh sách quân tư trang của học viên'
         );
     }
+    
+    /**
+     * Lấy chi tiết của một đợt phân phối quân tư trang và danh sách học viên đã nhận
+     */
+    public function getDistributionDetail(int $distributionId): JsonResponse
+    {
+        return $this->executeService(
+            fn() => $this->equipmentService->getDistributionDetail($distributionId),
+            'Chi tiết đợt phân phối quân tư trang'
+        );
+    }
 }
