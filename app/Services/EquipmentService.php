@@ -202,28 +202,55 @@ class EquipmentService
      */
     public function getStudentsWithPendingEquipment(int $year): array
     {
-        $distributions = YearlyEquipmentDistribution::where('year', $year)->pluck('id')->toArray();
+        $distributions = YearlyEquipmentDistribution::where('year', $year)
+            ->with('equipmentType')
+            ->get();
 
-        if (empty($distributions)) {
+        if ($distributions->isEmpty()) {
             return [];
         }
 
+        $distributionIds = $distributions->pluck('id')->toArray();
+
+        // Lấy danh sách học viên với thông tin cơ bản
         $students = User::where('role', User::ROLE_STUDENT)
-            ->with(['studentClass.class'])
+            ->with(['studentDetail'])
             ->get();
 
         $result = [];
 
         foreach ($students as $student) {
+            // Lấy các biên nhận chưa nhận của học viên
             $pendingReceipts = StudentEquipmentReceipt::where('user_id', $student->id)
-                ->whereIn('distribution_id', $distributions)
+                ->whereIn('distribution_id', $distributionIds)
                 ->where('received', false)
-                ->count();
+                ->with('distribution.equipmentType')
+                ->get();
 
-            if ($pendingReceipts > 0) {
+            if ($pendingReceipts->isNotEmpty()) {
+                // Chỉ lấy thông tin cần thiết của học viên
+                $studentInfo = [
+                    'id' => $student->id,
+                    'name' => $student->name,
+                    'email' => $student->email,
+                ];
+
+                // Thông tin chi tiết về quân tư trang chưa nhận
+                $pendingEquipmentDetails = [];
+                foreach ($pendingReceipts as $receipt) {
+                    $pendingEquipmentDetails[] = [
+                        'receipt_id' => $receipt->id,
+                        'equipment_name' => $receipt->distribution->equipmentType->name,
+                        'equipment_description' => $receipt->distribution->equipmentType->description,
+                        'distribution_year' => $receipt->distribution->year,
+                        'quantity' => $receipt->distribution->quantity,
+                    ];
+                }
+
                 $result[] = [
-                    'student' => $student,
-                    'pending_count' => $pendingReceipts,
+                    'student' => $studentInfo,
+                    'pending_count' => $pendingReceipts->count(),
+                    'pending_equipment' => $pendingEquipmentDetails,
                 ];
             }
         }
