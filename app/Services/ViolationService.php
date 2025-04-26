@@ -38,10 +38,16 @@ class ViolationService
                 ->orderBy('created_at', 'desc')
                 ->get();
 
-            // Thêm trường is_editable và student_name cho mỗi vi phạm
+            // Thêm trường is_editable, student_name và manager info cho mỗi vi phạm
             $violations->each(function ($violation) use ($student) {
                 $violation->is_editable = $violation->isEditable();
                 $violation->student_name = $student->name;
+                
+                // Thêm thông tin manager vào response
+                if ($violation->manager) {
+                    $violation->manager_name = $violation->manager->name;
+                    $violation->manager_email = $violation->manager->email;
+                }
             });
 
             return $violations;
@@ -81,6 +87,11 @@ class ViolationService
                     'violation_name' => $data['violation_name'],
                     'violation_date' => $data['violation_date'],
                 ]);
+
+                // Load thông tin manager để trả về cùng với violation
+                $manager = User::select('id', 'name', 'email')->find($managerId);
+                $violation->manager_name = $manager->name;
+                $violation->manager_email = $manager->email;
 
                 return $violation;
             });
@@ -124,6 +135,16 @@ class ViolationService
                     'violation_name' => $data['violation_name'],
                     'violation_date' => $data['violation_date'],
                 ]);
+
+                // Load thông tin manager để trả về cùng với violation
+                $violation->load(['manager' => function ($query) {
+                    $query->select('id', 'name', 'email');
+                }]);
+
+                // Make sure manager is explicitly added to the response
+                $manager = User::select('id', 'name', 'email')->find($managerId);
+                $violation->manager_name = $manager->name;
+                $violation->manager_email = $manager->email;
 
                 return $violation;
             });
