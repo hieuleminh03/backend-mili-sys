@@ -17,7 +17,15 @@ class ManagerService
     public function getAllManagers()
     {
         try {
-            $managers = User::select('id', 'name', 'email', 'image')
+            $managers = User::select(
+                'users.id', 
+                'users.name', 
+                'users.email', 
+                'users.image',
+                'manager_details.rank',
+                'manager_details.phone_number as phone'
+            )
+                ->leftJoin('manager_details', 'users.id', '=', 'manager_details.user_id')
                 ->where('role', User::ROLE_MANAGER)
                 ->orderBy('name')
                 ->get();
