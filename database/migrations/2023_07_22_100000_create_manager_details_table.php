@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('hometown', 100)->nullable();
             $table->string('phone_number', 20)->nullable();
             $table->boolean('is_party_member')->default(false);
-            $table->string('photo_url')->nullable();
             $table->string('management_unit', 100)->nullable();
             $table->string('father_name', 100)->nullable();
             $table->year('father_birth_year')->nullable();

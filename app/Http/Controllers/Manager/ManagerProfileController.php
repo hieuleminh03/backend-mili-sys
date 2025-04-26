@@ -51,7 +51,6 @@ class ManagerProfileController extends BaseController
                     'hometown' => 'nullable|string|max:255',
                     'phone_number' => 'nullable|string|max:20',
                     'is_party_member' => 'nullable|boolean',
-                    'photo_url' => 'nullable|string',
                     'management_unit' => 'nullable|string|max:255',
                     'father_name' => 'nullable|string|max:255',
                     'father_birth_year' => 'nullable|integer|min:1900|max:2000',

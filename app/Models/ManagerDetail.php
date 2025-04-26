@@ -22,7 +22,6 @@ class ManagerDetail extends Model
         'hometown',
         'phone_number',
         'is_party_member',
-        'photo_url',
         'management_unit',
         'father_name',
         'father_birth_year',
