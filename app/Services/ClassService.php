@@ -37,10 +37,26 @@ class ClassService
      */
     public function getClass(int $classId)
     {
-        $class = ClassRoom::with([
-            'manager:id,name,email,image', 
-            'students:id,name,email,image'
-        ])->find($classId);
+        // Get authenticated user's role
+        $userRole = auth()->user()->role;
+        
+        // Start with the base query
+        $query = ClassRoom::with([
+            'manager:id,name,email,image'
+        ]);
+        
+        // For admin and manager roles, include full student details
+        if ($userRole === User::ROLE_ADMIN || $userRole === User::ROLE_MANAGER) {
+            $query->with([
+                'students' => function ($query) {
+                    $query->select('users.id', 'users.name', 'users.email', 'users.image')
+                        ->with('studentDetail'); // Include student details for admin/manager
+                }
+            ]);
+        }
+        // For student role, we don't load students at all as they will use a separate API
+        
+        $class = $query->find($classId);
 
         if (! $class) {
             throw new Exception('Không tìm thấy lớp', 422);
@@ -416,11 +432,26 @@ class ClassService
      */
     public function getManagerClass(int $managerId)
     {
-        $class = ClassRoom::with([
-            'manager:id,name,email,image', 
-            'students:id,name,email,image'
-        ])->where('manager_id', $managerId)
-            ->first();
+        // Get authenticated user's role
+        $userRole = auth()->user()->role;
+        
+        // Start with the base query
+        $query = ClassRoom::with([
+            'manager:id,name,email,image'
+        ])->where('manager_id', $managerId);
+        
+        // For admin and manager roles, include full student details
+        if ($userRole === User::ROLE_ADMIN || $userRole === User::ROLE_MANAGER) {
+            $query->with([
+                'students' => function ($query) {
+                    $query->select('users.id', 'users.name', 'users.email', 'users.image')
+                        ->with('studentDetail'); // Include student details for admin/manager
+                }
+            ]);
+        }
+        // For student role, we don't load students at all as they will use a separate API
+        
+        $class = $query->first();
 
         if (! $class) {
             throw new Exception('Không tìm thấy lớp', 422);
@@ -438,10 +469,25 @@ class ClassService
      */
     public function getStudentClassDetail(int $classId, int $studentId)
     {
-        $studentClass = StudentClass::where('class_id', $classId)
-            ->where('user_id', $studentId)
-            ->with('student:id,name,email,image')
-            ->first();
+        // Get authenticated user's role
+        $userRole = auth()->user()->role;
+        
+        // Base query to get student class details
+        $query = StudentClass::where('class_id', $classId)
+            ->where('user_id', $studentId);
+            
+        // For admin and manager roles, include student details
+        if ($userRole === User::ROLE_ADMIN || $userRole === User::ROLE_MANAGER) {
+            $query->with([
+                'student:id,name,email,image',
+                'student.studentDetail' // Include student details for admin/manager
+            ]);
+        } else {
+            // For student role, only basic info
+            $query->with('student:id,name,email,image');
+        }
+        
+        $studentClass = $query->first();
 
         if (! $studentClass) {
             throw new Exception('Không tìm thấy học viên trong lớp này', 422);

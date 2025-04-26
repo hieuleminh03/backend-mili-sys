@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ClassDetailResource extends JsonResource
@@ -63,35 +64,57 @@ class ClassDetailResource extends JsonResource
             $data['vice_monitors'] = [];
         }
         
-        // Include all students in the class for all roles
-        if ($this->relationLoaded('students')) {
-            $data['students'] = $this->students->map(function ($student) {
-                return [
-                    'id' => $student->id,
-                    'name' => $student->name,
-                    'email' => $student->email,
-                    'image' => $student->image,
-                    'role' => $student->pivot->role ?? 'student',
-                    'status' => $student->pivot->status ?? 'active',
-                ];
-            });
-            
-            $data['student_count'] = $this->students->count();
+        // Only include student details for admin and manager roles
+        if ($userRole === User::ROLE_ADMIN || $userRole === User::ROLE_MANAGER) {
+            if ($this->relationLoaded('students')) {
+                // For admin/manager: include full student details
+                $data['students'] = $this->students->map(function ($student) {
+                    return [
+                        'id' => $student->id,
+                        'name' => $student->name,
+                        'email' => $student->email,
+                        'image' => $student->image,
+                        'role' => $student->pivot->role ?? 'student',
+                        'status' => $student->pivot->status ?? 'active',
+                        'reason' => $student->pivot->reason,
+                        'note' => $student->pivot->note,
+                        'created_at' => $student->pivot->created_at,
+                        'updated_at' => $student->pivot->updated_at
+                    ];
+                });
+                
+                $data['student_count'] = $this->students->count();
+            } else {
+                // If students not eager loaded, get them now
+                $studentClasses = $this->studentClasses()
+                    ->with('student:id,name,email,image')
+                    ->get();
+                
+                // For admin/manager: include additional student details
+                $data['students'] = $studentClasses->map(function ($sc) {
+                    return [
+                        'id' => $sc->student->id,
+                        'name' => $sc->student->name,
+                        'email' => $sc->student->email,
+                        'image' => $sc->student->image,
+                        'role' => $sc->role,
+                        'status' => $sc->status,
+                        'reason' => $sc->reason,
+                        'note' => $sc->note,
+                        'created_at' => $sc->created_at,
+                        'updated_at' => $sc->updated_at
+                    ];
+                });
+                
+                $data['student_count'] = $studentClasses->count();
+            }
         } else {
-            // If students not eager loaded, get them now
-            $studentClasses = $this->studentClasses()->with('student:id,name,email,image')->get();
-            $data['students'] = $studentClasses->map(function ($sc) {
-                return [
-                    'id' => $sc->student->id,
-                    'name' => $sc->student->name,
-                    'email' => $sc->student->email,
-                    'image' => $sc->student->image,
-                    'role' => $sc->role,
-                    'status' => $sc->status,
-                ];
-            });
-            
-            $data['student_count'] = $studentClasses->count();
+            // For student role, just include student count without details
+            if ($this->relationLoaded('students')) {
+                $data['student_count'] = $this->students->count();
+            } else {
+                $data['student_count'] = $this->studentClasses()->count();
+            }
         }
         
         return $data;
