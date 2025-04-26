@@ -18,7 +18,13 @@ class UserImageUpdateRequest extends FormRequest
 
         // Check if user is trying to update their own image
         $userId = $this->route('userId') ?? $this->route('id');
-        return auth()->id() === (int) $userId;
+        
+        // If no userId is specified (common route case), or userId matches auth user, allow the request
+        if ($userId === null || auth()->id() === (int) $userId) {
+            return true;
+        }
+        
+        return false;
     }
 
     /**
