@@ -76,6 +76,7 @@ class Course extends Model
                     'id' => $student->id,
                     'name' => $student->name,
                     'email' => $student->email,
+                    'image' => $student->image,
                     'midterm_grade' => $enrollment->midterm_grade,
                     'final_grade' => $enrollment->final_grade,
                     'total_grade' => $enrollment->total_grade,
