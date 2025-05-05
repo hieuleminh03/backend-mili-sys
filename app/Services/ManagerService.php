@@ -100,6 +100,15 @@ class ManagerService
                 if (! $manager) {
                     throw new Exception('Không tìm thấy manager', 422);
                 }
+                
+                // Xử lý cập nhật ảnh nếu có
+                if (isset($data['image'])) {
+                    $manager->image = $data['image'];
+                    $manager->save();
+                    
+                    // Loại bỏ trường image ra khỏi dữ liệu chi tiết
+                    unset($data['image']);
+                }
 
                 // Lấy thông tin chi tiết, nếu chưa có thì tạo mới
                 $managerDetail = $manager->managerDetail;
@@ -116,7 +125,10 @@ class ManagerService
                 // Ẩn trường id từ manager_detail
                 $detailArray = $managerDetail->toArray();
                 unset($detailArray['id']);
-
+                
+                // Đảm bảo lấy thông tin user đã được cập nhật mới nhất
+                $manager = $manager->fresh();
+                
                 // Gộp thông tin manager và chi tiết vào một đối tượng
                 $result = [
                     'id' => $manager->id,

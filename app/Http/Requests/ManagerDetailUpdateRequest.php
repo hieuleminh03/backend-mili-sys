@@ -41,6 +41,7 @@ class ManagerDetailUpdateRequest extends FormRequest
             'father_hometown' => 'nullable|string|max:100',
             'mother_hometown' => 'nullable|string|max:100',
             'permanent_address' => 'nullable|string|max:255',
+            'image' => 'nullable|string|max:255',
         ];
     }
 
@@ -82,6 +83,8 @@ class ManagerDetailUpdateRequest extends FormRequest
             'mother_hometown.max' => 'Quê quán mẹ không được vượt quá 100 ký tự',
             'permanent_address.string' => 'Địa chỉ thường trú phải là chuỗi',
             'permanent_address.max' => 'Địa chỉ thường trú không được vượt quá 255 ký tự',
+            'image.string' => 'Ảnh đại diện phải là chuỗi',
+            'image.max' => 'Ảnh đại diện không được vượt quá 255 ký tự',
         ];
     }
 
