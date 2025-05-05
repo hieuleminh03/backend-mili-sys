@@ -219,6 +219,7 @@ class AllowanceService
                     'user_id'   => $student->id,
                     'name'      => $student->name,
                     'email'     => $student->email,
+                    'image'     => $student->image,
                     'allowance' => [
                         "id"         => $pendingAllowance->id,
                         'month'      => $pendingAllowance->month,
