@@ -422,7 +422,7 @@ class FitnessTestService
 
                 $record->save();
 
-                return $record->load(['student', 'fitnessTest']);
+                return $record->load(['student', 'fitnessTest', 'manager']);
             });
         } catch (\Exception $e) {
             \Log::error('Lỗi khi ghi nhận kết quả đánh giá thể lực: '.$e->getMessage());
@@ -542,11 +542,9 @@ class FitnessTestService
                     $record->calculateRating();
                     $record->save();
 
-                    $results['success'][] = [
-                        'user_id' => $userId,
-                        'performance' => $assessment['performance'],
-                        'rating' => $record->rating,
-                    ];
+                    // Load relationships để trả về đầy đủ thông tin
+                    $record->load(['student', 'fitnessTest', 'manager']);
+                    $results['success'][] = $record;
                 }
 
                 // Nếu có bất kỳ lỗi nào, hủy bỏ toàn bộ transaction
