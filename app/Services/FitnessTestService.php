@@ -284,7 +284,6 @@ class FitnessTestService
                 'name' => $session->name,
                 'week_start_date' => $session->week_start_date->format('Y-m-d'),
                 'week_end_date' => $session->week_end_date->format('Y-m-d'),
-                'notes' => $session->notes,
                 'is_current_week' => $session->isCurrentWeek(),
             ];
             

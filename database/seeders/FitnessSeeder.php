@@ -149,7 +149,6 @@ class FitnessSeeder extends Seeder
             ],
             [
                 'name'  => 'Danh gia tuan truoc',
-                'notes' => 'Danh gia thuong ky',
             ]
         );
         $sessions[] = $lastWeekSession;
@@ -162,7 +161,6 @@ class FitnessSeeder extends Seeder
             ],
             [
                 'name'  => 'Danh gia thang truoc',
-                'notes' => 'Danh gia cuoi thang',
             ]
         );
         $sessions[] = $lastMonthSession;

@@ -20,7 +20,6 @@ class FitnessAssessmentSession extends Model
         'name',
         'week_start_date',
         'week_end_date',
-        'notes',
     ];
 
     /**
