@@ -300,7 +300,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
 
                     // Quản lý biên nhận
                     Route::post('/receipts', [EquipmentController::class, 'createReceipts']);
-                    Route::get('/pending', [EquipmentController::class, 'getStudentsWithPendingEquipment']);
+                    Route::get('/pending/{year}', [EquipmentController::class, 'getStudentsWithPendingEquipment']);
                     Route::get('/students/{studentId}', [EquipmentController::class, 'getStudentEquipment']);
                 });
 

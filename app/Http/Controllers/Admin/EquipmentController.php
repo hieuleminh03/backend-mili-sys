@@ -178,19 +178,18 @@ class EquipmentController extends BaseController
 
     /**
      * Lấy danh sách học viên chưa nhận đủ quân tư trang
+     * 
+     * @param int $year Năm cần kiểm tra
      */
-    public function getStudentsWithPendingEquipment(Request $request): JsonResponse
+    public function getStudentsWithPendingEquipment(int $year): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'year' => 'required|integer|min:2000|max:2100',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->errorResponse('Lỗi dữ liệu nhập vào', $validator->errors());
+        // Validate year parameter
+        if ($year < 2000 || $year > 2100) {
+            return $this->errorResponse('Năm không hợp lệ', ['year' => 'Năm phải từ 2000 đến 2100']);
         }
 
         return $this->executeService(
-            fn() => $this->equipmentService->getStudentsWithPendingEquipment($request->input('year')),
+            fn() => $this->equipmentService->getStudentsWithPendingEquipment($year),
             'Danh sách học viên chưa nhận đủ quân tư trang'
         );
     }
