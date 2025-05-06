@@ -73,6 +73,19 @@ class FitnessAssessmentController extends BaseController
     }
 
     /**
+     * lấy thông tin chi tiết của một phiên đánh giá thể lực, bao gồm tất cả các bản ghi
+     *
+     * @param  int  $sessionId  mã phiên đánh giá
+     */
+    public function getSessionDetail(int $sessionId): JsonResponse
+    {
+        return $this->executeService(
+            fn () => $this->fitnessTestService->getSessionDetail($sessionId),
+            'Lấy thông tin chi tiết phiên đánh giá thể lực thành công'
+        );
+    }
+
+    /**
      * ghi nhận kết quả đánh giá thể lực mới cho học viên
      */
     public function recordAssessment(FitnessAssessmentRequest $request): JsonResponse

@@ -265,6 +265,111 @@ class FitnessTestService
     }
 
     /**
+     * Lấy thông tin chi tiết của một phiên đánh giá thể lực, chỉ gồm thông tin quan trọng
+     *
+     * @param  int  $sessionId  ID của phiên đánh giá
+     * @return array Thông tin chi tiết phiên đánh giá đã tinh gọn
+     *
+     * @throws \Exception nếu không tìm thấy phiên đánh giá
+     */
+    public function getSessionDetail(int $sessionId): array
+    {
+        try {
+            // Lấy phiên đánh giá
+            $session = FitnessAssessmentSession::findOrFail($sessionId);
+            
+            // Lấy phiên đánh giá với thông tin cần thiết
+            $sessionData = [
+                'id' => $session->id,
+                'name' => $session->name,
+                'week_start_date' => $session->week_start_date->format('Y-m-d'),
+                'week_end_date' => $session->week_end_date->format('Y-m-d'),
+                'notes' => $session->notes,
+                'is_current_week' => $session->isCurrentWeek(),
+            ];
+            
+            // Lấy tất cả bản ghi của phiên đánh giá này
+            $records = StudentFitnessRecord::where('assessment_session_id', $sessionId)
+                ->with(['fitnessTest'])
+                ->get();
+            
+            // Nhóm kết quả theo bài kiểm tra thể lực
+            $recordsByTest = $records->groupBy('fitness_test_id');
+            
+            // Lấy danh sách bài kiểm tra thể lực
+            $fitnessTests = FitnessTest::with('thresholds')->get();
+            
+            // Tạo kết quả thống kê theo bài kiểm tra
+            $testResults = [];
+            foreach ($fitnessTests as $test) {
+                $testRecords = $recordsByTest->get($test->id, collect([]));
+                
+                if ($testRecords->isEmpty()) {
+                    continue; // Bỏ qua nếu không có kết quả cho bài kiểm tra này
+                }
+                
+                // Thống kê số lượng từng xếp loại
+                $ratingStats = [
+                    'excellent' => $testRecords->where('rating', 'excellent')->count(),
+                    'good' => $testRecords->where('rating', 'good')->count(),
+                    'pass' => $testRecords->where('rating', 'pass')->count(),
+                    'fail' => $testRecords->where('rating', 'fail')->count(),
+                    'not_rated' => $testRecords->where('rating', 'not_rated')->count(),
+                    'total' => $testRecords->count(),
+                ];
+                
+                // Thông tin bài kiểm tra với tinh gọn
+                $testData = [
+                    'id' => $test->id,
+                    'name' => $test->name,
+                    'unit' => $test->unit,
+                    'higher_is_better' => $test->higher_is_better,
+                ];
+                
+                if ($test->thresholds) {
+                    $testData['thresholds'] = [
+                        'excellent_threshold' => $test->thresholds->excellent_threshold,
+                        'good_threshold' => $test->thresholds->good_threshold,
+                        'pass_threshold' => $test->thresholds->pass_threshold,
+                    ];
+                }
+                
+                // Thêm vào kết quả
+                $testResults[] = [
+                    'test' => $testData,
+                    'statistics' => $ratingStats,
+                    'record_count' => $testRecords->count(),
+                    'assessed_student_count' => $testRecords->pluck('user_id')->unique()->count(),
+                ];
+            }
+            
+            // Thống kê tổng thể
+            $overallStats = [
+                'excellent' => $records->where('rating', 'excellent')->count(),
+                'good' => $records->where('rating', 'good')->count(),
+                'pass' => $records->where('rating', 'pass')->count(),
+                'fail' => $records->where('rating', 'fail')->count(),
+                'not_rated' => $records->where('rating', 'not_rated')->count(),
+                'total_records' => $records->count(),
+                'total_students' => $records->pluck('user_id')->unique()->count(),
+                'tests_assessed' => $recordsByTest->count(),
+            ];
+            
+            // Kết hợp kết quả tinh gọn
+            $result = [
+                'session' => $sessionData,
+                'test_results' => $testResults,
+                'overall_statistics' => $overallStats,
+            ];
+            
+            return $result;
+        } catch (\Exception $e) {
+            \Log::error('Lỗi khi lấy thông tin chi tiết phiên đánh giá thể lực: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
      * Record a fitness assessment result for a student.
      *
      * @param  array  $data  dữ liệu đánh giá

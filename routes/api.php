@@ -176,6 +176,7 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
                 Route::get('/tests', [FitnessAssessmentController::class, 'getAllFitnessTests']);
                 Route::get('/sessions', [FitnessAssessmentController::class, 'getAllSessions']);
                 Route::get('/current-session', [FitnessAssessmentController::class, 'getCurrentWeekSession']);
+                Route::get('/sessions/{sessionId}', [FitnessAssessmentController::class, 'getSessionDetail']);
                 Route::get('/sessions/{sessionId}/assessments', [FitnessAssessmentController::class, 'getSessionAssessments']);
                 Route::post('/assessments', [FitnessAssessmentController::class, 'recordAssessment']);
                 Route::post('/assessments/batch', [FitnessAssessmentController::class, 'batchRecordAssessments']);
