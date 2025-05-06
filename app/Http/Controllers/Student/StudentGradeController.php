@@ -17,14 +17,16 @@ class StudentGradeController extends BaseController
             function () {
                 $user = auth()->user();
 
-                // Lấy danh sách các học phần cùng với thông tin điểm từ bảng pivot
-                $enrollments = $user->courses()->get(); // courses() already includes pivot data
+                // Lấy danh sách các học phần cùng với thông tin điểm từ bảng pivot và thông tin kỳ học
+                $enrollments = $user->courses()->with('term')->get(); // courses() already includes pivot data
 
-                // Transform data to include only necessary grade information
+                // Transform data to include necessary grade information and term details
                 return $enrollments->map(function ($course) {
                     return [
                         'course_id' => $course->id,
                         'course_name' => $course->subject_name,
+                        'term_id' => $course->term_id,
+                        'term_name' => $course->term->name,
                         'midterm_grade' => $course->pivot->midterm_grade,
                         'final_grade' => $course->pivot->final_grade,
                         'total_grade' => $course->pivot->total_grade,
