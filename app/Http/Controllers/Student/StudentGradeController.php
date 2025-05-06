@@ -24,7 +24,7 @@ class StudentGradeController extends BaseController
                 return $enrollments->map(function ($course) {
                     return [
                         'course_id' => $course->id,
-                        'course_name' => $course->name,
+                        'course_name' => $course->subject_name,
                         'midterm_grade' => $course->pivot->midterm_grade,
                         'final_grade' => $course->pivot->final_grade,
                         'total_grade' => $course->pivot->total_grade,
