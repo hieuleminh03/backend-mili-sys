@@ -215,4 +215,28 @@ class EquipmentController extends BaseController
             'Chi tiết đợt phân phối quân tư trang'
         );
     }
+    
+    /**
+     * Cập nhật trạng thái đã nhận/chưa nhận của biên nhận quân tư trang
+     */
+    public function updateReceiptStatus(Request $request, int $receiptId): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'received' => 'required|boolean',
+            'notes' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorResponse('Lỗi dữ liệu nhập vào', $validator->errors());
+        }
+
+        return $this->executeService(
+            fn() => $this->equipmentService->updateReceiptStatus(
+                $receiptId, 
+                $request->input('received'), 
+                $request->input('notes')
+            ),
+            'Trạng thái biên nhận quân tư trang được cập nhật thành công'
+        );
+    }
 }
