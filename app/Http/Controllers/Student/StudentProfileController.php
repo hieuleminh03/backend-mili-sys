@@ -20,7 +20,7 @@ class StudentProfileController extends BaseController
     {
         return $this->executeService(
             function () {
-                $user = auth()->user()->load('studentDetail');
+                $user = auth()->user()->load(['studentDetail', 'studentClass']);
                 
                 return new UserResource($user);
             },

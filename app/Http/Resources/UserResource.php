@@ -29,6 +29,11 @@ class UserResource extends JsonResource
             $data['student_detail'] = new StudentDetailResource($this->studentDetail);
         }
 
+        // Include class role if available and the user is a student
+        if ($this->isStudent() && $this->whenLoaded('studentClass') && $this->studentClass) {
+            $data['class_role'] = \App\Models\StudentClass::ROLES[$this->studentClass->role] ?? $this->studentClass->role;
+        }
+
         return $data;
     }
 }
