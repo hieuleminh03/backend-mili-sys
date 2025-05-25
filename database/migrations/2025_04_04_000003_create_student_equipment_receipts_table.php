@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('student_equipment_receipts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->foreignId('distribution_id')->constrained('yearly_equipment_distributions');
+            $table->foreignId('distribution_id')->constrained('yearly_equipment_distributions')->cascadeOnDelete();
             $table->boolean('received')->default(false);
             $table->timestamp('received_at')->nullable();
             $table->string('notes')->nullable();
