@@ -14,6 +14,19 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        // Case 1: Student detail view (studentDetail is loaded, this is the primary change)
+        if ($this->isStudent() && $this->whenLoaded('studentDetail') && $this->studentDetail) {
+            $studentData = (new StudentDetailResource($this->studentDetail))->toArray($request);
+
+            // Add class role if available
+            if ($this->whenLoaded('studentClass') && $this->studentClass) {
+                $studentData['class_role'] = \App\Models\StudentClass::ROLES[$this->studentClass->role] ?? $this->studentClass->role;
+            }
+            return $studentData; // This now contains flattened student details + class_role
+        }
+
+        // Case 2: General user view (non-student, or student without studentDetail loaded)
+        // This part handles other scenarios, like listing users, or manager views.
         $data = [
             'id' => $this->id,
             'name' => $this->name,
@@ -24,18 +37,14 @@ class UserResource extends JsonResource
             'updated_at' => $this->updated_at,
         ];
 
-        // Include student details if available and the user is a student
-        if ($this->isStudent() && $this->whenLoaded('studentDetail')) {
-            $data['student_detail'] = new StudentDetailResource($this->studentDetail);
-        }
-
-        // Include class role if available and the user is a student
+        // If it's a student (but studentDetail wasn't loaded for the flattened view),
+        // still include class_role if available (maintains original behavior for lists etc.)
         if ($this->isStudent() && $this->whenLoaded('studentClass') && $this->studentClass) {
             $data['class_role'] = \App\Models\StudentClass::ROLES[$this->studentClass->role] ?? $this->studentClass->role;
         }
 
         // Include manager details if available and the user is a manager
-        if ($this->isManager() && $this->whenLoaded('managerDetail')) {
+        if ($this->isManager() && $this->whenLoaded('managerDetail') && $this->managerDetail) {
             $data['manager_detail'] = [
                 'id' => $this->managerDetail->id,
                 'full_name' => $this->managerDetail->full_name,
