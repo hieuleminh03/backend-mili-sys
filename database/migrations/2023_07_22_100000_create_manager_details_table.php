@@ -28,6 +28,7 @@ return new class extends Migration
             $table->string('father_hometown', 100)->nullable();
             $table->string('mother_hometown', 100)->nullable();
             $table->string('permanent_address', 255)->nullable();
+            $table->enum('role_political', ['COMMANDER', 'DEPUTY_COMMANDER', 'POLITICAL_OFFICER'])->nullable()->default(null);
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

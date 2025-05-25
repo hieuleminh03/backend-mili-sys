@@ -10,6 +10,19 @@ class ManagerDetail extends Model
     use HasFactory;
 
     /**
+     * Enum values for role_political.
+     */
+    public const ROLE_POLITICAL_COMMANDER = 'COMMANDER';
+    public const ROLE_POLITICAL_DEPUTY_COMMANDER = 'DEPUTY_COMMANDER';
+    public const ROLE_POLITICAL_POLITICAL_OFFICER = 'POLITICAL_OFFICER';
+
+    public static $rolePoliticalEnum = [
+        self::ROLE_POLITICAL_COMMANDER,
+        self::ROLE_POLITICAL_DEPUTY_COMMANDER,
+        self::ROLE_POLITICAL_POLITICAL_OFFICER,
+    ];
+
+    /**
      * Các thuộc tính có thể gán hàng loạt.
      *
      * @var array
@@ -30,6 +43,7 @@ class ManagerDetail extends Model
         'father_hometown',
         'mother_hometown',
         'permanent_address',
+        'role_political',
     ];
 
     /**

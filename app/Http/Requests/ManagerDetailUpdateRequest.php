@@ -2,10 +2,12 @@
 
 namespace App\Http\Requests;
 
+use App\Models\ManagerDetail;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\Rule;
 
 class ManagerDetailUpdateRequest extends FormRequest
 {
@@ -42,6 +44,7 @@ class ManagerDetailUpdateRequest extends FormRequest
             'mother_hometown' => 'nullable|string|max:100',
             'permanent_address' => 'nullable|string|max:255',
             'image' => 'nullable|string|max:255',
+            'role_political' => ['nullable', 'string', Rule::in(ManagerDetail::$rolePoliticalEnum)],
         ];
     }
 
@@ -85,6 +88,8 @@ class ManagerDetailUpdateRequest extends FormRequest
             'permanent_address.max' => 'Địa chỉ thường trú không được vượt quá 255 ký tự',
             'image.string' => 'Ảnh đại diện phải là chuỗi',
             'image.max' => 'Ảnh đại diện không được vượt quá 255 ký tự',
+            'role_political.string' => 'Chức vụ phải là chuỗi.',
+            'role_political.in' => 'Chức vụ không hợp lệ. Các giá trị được chấp nhận là: '.implode(', ', ManagerDetail::$rolePoliticalEnum).'.',
         ];
     }
 
