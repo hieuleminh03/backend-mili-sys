@@ -44,7 +44,7 @@ class StudentProfileController extends BaseController
                     'rank' => 'nullable|string|max:255',
                     'place_of_origin' => 'nullable|string|max:255',
                     'working_unit' => 'nullable|string|max:255',
-                    'year_of_study' => 'nullable|integer|min:1|max:10',
+                    'year_of_study' => 'nullable|integer|min:1',
                     'political_status' => 'nullable|string|in:party_member,youth_union_member,none',
                     'phone_number' => 'nullable|string|max:20',
                     'permanent_residence' => 'nullable|string',
