@@ -133,10 +133,19 @@ class CourseSeeder extends Seeder
                         $totalGrade = $course->calculateTotalGrade($midtermGrade, $finalGrade);
                     }
                     
+                    $currentStatus = 'enrolled';
+                    if ($totalGrade !== null) {
+                        if ($totalGrade < 4.0) {
+                            $currentStatus = 'failed';
+                        } else {
+                            $currentStatus = 'completed';
+                        }
+                    }
+
                     StudentCourse::create([
                         'user_id' => $student->id,
                         'course_id' => $course->id,
-                        'status' => 'enrolled',
+                        'status' => $currentStatus,
                         'midterm_grade' => $midtermGrade,
                         'final_grade' => $finalGrade,
                         'total_grade' => $totalGrade,
@@ -161,13 +170,13 @@ class CourseSeeder extends Seeder
                     $totalGrade = $course->calculateTotalGrade($midtermGrade, $finalGrade);
                     
                     // Determine status based on grade
-                    $status = 'completed';
-                    if ($totalGrade < 5.0) {
-                        $status = 'failed';
-                    } elseif (rand(1, 100) <= 5) { // 5% chance of dropping
-                        $status = 'dropped';
-                        $finalGrade = null;
-                        $totalGrade = null;
+                    $status = 'enrolled'; // Default to enrolled
+                    if ($totalGrade !== null) {
+                        if ($totalGrade < 4.0) {
+                            $status = 'failed';
+                        } else {
+                            $status = 'completed';
+                        }
                     }
                     
                     StudentCourse::create([

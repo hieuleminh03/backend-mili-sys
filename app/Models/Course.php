@@ -105,8 +105,12 @@ class Course extends Model
      * @param  float  $finalGrade  điểm cuối kỳ
      * @return float điểm tổng kết
      */
-    public function calculateTotalGrade(float $midtermGrade, float $finalGrade): float
+    public function calculateTotalGrade(?float $midtermGrade, ?float $finalGrade): ?float
     {
+        if (is_null($midtermGrade) || is_null($finalGrade)) {
+            return null;
+        }
+
         return round($this->midterm_weight * $midtermGrade + (1 - $this->midterm_weight) * $finalGrade, 2);
     }
 

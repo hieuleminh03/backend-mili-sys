@@ -283,10 +283,11 @@ class CourseService
                         $totalGradeUpdated = true;
 
                         // Tự động cập nhật status dựa trên điểm tổng kết
-                        if ($enrollment->total_grade < 4) {
+                        if (is_null($enrollment->total_grade)) {
+                            $enrollment->status = 'enrolled';
+                        } elseif ($enrollment->total_grade < 4) {
                             $enrollment->status = 'failed';
-                        } elseif ($enrollment->status !== 'dropped') {
-                            // Nếu không phải dropped thì chuyển thành completed
+                        } else {
                             $enrollment->status = 'completed';
                         }
 
@@ -553,9 +554,11 @@ class CourseService
                             $enrollment->total_grade = $totalGrade;
 
                             // Cập nhật trạng thái dựa vào điểm
-                            if ($totalGrade < $course->pass_grade) {
+                            if (is_null($totalGrade)) {
+                                $enrollment->status = 'enrolled';
+                            } elseif ($totalGrade < 4) {
                                 $enrollment->status = 'failed';
-                            } elseif ($enrollment->status !== 'dropped') {
+                            } else {
                                 $enrollment->status = 'completed';
                             }
 
