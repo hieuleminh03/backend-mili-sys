@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\BaseController;
 use App\Http\Resources\StudentDetailResource;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\StudentProfileResource;
 use App\Models\StudentDetail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,7 +22,7 @@ class StudentProfileController extends BaseController
             function () {
                 $user = auth()->user()->load(['studentDetail', 'studentClass']);
                 
-                return new UserResource($user);
+                return new StudentProfileResource($user);
             },
             'Lấy thông tin profile thành công'
         );
