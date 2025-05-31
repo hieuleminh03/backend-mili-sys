@@ -44,22 +44,30 @@ class ManagerProfileController extends BaseController
         return $this->executeService(
             function () use ($request, $managerId) {
                 // Validate input
-                $validator = Validator::make($request->all(), [
-                    'full_name' => 'nullable|string|max:255',
-                    'rank' => 'nullable|string|max:100',
-                    'birth_year' => 'nullable|integer|min:1900|max:2010',
-                    'hometown' => 'nullable|string|max:255',
-                    'phone_number' => 'nullable|string|max:20',
-                    'is_party_member' => 'nullable|boolean',
-                    'management_unit' => 'nullable|string|max:255',
-                    'father_name' => 'nullable|string|max:255',
-                    'father_birth_year' => 'nullable|integer|min:1900|max:2000',
-                    'mother_name' => 'nullable|string|max:255',
-                    'mother_birth_year' => 'nullable|integer|min:1900|max:2000',
-                    'father_hometown' => 'nullable|string|max:255',
-                    'mother_hometown' => 'nullable|string|max:255',
-                    'permanent_address' => 'nullable|string',
-                ]);
+                $validator = Validator::make(
+                    $request->all(), 
+                    [
+                        'full_name' => 'nullable|string|max:255',
+                        'rank' => 'nullable|string|max:100',
+                        'birth_year' => 'nullable|integer|min:1900|max:2010',
+                        'hometown' => 'nullable|string|max:255',
+                        'phone_number' => 'nullable|string|max:20',
+                        'is_party_member' => 'nullable|boolean',
+                        'management_unit' => 'nullable|string|max:255',
+                        'father_name' => 'nullable|string|max:255',
+                        'father_birth_year' => 'nullable|integer|min:1900|max:2000',
+                        'mother_name' => 'nullable|string|max:255',
+                        'mother_birth_year' => 'nullable|integer|min:1900|max:2000',
+                        'father_hometown' => 'nullable|string|max:255',
+                        'mother_hometown' => 'nullable|string|max:255',
+                        'permanent_address' => 'nullable|string',
+                        'role_political' => ['nullable', 'string', \Illuminate\Validation\Rule::in(\App\Models\ManagerDetail::$rolePoliticalEnum)],
+                    ],
+                    [
+                        'role_political.string' => 'Chức vụ phải là chuỗi.',
+                        'role_political.in' => 'Chức vụ không hợp lệ. Các giá trị được chấp nhận là: '.implode(', ', \App\Models\ManagerDetail::$rolePoliticalEnum).'.',
+                    ]
+                );
                 
                 if ($validator->fails()) {
                     return $this->sendError('Validation Error', $validator->errors(), 422);
