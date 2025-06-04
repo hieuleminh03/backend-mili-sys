@@ -123,6 +123,12 @@ class EquipmentSeeder extends Seeder
             return;
         }
         
+        // Track số lượng đã nhận cho mỗi distribution để đảm bảo không vượt quá quantity
+        $distributionReceivedCounts = [];
+        foreach ($currentYearDistributions as $distribution) {
+            $distributionReceivedCounts[$distribution->id] = 0;
+        }
+        
         foreach ($students as $student) {
             // Each student gets 3-7 different equipment items
             $itemCount = min(rand(3, 7), count($currentYearDistributions));
@@ -133,12 +139,29 @@ class EquipmentSeeder extends Seeder
             $selectedDistributions = array_slice($shuffledDistributions, 0, $itemCount);
             
             foreach ($selectedDistributions as $distribution) {
+                // Check xem distribution này còn đủ số lượng để phân phối không
+                $currentReceivedCount = $distributionReceivedCounts[$distribution->id];
+                
                 // 70% chance the student has received the equipment
                 $received = rand(1, 10) <= 7;
+                
+                // Nếu student sẽ nhận equipment, check xem còn đủ quantity không
+                if ($received && $currentReceivedCount >= $distribution->quantity) {
+                    // Nếu đã hết quota, set received = false
+                    $received = false;
+                    $notes = 'Het quota trang bi cho nam nay';
+                } else {
+                    // Update count nếu student nhận được equipment
+                    if ($received) {
+                        $distributionReceivedCounts[$distribution->id]++;
+                    }
+                    
+                    $notes = $received ? 
+                        'Da nhan du trang bi' : 
+                        'Chua nhan trang bi';
+                }
+                
                 $receivedAt = $received ? Carbon::now()->subDays(rand(1, 90)) : null;
-                $notes = $received ? 
-                    'Da nhan du trang bi' : 
-                    'Chua nhan trang bi';
                 
                 StudentEquipmentReceipt::create([
                     'user_id' => $student->id,

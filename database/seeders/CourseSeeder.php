@@ -29,18 +29,18 @@ class CourseSeeder extends Seeder
      */
     private function createCourses(): array
     {
-        // Military course data
+        // Military course data with numeric codes
         $courseData = [
-            'IT2130' => 'Lap trinh co ban',
-            'IT4190' => 'Nhap mon tri tue nhan tao',
-            'MI1010' => 'Giao duc quoc phong co ban',
-            'MI2020' => 'Chien thuat quan su',
-            'MI3030' => 'Huan luyen quan su nang cao',
-            'PE2010' => 'Giao duc the chat',
-            'MI1101' => 'Lich su quan su',
-            'MI2201' => 'Ky thuat chien dau',
-            'MI3301' => 'Dieu lenh quan ly bo doi',
-            'IT2202' => 'An ninh mang co ban'
+            '123456' => 'Lap trinh co ban',
+            '234567' => 'Nhap mon tri tue nhan tao',
+            '345678' => 'Giao duc quoc phong co ban',
+            '456789' => 'Chien thuat quan su',
+            '567890' => 'Huan luyen quan su nang cao',
+            '678901' => 'Giao duc the chat',
+            '789012' => 'Lich su quan su',
+            '890123' => 'Ky thuat chien dau',
+            '901234' => 'Dieu lenh quan ly bo doi',
+            '012345' => 'An ninh mang co ban'
         ];
         
         // Get all terms
@@ -48,12 +48,13 @@ class CourseSeeder extends Seeder
         $courses = [];
         
         foreach ($terms as $termIndex => $term) {
-            $termSuffix = chr(65 + $termIndex); // A, B, C, D...
+            $termSuffix = $termIndex + 1; // 1, 2, 3, 4...
 
             $random_weights = [0.3, 0.4, 0.5];
             
-            foreach ($courseData as $code => $name) {
-                $uniqueCode = substr($code, 0, 4) . $termSuffix;
+            foreach ($courseData as $baseCode => $name) {
+                // Tạo mã môn học unique bằng cách thêm suffix vào cuối
+                $uniqueCode = $baseCode . $termSuffix;
                 $midtermWeight = $random_weights[array_rand($random_weights)];
                 $enrollLimit = mt_rand(30, 60);
                 
