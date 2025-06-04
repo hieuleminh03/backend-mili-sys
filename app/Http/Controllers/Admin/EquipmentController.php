@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\DistributionCreateRequest;
+use App\Http\Requests\DistributionUpdateRequest;
 use App\Models\MilitaryEquipmentType;
 use App\Models\StudentEquipmentReceipt;
 use App\Models\User;
@@ -98,20 +100,10 @@ class EquipmentController extends BaseController
     /**
      * Tạo mới phân phối quân tư trang
      */
-    public function createDistribution(Request $request): JsonResponse
+    public function createDistribution(DistributionCreateRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'year' => 'required|integer|min:2000|max:2100',
-            'equipment_type_id' => 'required|exists:military_equipment_types,id',
-            'quantity' => 'required|integer|min:1',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->errorResponse('Lỗi dữ liệu nhập vào', $validator->errors());
-        }
-
         return $this->executeService(
-            fn() => $this->equipmentService->createDistribution($request->all()),
+            fn() => $this->equipmentService->createDistribution($request->validated()),
             'Phân phối quân tư trang được tạo thành công',
             201
         );
@@ -120,20 +112,10 @@ class EquipmentController extends BaseController
     /**
      * Cập nhật phân phối quân tư trang
      */
-    public function updateDistribution(Request $request, int $id): JsonResponse
+    public function updateDistribution(DistributionUpdateRequest $request, int $id): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'year' => 'required|integer|min:2000|max:2100',
-            'equipment_type_id' => 'required|exists:military_equipment_types,id',
-            'quantity' => 'required|integer|min:1',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->errorResponse('Lỗi dữ liệu nhập vào', $validator->errors());
-        }
-
         return $this->executeService(
-            fn() => $this->equipmentService->updateDistribution($id, $request->all()),
+            fn() => $this->equipmentService->updateDistribution($id, $request->validated()),
             'Phân phối quân tư trang được cập nhật thành công'
         );
     }
@@ -154,9 +136,10 @@ class EquipmentController extends BaseController
      */
     public function createReceipts(Request $request): JsonResponse
     {
+        // Basic validation first
         $validator = Validator::make($request->all(), [
             'distribution_id' => 'required|exists:yearly_equipment_distributions,id',
-            'student_ids' => 'required|array',
+            'student_ids' => 'required|array|min:1',
             'student_ids.*' => 'exists:users,id',
         ]);
 
@@ -164,16 +147,72 @@ class EquipmentController extends BaseController
             return $this->errorResponse('Lỗi dữ liệu nhập vào', $validator->errors());
         }
 
-        return $this->executeService(
-            fn() => [
-                'count' => $this->equipmentService->createReceiptsForStudents(
-                    $request->input('distribution_id'),
-                    $request->input('student_ids')
-                )
-            ],
-            'Biên nhận quân tư trang được tạo thành công',
-            201
-        );
+        // Business logic validation
+        $distributionId = $request->input('distribution_id');
+        $studentIds = $request->input('student_ids');
+        
+        try {
+            // Validate số lượng thiết bị vs số học viên nhận
+            $distribution = YearlyEquipmentDistribution::findOrFail($distributionId);
+            $existingReceiptsCount = StudentEquipmentReceipt::where('distribution_id', $distributionId)->count();
+            $newStudentsCount = count(array_unique($studentIds));
+            $totalStudentsAfterAdd = $existingReceiptsCount + $newStudentsCount;
+            
+            if ($totalStudentsAfterAdd > $distribution->quantity) {
+                $maxCanAdd = $distribution->quantity - $existingReceiptsCount;
+                return $this->errorResponse(
+                    'Số lượng học viên nhận vượt quá số lượng thiết bị có sẵn',
+                    [
+                        'equipment_quantity' => $distribution->quantity,
+                        'existing_receipts' => $existingReceiptsCount,
+                        'new_students' => $newStudentsCount,
+                        'total_after_add' => $totalStudentsAfterAdd,
+                        'message' => "Hiện có {$existingReceiptsCount} học viên đã được phân phối, bạn chỉ có thể thêm tối đa {$maxCanAdd} học viên nữa (số lượng tối đa cho phép: {$distribution->quantity})"
+                    ]
+                );
+            }
+            
+            // Kiểm tra duplicate student IDs trong request
+            if (count($studentIds) !== count(array_unique($studentIds))) {
+                return $this->errorResponse(
+                    'Danh sách học viên có ID trùng lặp',
+                    ['student_ids' => 'Danh sách học viên có ID trùng lặp']
+                );
+            }
+            
+            // Kiểm tra học viên đã có biên nhận cho đợt phân phối này chưa
+            $existingStudentIds = StudentEquipmentReceipt::where('distribution_id', $distributionId)
+                ->whereIn('user_id', $studentIds)
+                ->pluck('user_id')
+                ->toArray();
+                
+            if (!empty($existingStudentIds)) {
+                return $this->errorResponse(
+                    'Một số học viên đã có biên nhận cho đợt phân phối này',
+                    [
+                        'student_ids' => 'Một số học viên đã có biên nhận cho đợt phân phối này: ' . implode(', ', $existingStudentIds),
+                        'duplicate_students' => $existingStudentIds
+                    ]
+                );
+            }
+
+            return $this->executeService(
+                fn() => [
+                    'count' => $this->equipmentService->createReceiptsForStudents(
+                        $distributionId,
+                        $studentIds
+                    )
+                ],
+                'Biên nhận quân tư trang được tạo thành công',
+                201
+            );
+        } catch (\Exception $e) {
+            \Log::error('Equipment receipt creation error: ' . $e->getMessage());
+            return $this->errorResponse(
+                'Có lỗi xảy ra trong quá trình tạo biên nhận',
+                ['error' => $e->getMessage()]
+            );
+        }
     }
 
     /**
