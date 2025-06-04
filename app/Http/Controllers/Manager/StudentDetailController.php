@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Manager;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\ManagerUserImageUpdateRequest;
 use App\Http\Resources\StudentDetailResource;
 use App\Http\Resources\UserResource;
 use App\Models\StudentDetail;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Validator;
 class StudentDetailController extends BaseController
 {
     /**
-     * Xem chi tiết thông tin student (admin).
+     * Xem chi tiết thông tin student (manager).
      */
     public function show($userId): JsonResponse
     {
@@ -31,7 +32,7 @@ class StudentDetailController extends BaseController
     }
 
     /**
-     * Cập nhật thông tin chi tiết student (admin).
+     * Cập nhật thông tin chi tiết student (manager).
      */
     public function update(Request $request, $userId): JsonResponse
     {
@@ -80,6 +81,33 @@ class StudentDetailController extends BaseController
                 return new StudentDetailResource($studentDetail);
             },
             'Cập nhật thông tin chi tiết học viên thành công'
+        );
+    }
+
+    /**
+     * Cập nhật ảnh đại diện cho student (manager).
+     */
+    public function updateImage(ManagerUserImageUpdateRequest $request, $userId): JsonResponse
+    {
+        return $this->executeService(
+            function () use ($request, $userId) {
+                $user = User::findOrFail($userId);
+                if (!$user->isStudent()) {
+                    return $this->sendError('User is not a student', [], 404);
+                }
+
+                $user->image = $request->image;
+                $user->save();
+
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'image' => $user->image,
+                ];
+            },
+            'Cập nhật ảnh đại diện học viên thành công'
         );
     }
 }

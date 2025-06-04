@@ -13,6 +13,7 @@ use App\Http\Controllers\Manager\FitnessAssessmentController;
 use App\Http\Controllers\Manager\ManagerClassController;
 use App\Http\Controllers\Manager\ManagerProfileController;
 use App\Http\Controllers\Manager\SearchController as ManagerSearchController;
+use App\Http\Controllers\Manager\StudentDetailController as ManagerStudentDetailController;
 use App\Http\Controllers\Manager\ViolationController;
 use App\Http\Controllers\Student\StudentAllowanceController;
 use App\Http\Controllers\Student\StudentClassController;
@@ -151,6 +152,11 @@ Route::middleware(CustomAuthenticate::class)->group(function () {
                     ]);
                 });
                 Route::post('/search', [ManagerSearchController::class, 'searchStudents']);
+                
+                // Quản lý chi tiết học viên
+                Route::get('/{userId}/detail', [ManagerStudentDetailController::class, 'show']);
+                Route::put('/{userId}/detail', [ManagerStudentDetailController::class, 'update']);
+                Route::post('/{userId}/image', [ManagerStudentDetailController::class, 'updateImage']);
             });
 
             // Quản lý lớp học
