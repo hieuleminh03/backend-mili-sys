@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Http\Resources\CourseResource;
@@ -53,7 +52,7 @@ class CourseService
         try {
             // Kiểm tra và throw exception rõ ràng nếu term không tồn tại
             if (! Term::where('id', $termId)->exists()) {
-                \Log::error('Term not found: '.$termId);
+                \Log::error('Term not found: ' . $termId);
                 throw new \Exception('Kỳ học không tồn tại trong hệ thống');
             }
 
@@ -71,7 +70,7 @@ class CourseService
 
             return new CourseResource($course);
         } catch (\Exception $e) {
-            \Log::error('Error creating course: '.$e->getMessage());
+            \Log::error('Error creating course: ' . $e->getMessage());
             // Chuyển tiếp exception để Handler xử lý
             if (strpos($e->getMessage(), 'Kỳ học không tồn tại') !== false) {
                 throw new \Exception('Kỳ học không tồn tại trong hệ thống', 422);
@@ -115,7 +114,7 @@ class CourseService
                     $hasGrades = StudentCourse::where('course_id', $id)
                         ->where(function ($query) {
                             $query->whereNotNull('midterm_grade')
-                                  ->orWhereNotNull('final_grade');
+                                ->orWhereNotNull('final_grade');
                         })
                         ->exists();
                     if ($hasGrades) {
@@ -224,9 +223,9 @@ class CourseService
 
                 // Tạo và trả về đăng ký
                 $enrollment = StudentCourse::create([
-                    'user_id' => $userId,
+                    'user_id'   => $userId,
                     'course_id' => $courseId,
-                    'status' => 'enrolled',
+                    'status'    => 'enrolled',
                 ]);
 
                 return $enrollment;
@@ -283,8 +282,11 @@ class CourseService
                         $totalGradeUpdated = true;
 
                         // Tự động cập nhật status dựa trên điểm tổng kết
+                        // Ràng buộc: điểm cuối kỳ < 3 thì không đạt yêu cầu mặc cho điểm tổng kết > 4
                         if (is_null($enrollment->total_grade)) {
                             $enrollment->status = 'enrolled';
+                        } elseif (! is_null($enrollment->final_grade) && $enrollment->final_grade < 3) {
+                            $enrollment->status = 'failed';
                         } elseif ($enrollment->total_grade < 4) {
                             $enrollment->status = 'failed';
                         } else {
@@ -395,7 +397,7 @@ class CourseService
                 }
 
                 // Kiểm tra xem lớp còn đủ chỗ trống không
-                $currentStudentCount = $course->getCurrentStudentCount();
+                $currentStudentCount   = $course->getCurrentStudentCount();
                 $requestedStudentCount = count($studentIds);
 
                 if ($currentStudentCount + $requestedStudentCount > $course->enroll_limit) {
@@ -416,8 +418,8 @@ class CourseService
                     ->toArray();
 
                 $result = [
-                    'success' => [],
-                    'failed' => [],
+                    'success'          => [],
+                    'failed'           => [],
                     'already_enrolled' => [],
                 ];
 
@@ -440,17 +442,17 @@ class CourseService
 
                     // Đăng ký sinh viên
                     StudentCourse::create([
-                        'user_id' => $studentId,
+                        'user_id'   => $studentId,
                         'course_id' => $courseId,
-                        'status' => 'enrolled',
+                        'status'    => 'enrolled',
                     ]);
 
                     $result['success'][] = $studentId;
                 }
 
                 // Tạo thông báo tổng hợp
-                $successCount = count($result['success']);
-                $failedCount = count($result['failed']);
+                $successCount         = count($result['success']);
+                $failedCount          = count($result['failed']);
                 $alreadyEnrolledCount = count($result['already_enrolled']);
 
                 $message = '';
@@ -504,7 +506,7 @@ class CourseService
 
                 $result = [
                     'success' => [],
-                    'failed' => [],
+                    'failed'  => [],
                 ];
 
                 // Xử lý từng mục trong danh sách điểm
@@ -542,20 +544,23 @@ class CourseService
                         ) {
                             // Lấy điểm cuối cùng (sau khi cập nhật)
                             $midtermGrade = isset($updateData['midterm_grade'])
-                                ? $updateData['midterm_grade']
-                                : $enrollment->midterm_grade;
+                            ? $updateData['midterm_grade']
+                            : $enrollment->midterm_grade;
 
                             $finalGrade = isset($updateData['final_grade'])
-                                ? $updateData['final_grade']
-                                : $enrollment->final_grade;
+                            ? $updateData['final_grade']
+                            : $enrollment->final_grade;
 
                             // Tính toán điểm tổng
-                            $totalGrade = $course->calculateTotalGrade($midtermGrade, $finalGrade);
+                            $totalGrade              = $course->calculateTotalGrade($midtermGrade, $finalGrade);
                             $enrollment->total_grade = $totalGrade;
 
                             // Cập nhật trạng thái dựa vào điểm
+                            // Ràng buộc: điểm cuối kỳ < 3 thì không đạt yêu cầu mặc cho điểm tổng kết > 4
                             if (is_null($totalGrade)) {
                                 $enrollment->status = 'enrolled';
+                            } elseif (! is_null($finalGrade) && $finalGrade < 3) {
+                                $enrollment->status = 'failed';
                             } elseif ($totalGrade < 4) {
                                 $enrollment->status = 'failed';
                             } else {
@@ -573,7 +578,7 @@ class CourseService
 
                 // Tạo thông báo tổng hợp
                 $successCount = count($result['success']);
-                $failedCount = count($result['failed']);
+                $failedCount  = count($result['failed']);
 
                 $message = '';
                 if ($successCount > 0) {

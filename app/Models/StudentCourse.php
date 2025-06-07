@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,8 +30,8 @@ class StudentCourse extends Model
      */
     protected $casts = [
         'midterm_grade' => 'decimal:2',
-        'final_grade' => 'decimal:2',
-        'total_grade' => 'decimal:2',
+        'final_grade'   => 'decimal:2',
+        'total_grade'   => 'decimal:2',
     ];
 
     /**
@@ -83,6 +82,7 @@ class StudentCourse extends Model
 
     /**
      * Update total grade based on midterm and final grades.
+     * Also update status based on final grade constraint.
      *
      * @return void
      */
@@ -90,6 +90,19 @@ class StudentCourse extends Model
     {
         if (isset($this->midterm_grade) && isset($this->final_grade) && isset($this->course)) {
             $this->total_grade = $this->course->calculateTotalGrade($this->midterm_grade, $this->final_grade);
+
+            // Cập nhật status dựa trên điểm tổng kết và ràng buộc điểm cuối kỳ
+            // Ràng buộc: điểm cuối kỳ < 3 thì không đạt yêu cầu mặc cho điểm tổng kết > 4
+            if (is_null($this->total_grade)) {
+                $this->status = 'enrolled';
+            } elseif (! is_null($this->final_grade) && $this->final_grade < 3) {
+                $this->status = 'failed';
+            } elseif ($this->total_grade < 4) {
+                $this->status = 'failed';
+            } else {
+                $this->status = 'completed';
+            }
+
             $this->save();
         }
     }
